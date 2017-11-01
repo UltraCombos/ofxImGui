@@ -7,37 +7,37 @@
     <ClCompile Include="src\main.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\BaseEngine.cpp">
+    <ClCompile Include="..\..\..\addons\ofxImGui\src\BaseEngine.cpp">
       <Filter>addons\ofxImGui\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\BaseTheme.cpp">
+    <ClCompile Include="..\..\..\addons\ofxImGui\src\BaseTheme.cpp">
       <Filter>addons\ofxImGui\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\EngineGLFW.cpp">
+    <ClCompile Include="..\..\..\addons\ofxImGui\src\EngineGLFW.cpp">
       <Filter>addons\ofxImGui\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\EngineOpenGLES.cpp">
+    <ClCompile Include="..\..\..\addons\ofxImGui\src\EngineOpenGLES.cpp">
       <Filter>addons\ofxImGui\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\EngineVk.cpp">
+    <ClCompile Include="..\..\..\addons\ofxImGui\src\EngineVk.cpp">
       <Filter>addons\ofxImGui\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Gui.cpp">
+    <ClCompile Include="..\..\..\addons\ofxImGui\src\Gui.cpp">
       <Filter>addons\ofxImGui\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\Helpers.cpp">
+    <ClCompile Include="..\..\..\addons\ofxImGui\src\Helpers.cpp">
       <Filter>addons\ofxImGui\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ofxImGuiLoggerChannel.cpp">
+    <ClCompile Include="..\..\..\addons\ofxImGui\src\ofxImGuiLoggerChannel.cpp">
       <Filter>addons\ofxImGui\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\libs\imgui\src\imgui.cpp">
+    <ClCompile Include="..\..\..\addons\ofxImGui\libs\imgui\src\imgui.cpp">
       <Filter>addons\ofxImGui\libs\imgui\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\libs\imgui\src\imgui_demo.cpp">
+    <ClCompile Include="..\..\..\addons\ofxImGui\libs\imgui\src\imgui_demo.cpp">
       <Filter>addons\ofxImGui\libs\imgui\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\libs\imgui\src\imgui_draw.cpp">
+    <ClCompile Include="..\..\..\addons\ofxImGui\libs\imgui\src\imgui_draw.cpp">
       <Filter>addons\ofxImGui\libs\imgui\src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -68,52 +68,52 @@
     <ClInclude Include="src\ofApp.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\BaseEngine.h">
+    <ClInclude Include="..\..\..\addons\ofxImGui\src\BaseEngine.h">
       <Filter>addons\ofxImGui\src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\BaseTheme.h">
+    <ClInclude Include="..\..\..\addons\ofxImGui\src\BaseTheme.h">
       <Filter>addons\ofxImGui\src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\EngineGLFW.h">
+    <ClInclude Include="..\..\..\addons\ofxImGui\src\EngineGLFW.h">
       <Filter>addons\ofxImGui\src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\EngineOpenGLES.h">
+    <ClInclude Include="..\..\..\addons\ofxImGui\src\EngineOpenGLES.h">
       <Filter>addons\ofxImGui\src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\EngineVk.h">
+    <ClInclude Include="..\..\..\addons\ofxImGui\src\EngineVk.h">
       <Filter>addons\ofxImGui\src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Gui.h">
+    <ClInclude Include="..\..\..\addons\ofxImGui\src\Gui.h">
       <Filter>addons\ofxImGui\src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\Helpers.h">
+    <ClInclude Include="..\..\..\addons\ofxImGui\src\Helpers.h">
       <Filter>addons\ofxImGui\src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\imconfig.h">
+    <ClInclude Include="..\..\..\addons\ofxImGui\src\imconfig.h">
       <Filter>addons\ofxImGui\src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ofxImGui.h">
+    <ClInclude Include="..\..\..\addons\ofxImGui\src\ofxImGui.h">
       <Filter>addons\ofxImGui\src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ofxImGuiLoggerChannel.h">
+    <ClInclude Include="..\..\..\addons\ofxImGui\src\ofxImGuiLoggerChannel.h">
       <Filter>addons\ofxImGui\src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ThemeTest.h">
+    <ClInclude Include="..\..\..\addons\ofxImGui\src\ThemeTest.h">
       <Filter>addons\ofxImGui\src</Filter>
     </ClInclude>
-    <ClInclude Include="..\libs\imgui\src\imgui.h">
+    <ClInclude Include="..\..\..\addons\ofxImGui\libs\imgui\src\imgui.h">
       <Filter>addons\ofxImGui\libs\imgui\src</Filter>
     </ClInclude>
-    <ClInclude Include="..\libs\imgui\src\imgui_internal.h">
+    <ClInclude Include="..\..\..\addons\ofxImGui\libs\imgui\src\imgui_internal.h">
       <Filter>addons\ofxImGui\libs\imgui\src</Filter>
     </ClInclude>
-    <ClInclude Include="..\libs\imgui\src\stb_rect_pack.h">
+    <ClInclude Include="..\..\..\addons\ofxImGui\libs\imgui\src\stb_rect_pack.h">
       <Filter>addons\ofxImGui\libs\imgui\src</Filter>
     </ClInclude>
-    <ClInclude Include="..\libs\imgui\src\stb_textedit.h">
+    <ClInclude Include="..\..\..\addons\ofxImGui\libs\imgui\src\stb_textedit.h">
       <Filter>addons\ofxImGui\libs\imgui\src</Filter>
     </ClInclude>
-    <ClInclude Include="..\libs\imgui\src\stb_truetype.h">
+    <ClInclude Include="..\..\..\addons\ofxImGui\libs\imgui\src\stb_truetype.h">
       <Filter>addons\ofxImGui\libs\imgui\src</Filter>
     </ClInclude>
   </ItemGroup>

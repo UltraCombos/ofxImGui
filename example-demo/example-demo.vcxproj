@@ -171,37 +171,37 @@
     <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\libs\imgui\src\imgui.cpp" />
-    <ClCompile Include="..\libs\imgui\src\imgui_demo.cpp" />
-    <ClCompile Include="..\libs\imgui\src\imgui_draw.cpp" />
-    <ClCompile Include="..\src\BaseEngine.cpp" />
-    <ClCompile Include="..\src\BaseTheme.cpp" />
-    <ClCompile Include="..\src\EngineGLFW.cpp" />
-    <ClCompile Include="..\src\EngineOpenGLES.cpp" />
-    <ClCompile Include="..\src\EngineVk.cpp" />
-    <ClCompile Include="..\src\Gui.cpp" />
-    <ClCompile Include="..\src\Helpers.cpp" />
-    <ClCompile Include="..\src\ofxImGuiLoggerChannel.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxImGui\libs\imgui\src\imgui.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxImGui\libs\imgui\src\imgui_demo.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxImGui\libs\imgui\src\imgui_draw.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxImGui\src\BaseEngine.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxImGui\src\BaseTheme.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxImGui\src\EngineGLFW.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxImGui\src\EngineOpenGLES.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxImGui\src\EngineVk.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxImGui\src\Gui.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxImGui\src\Helpers.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxImGui\src\ofxImGuiLoggerChannel.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ofApp.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\libs\imgui\src\imgui.h" />
-    <ClInclude Include="..\libs\imgui\src\imgui_internal.h" />
-    <ClInclude Include="..\libs\imgui\src\stb_rect_pack.h" />
-    <ClInclude Include="..\libs\imgui\src\stb_textedit.h" />
-    <ClInclude Include="..\libs\imgui\src\stb_truetype.h" />
-    <ClInclude Include="..\src\BaseEngine.h" />
-    <ClInclude Include="..\src\BaseTheme.h" />
-    <ClInclude Include="..\src\EngineGLFW.h" />
-    <ClInclude Include="..\src\EngineOpenGLES.h" />
-    <ClInclude Include="..\src\EngineVk.h" />
-    <ClInclude Include="..\src\Gui.h" />
-    <ClInclude Include="..\src\Helpers.h" />
-    <ClInclude Include="..\src\imconfig.h" />
-    <ClInclude Include="..\src\ofxImGui.h" />
-    <ClInclude Include="..\src\ofxImGuiLoggerChannel.h" />
-    <ClInclude Include="..\src\ThemeTest.h" />
+    <ClInclude Include="..\..\..\addons\ofxImGui\libs\imgui\src\imgui.h" />
+    <ClInclude Include="..\..\..\addons\ofxImGui\libs\imgui\src\imgui_internal.h" />
+    <ClInclude Include="..\..\..\addons\ofxImGui\libs\imgui\src\stb_rect_pack.h" />
+    <ClInclude Include="..\..\..\addons\ofxImGui\libs\imgui\src\stb_textedit.h" />
+    <ClInclude Include="..\..\..\addons\ofxImGui\libs\imgui\src\stb_truetype.h" />
+    <ClInclude Include="..\..\..\addons\ofxImGui\src\BaseEngine.h" />
+    <ClInclude Include="..\..\..\addons\ofxImGui\src\BaseTheme.h" />
+    <ClInclude Include="..\..\..\addons\ofxImGui\src\EngineGLFW.h" />
+    <ClInclude Include="..\..\..\addons\ofxImGui\src\EngineOpenGLES.h" />
+    <ClInclude Include="..\..\..\addons\ofxImGui\src\EngineVk.h" />
+    <ClInclude Include="..\..\..\addons\ofxImGui\src\Gui.h" />
+    <ClInclude Include="..\..\..\addons\ofxImGui\src\Helpers.h" />
+    <ClInclude Include="..\..\..\addons\ofxImGui\src\imconfig.h" />
+    <ClInclude Include="..\..\..\addons\ofxImGui\src\ofxImGui.h" />
+    <ClInclude Include="..\..\..\addons\ofxImGui\src\ofxImGuiLoggerChannel.h" />
+    <ClInclude Include="..\..\..\addons\ofxImGui\src\ThemeTest.h" />
     <ClInclude Include="src\ofApp.h" />
   </ItemGroup>
   <ItemGroup>
