@@ -275,7 +275,7 @@ namespace ofxImGui
 	}
 
 #if defined(TARGET_RASPBERRY_PI)
-	unsigned char const g_mouse_btn_map[MaxMouseButtonNum] =
+	unsigned char const g_mouse_btn_map[BaseEngine::MaxMouseButtonNum] =
 	{
 		0,
 		2,
