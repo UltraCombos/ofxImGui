@@ -28,6 +28,11 @@ namespace ofxImGui
 
 		void onKeyReleased(ofKeyEventArgs& event) override;
 
+#if defined(TARGET_RASPBERRY_PI)
+		void onRemapMouseButton(int&) override;
+
+#endif
+
 		// Custom 
 		static void rendererDrawLists(ImDrawData * draw_data);
 

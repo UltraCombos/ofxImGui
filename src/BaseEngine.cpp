@@ -37,9 +37,12 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void BaseEngine::onMousePressed(ofMouseEventArgs& event)
 	{
-		if (event.button >= 0 && event.button < 5)
+		int imgui_btn = event.button;
+		if (imgui_btn >= 0 && imgui_btn < MaxMouseButtonNum)
 		{
-			mousePressed[event.button] = true;
+			onRemapMouseButton(imgui_btn);
+
+			mousePressed[imgui_btn] = true;
 			mouseReleased = false;
 		}
 	}

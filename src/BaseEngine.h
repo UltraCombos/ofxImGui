@@ -9,6 +9,8 @@ namespace ofxImGui
 	class BaseEngine
 	{
 	public:
+		enum { MaxMouseButtonNum = 5 };
+
 		BaseEngine()
 			: isSetup(false)
 		{}
@@ -20,6 +22,8 @@ namespace ofxImGui
 		virtual void exit() = 0;
 		virtual bool createDeviceObjects() = 0;
 		virtual void invalidateDeviceObjects() = 0;
+
+		virtual void onRemapMouseButton(int&) {}
 
 		virtual void onMouseDragged(ofMouseEventArgs& event);
 		virtual void onMousePressed(ofMouseEventArgs& event);
