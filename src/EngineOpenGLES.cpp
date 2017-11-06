@@ -275,14 +275,14 @@ namespace ofxImGui
 	}
 
 #if defined(TARGET_RASPBERRY_PI)
-	unsigned char const g_mouse_btn_map [MaxMouseButtonNum] =
+	unsigned char const g_mouse_btn_map[MaxMouseButtonNum] =
 	{
 		0,
 		2,
 		1,
 		3,
 		4,
-	}
+	};
 
 	void EngineOpenGLES::onRemapMouseButton(int& button)
 	{
