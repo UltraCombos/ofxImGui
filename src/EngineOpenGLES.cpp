@@ -138,42 +138,22 @@ namespace ofxImGui
 
 		// Build texture
 		unsigned char* pixels;
-		int width, height;
+		int width, height, gl_internal_fmt;
 
 		if (ofIsGLProgrammableRenderer())
 		{
 			// Load as RGBA 32-bits for OpenGL3 because it is more likely to be compatible with user's existing shader.
 			io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
-			/*
-			glTexImage2D(GL_TEXTURE_2D,
-				0,
-				GL_RGBA,
-				width,
-				height,
-				0,
-				GL_RGBA,
-				GL_UNSIGNED_BYTE,
-				pixels);
-			*/
+			gl_internal_fmt = GL_RGBA;
 
 		}
 		else
 		{
 			io.Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
-			/*
-			glTexImage2D(GL_TEXTURE_2D,
-				0,
-				GL_ALPHA,
-				width,
-				height,
-				0,
-				GL_ALPHA,
-				GL_UNSIGNED_BYTE,
-				pixels);
-			*/
+			gl_internal_fmt = GL_ALPHA;
 		}
 
-		GLuint textureid = loadTextureImage2D(pixels, width, height);
+		GLuint textureid = loadTextureImage2D(pixels, width, height, );
 		io.Fonts->TexID = (void *)(intptr_t)textureid;
 
 		io.Fonts->ClearTexData();

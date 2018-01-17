@@ -69,7 +69,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	GLuint Gui::loadPixels(ofPixels& pixels)
 	{
-		return engine->loadTextureImage2D(pixels.getData(), pixels.getWidth(), pixels.getHeight());
+		return engine->loadTextureImage2D(pixels.getData(), (int)pixels.getWidth(), (int)pixels.getHeight());
 	}
 
 	//--------------------------------------------------------------
