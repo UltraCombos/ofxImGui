@@ -153,7 +153,7 @@ namespace ofxImGui
 			gl_internal_fmt = GL_ALPHA;
 		}
 
-		GLuint textureid = loadTextureImage2D(pixels, width, height, );
+		GLuint textureid = loadTextureImage2D(pixels, width, height, gl_internal_fmt);
 		io.Fonts->TexID = (void *)(intptr_t)textureid;
 
 		io.Fonts->ClearTexData();
