@@ -144,6 +144,7 @@ namespace ofxImGui
 		{
 			// Load as RGBA 32-bits for OpenGL3 because it is more likely to be compatible with user's existing shader.
 			io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
+			/*
 			glTexImage2D(GL_TEXTURE_2D,
 				0,
 				GL_RGBA,
@@ -153,11 +154,13 @@ namespace ofxImGui
 				GL_RGBA,
 				GL_UNSIGNED_BYTE,
 				pixels);
+			*/
 
 		}
 		else
 		{
 			io.Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
+			/*
 			glTexImage2D(GL_TEXTURE_2D,
 				0,
 				GL_ALPHA,
@@ -167,6 +170,7 @@ namespace ofxImGui
 				GL_ALPHA,
 				GL_UNSIGNED_BYTE,
 				pixels);
+			*/
 		}
 
 		GLuint textureid = loadTextureImage2D(pixels, width, height);
