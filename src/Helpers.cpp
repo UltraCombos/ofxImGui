@@ -66,9 +66,9 @@ bool ofxImGui::BeginWindow(const string& name, Settings& settings, bool collapse
 	// Push a new list of names onto the stack.
 	windowOpen.usedNames.push(std::vector<std::string>());
 
-	ImGui::SetNextWindowPos(settings.windowPos, ImGuiSetCond_Appearing);
-	ImGui::SetNextWindowSize(settings.windowSize, ImGuiSetCond_Appearing);
-	ImGui::SetNextWindowCollapsed(collapse, ImGuiSetCond_Appearing);
+	ImGui::SetNextWindowPos(settings.windowPos, ImGuiCond_Appearing);
+	ImGui::SetNextWindowSize(settings.windowSize, ImGuiCond_Appearing);
+	ImGui::SetNextWindowCollapsed(collapse, ImGuiCond_Appearing);
 	return ImGui::Begin(name.c_str(), open, ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_AlwaysAutoResize | (collapse ? 0 : ImGuiWindowFlags_NoCollapse));
 }
 
@@ -86,9 +86,9 @@ bool ofxImGui::BeginWindow(const string& name, Settings& settings, ImGuiWindowFl
 	// Push a new list of names onto the stack.
 	windowOpen.usedNames.push(std::vector<std::string>());
 
-	ImGui::SetNextWindowPos(settings.windowPos, ImGuiSetCond_Appearing);
-	ImGui::SetNextWindowSize(settings.windowSize, ImGuiSetCond_Appearing);
-	ImGui::SetNextWindowCollapsed(!(flags & ImGuiWindowFlags_NoCollapse), ImGuiSetCond_Appearing);
+	ImGui::SetNextWindowPos(settings.windowPos, ImGuiCond_Appearing);
+	ImGui::SetNextWindowSize(settings.windowSize, ImGuiCond_Appearing);
+	ImGui::SetNextWindowCollapsed(!(flags & ImGuiWindowFlags_NoCollapse), ImGuiCond_Appearing);
 	return ImGui::Begin(name.c_str(), open, flags);
 }
 
@@ -138,7 +138,7 @@ bool ofxImGui::BeginTree(ofAbstractParameter& parameter, Settings& settings)
 bool ofxImGui::BeginTree(const string& name, Settings& settings)
 {
 	bool result;
-	ImGui::SetNextTreeNodeOpen(true, ImGuiSetCond_Appearing);
+	ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Appearing);
 	if (settings.treeLevel == 0)
 	{
 		result = ImGui::TreeNodeEx(GetUniqueName(name), ImGuiTreeNodeFlags_CollapsingHeader);
