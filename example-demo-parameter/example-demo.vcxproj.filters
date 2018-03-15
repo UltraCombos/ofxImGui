@@ -52,8 +52,8 @@
     <ClCompile Include="..\..\..\addons\ofxXmlSettings\libs\tinyxmlparser.cpp">
       <Filter>addons\ofxXmlSettings\libs</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\addons\ofxImGuiParameter\src\ofxImGuiParameter.cpp">
-      <Filter>addons\ofxImGuiParameter\src</Filter>
+    <ClCompile Include="..\src\ofxImGuiParameter.cpp">
+      <Filter>addons\ofxImGui\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -86,12 +86,6 @@
     </Filter>
     <Filter Include="addons\ofxXmlSettings\libs">
       <UniqueIdentifier>{4f8472aa-8de3-4dc4-812e-eac04a9bd339}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="addons\ofxImGuiParameter">
-      <UniqueIdentifier>{2a08b08d-9a25-40e2-b9dd-3dc88a284266}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="addons\ofxImGuiParameter\src">
-      <UniqueIdentifier>{913835e4-bb5b-4a50-bef6-3613bfbe25fa}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -152,8 +146,8 @@
     <ClInclude Include="..\..\..\addons\ofxXmlSettings\libs\tinyxml.h">
       <Filter>addons\ofxXmlSettings\libs</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\addons\ofxImGuiParameter\src\ofxImGuiParameter.h">
-      <Filter>addons\ofxImGuiParameter\src</Filter>
+    <ClInclude Include="..\src\ofxImGuiParameter.h">
+      <Filter>addons\ofxImGui\src</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
