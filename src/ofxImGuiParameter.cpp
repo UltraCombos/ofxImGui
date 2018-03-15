@@ -1143,13 +1143,27 @@ void ofxImGuiParameter::mf_draw_dialog()
 	ImGui::End();	
 }
 
+void gf_remove_any_bad_char(std::string& str)
+{
+	std::replace(str.begin(), str.end(), ' ', '_');
+	std::replace(str.begin(), str.end(), '(', '_');
+	std::replace(str.begin(), str.end(), ')', '_');
+	std::replace(str.begin(), str.end(), ':', '_');
+	std::replace(str.begin(), str.end(), '<', '_');
+	std::replace(str.begin(), str.end(), '>', '_');
+	std::replace(str.begin(), str.end(), '[', '_');
+	std::replace(str.begin(), str.end(), ']', '_');
+	std::replace(str.begin(), str.end(), '-', '_');
+}
+
 void gf_save_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& container, gf_draw_func i_func, gf_draw_func f_func)
 {
 	for (size_t i = 0; i < container.size(); ++i)
 	{
 		ParamInfo* p_info = container[i];
 		std::string tag_name = p_info->sp_param->getName();
-		std::replace(tag_name.begin(), tag_name.end(), ' ', '_');
+		gf_remove_any_bad_char(tag_name);
+
 		if (p_info->func == NULL)
 		{
 			if (gf_force_push_tag(xml_settings, tag_name, "IsOpen", p_info->arg ? "true" : "false"))
@@ -1280,7 +1294,8 @@ void gf_load_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 	{
 		ParamInfo* p_info = container[i];
 		std::string tag_name = p_info->sp_param->getName();
-		std::replace(tag_name.begin(), tag_name.end(), ' ', '_');
+		gf_remove_any_bad_char(tag_name);
+
 		if (p_info->func == NULL)
 		{
 			std::string value = xml_settings.getAttribute(tag_name, "IsOpen", p_info->arg ? "true" : "false", 0);
