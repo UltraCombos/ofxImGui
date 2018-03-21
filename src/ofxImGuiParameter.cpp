@@ -378,6 +378,45 @@ namespace
 		}
 	}
 
+	char const* gf_get_gl_internal_fmt_name(int glInternalFormat) 
+	{
+		switch (glInternalFormat) 
+		{
+		case GL_RGBA:				return "GL_RGBA";
+#ifndef TARGET_OPENGLES
+		case GL_RGBA8:				return "GL_RGBA8";
+#endif
+		case GL_RGB:				return "GL_RGB";
+#ifndef TARGET_OPENGLES
+		case GL_RGB8:				return "GL_RGB8";
+#endif
+		case GL_LUMINANCE:			return "GL_LUMINANCE";
+#ifndef TARGET_OPENGLES
+		case GL_LUMINANCE8:			return "GL_LUMINANCE8";
+		case GL_RGBA16:				return "GL_RGBA16";
+		case GL_RGB16:				return "GL_RGB16";
+		case GL_LUMINANCE16:		return "GL_LUMINANCE16";
+		case GL_RGBA32F_ARB:		return "GL_RGBA32F_ARB";
+		case GL_RGB32F_ARB:			return "GL_RGB32F_ARB";
+		//added ===================================================
+		//case GL_RGB32F:				return "GL_RGB32F";
+		//case GL_RGBA32F:			return "GL_RGBA32F";
+		//=========================================================
+		case GL_LUMINANCE32F_ARB:	return "GL_LUMINANCE32F_ARB";
+#endif
+		case GL_LUMINANCE_ALPHA:	return "GL_LUMINANCE_ALPHA";
+#ifndef TARGET_OPENGLES
+		case GL_LUMINANCE8_ALPHA8:	return "GL_LUMINANCE8_ALPHA8";
+		//added ===================================================
+		case GL_R8:					return "GL_R8";
+		case GL_R16:				return "GL_R16";
+		case GL_R32F:				return "GL_R32F";
+		//=========================================================
+#endif
+		default:					return "unknown glInternalFormat";
+		}
+	}
+
 	void gf_draw_texture(ofParameter< MyTex >* p_param)
 	{
 		ofParameter< MyTex >& param = *p_param;
@@ -416,7 +455,7 @@ namespace
 				if (my_tex.is_show_detail)
 				{
 					ImGui::SameLine();
-					ImGui::TextDisabled("w: %.2f, h: %.2f, fmt: %s", tex.getWidth(), tex.getHeight(), ofGetGlInternalFormatName(tex.getTextureData().glInternalFormat).c_str());
+					ImGui::TextDisabled("w: %.2f, h: %.2f, fmt: %s", tex.getWidth(), tex.getHeight(), gf_get_gl_internal_fmt_name(tex.getTextureData().glInternalFormat));
 				}
 			}
 			ImGui::PopID();
@@ -595,6 +634,7 @@ std::vector< ofxImGuiParameter* >	ofxImGuiParameter::s_box;
 ofEvent< void >						ofxImGuiParameter::s_event;
 ofMutex								ofxImGuiParameter::s_mutex;
 ofxImGuiParameter::BindedID const	ofxImGuiParameter::InvalidBindedID = 0;
+ofRectangle const					ofxImGuiParameter::DefaultPosAndSize = ofRectangle(10.f, 10.f, 320.f, 640.f);
 
 typedef ofxImGuiParameter::ParamInfo ParamInfo;
 typedef ofxImGuiParameter::EnumType EnumType;
@@ -750,7 +790,35 @@ ofxImGuiParameter::~ofxImGuiParameter()
 	exit();
 }
 
-bool ofxImGuiParameter::setup(std::string const& title, ofRectangle rect, Style default_style)
+bool ofxImGuiParameter::setup(std::string const& title, ofRectangle const& rect, Style default_style)
+{
+	return mf_setup(title, rect, default_style);
+}
+
+bool ofxImGuiParameter::setup(std::string const& title, Style default_style)
+{
+	return mf_setup(title, DefaultPosAndSize, default_style);
+}
+
+bool ofxImGuiParameter::is_setup()
+{
+	ofScopedLock locker(m_mutex);
+	return m_is_setup;
+}
+
+void ofxImGuiParameter::exit()
+{
+	{
+		ofScopedLock lockerS(s_mutex);
+
+		{
+			ofScopedLock locker(m_mutex);
+			mf_exit();
+		}
+	}
+}
+
+bool ofxImGuiParameter::mf_setup(std::string const& title, ofRectangle const& rect, Style default_style)
 {
 	{
 		ofScopedLock locker_s(s_mutex);
@@ -780,7 +848,7 @@ bool ofxImGuiParameter::setup(std::string const& title, ofRectangle rect, Style 
 			switch (default_style)
 			{
 			default:
-			case StyleSlider: 
+			case StyleSlider:
 				m_default_draw_i_func = (gf_draw_func)&gf_draw_int_slider_default;
 				m_default_draw_f_func = (gf_draw_func)&gf_draw_float_slider_default;
 				break;
@@ -798,24 +866,6 @@ bool ofxImGuiParameter::setup(std::string const& title, ofRectangle rect, Style 
 
 			m_is_setup = true;
 			return true;
-		}
-	}
-}
-
-bool ofxImGuiParameter::is_setup()
-{
-	ofScopedLock locker(m_mutex);
-	return m_is_setup;
-}
-
-void ofxImGuiParameter::exit()
-{
-	{
-		ofScopedLock lockerS(s_mutex);
-
-		{
-			ofScopedLock locker(m_mutex);
-			mf_exit();
 		}
 	}
 }
@@ -1045,6 +1095,7 @@ bool ofxImGuiParameter::load(std::string const& filepath)
 
 void ofxImGuiParameter::sf_draw(ParamInfo* p_param_info)
 {
+	ImGui::Indent(8.f);
 	if (p_param_info->func)
 	{
 		p_param_info->func(p_param_info->sp_param.get());
@@ -1052,12 +1103,15 @@ void ofxImGuiParameter::sf_draw(ParamInfo* p_param_info)
 	else //Group
 	{
 		bool is_open = p_param_info->arg;
+
 		ImGui::SetNextTreeNodeOpen(is_open, ImGuiCond_Appearing);
 		if (ImGui::CollapsingHeader(p_param_info->sp_param->getName().c_str()))
 		{
 			for (size_t i = 0; i < p_param_info->children.size(); ++i)
 			{
+				ImGui::PushID((int)i);
 				sf_draw(p_param_info->children[i]);
+				ImGui::PopID();
 			}
 			p_param_info->arg = 1;
 		}
@@ -1066,6 +1120,7 @@ void ofxImGuiParameter::sf_draw(ParamInfo* p_param_info)
 			p_param_info->arg = 0;
 		}
 	}
+	ImGui::Unindent(8.f);
 }
 
 void ofxImGuiParameter::mf_draw_dialog()
