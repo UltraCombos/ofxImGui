@@ -365,6 +365,24 @@ namespace
 		}
 	}
 
+	void gf_draw_rect(ofParameter< ofRectangle >*p_param)
+	{
+		ofRectangle const& rect = p_param->get();
+		ofRectangle max_rect = p_param->getMax();
+		ofRectangle min_rect = p_param->getMin();
+		float len = std::max<float>(max_rect.width - min_rect.width, max_rect.height - min_rect.height);
+		if (len <= 0.f)
+		{
+			len = 1.f;
+		}
+
+		float v4[4]{ rect.x, rect.y, rect.width, rect.height };
+		if (ImGui::DragFloat4(p_param->getName().c_str(), v4, len * 0.01f))
+		{
+			p_param->set(ofRectangle(v4[0], v4[1], v4[2], v4[3]));
+		}
+	}
+
 	void gf_draw_text_input(ofParameter < std::string >* p_param)
 	{
 		enum { MaxSizeBuf = 256 };
@@ -1323,6 +1341,18 @@ void gf_save_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 					xml_settings.popTag();
 				}
 			}
+			else if (p_info->func == (gf_draw_func)&gf_draw_rect)
+			{
+				ofRectangle const& rect = p_info->sp_param->cast<ofRectangle>().get();
+				if (gf_force_push_tag(xml_settings, tag_name))
+				{
+					xml_settings.setValue("X", (double)rect.x);
+					xml_settings.setValue("Y", (double)rect.y);
+					xml_settings.setValue("Width", (double)rect.width);
+					xml_settings.setValue("Height", (double)rect.height);
+					xml_settings.popTag();
+				}
+			}
 			else if (p_info->func == (gf_draw_func)&gf_draw_text_input)
 			{
 				xml_settings.setValue(tag_name, p_info->sp_param->cast<std::string>().get());
@@ -1535,6 +1565,21 @@ void gf_load_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 					xml_settings.popTag();
 				}
 			}
+			else if (p_info->func == (gf_draw_func)&gf_draw_rect)
+			{
+				ofParameter< ofRectangle >& param_rect = p_info->sp_param->cast< ofRectangle >();
+				ofRectangle rect = param_rect.get();
+
+				if (xml_settings.pushTag(tag_name))
+				{
+					rect.x = (float)xml_settings.getValue("X", (double)rect.x);
+					rect.y = (float)xml_settings.getValue("Y", (double)rect.y);
+					rect.width = (float)xml_settings.getValue("Width", (double)rect.width);
+					rect.height = (float)xml_settings.getValue("Height", (double)rect.height);
+					param_rect.set(rect);
+					xml_settings.popTag();
+				}
+			}
 			else if (p_info->func == (gf_draw_func)&gf_draw_text_input)
 			{
 				ofParameter<std::string>& param_str = p_info->sp_param->cast<std::string>();
@@ -1606,6 +1651,10 @@ ofxImGuiParameter::BindedID ofxImGuiParameter::mf_bind(ofAbstractParameter const
 	else if (type_name == typeid(ofParameter<ofVec4f>).name())
 	{
 		p_info->func = (gf_draw_func)&gf_draw_vec4f;
+	}
+	else if (type_name == typeid(ofParameter<ofRectangle>).name())
+	{
+		p_info->func = (gf_draw_func)&gf_draw_rect;
 	}
 	else if (type_name == typeid(ofParameter< ValueType < float > >).name())
 	{
