@@ -24,6 +24,7 @@ public:
 	typedef uintptr_t BindedID;
 
 	static BindedID const InvalidBindedID ;
+	static ofRectangle const DefaultPosAndSize;
 
 	enum Style
 	{
@@ -86,7 +87,9 @@ public:
 	ofxImGuiParameter();
 	~ofxImGuiParameter();
 
-	bool setup(std::string const& title = "ofxImGuiParameter", ofRectangle rect = ofRectangle(10, 10, 320, 640), Style default_style = StyleSlider);
+	bool setup(std::string const& title = "ofxImGuiParameter", ofRectangle const& rect = DefaultPosAndSize, Style default_style = StyleSlider);
+	bool setup(std::string const& title, Style default_style);
+
 	bool is_setup();
 	void exit();
 	BindedID bind(ofAbstractParameter const& param);
@@ -136,6 +139,7 @@ private:
 	bool						m_is_enable_dialog;
 	bool						m_is_dialog_auto_gone;
 
+	bool mf_setup(std::string const& title, ofRectangle const& rect, Style default_style);
 	void mf_exit();
 	void mf_draw_dialog();
 

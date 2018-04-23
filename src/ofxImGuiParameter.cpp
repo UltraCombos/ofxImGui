@@ -365,6 +365,24 @@ namespace
 		}
 	}
 
+	void gf_draw_rect(ofParameter< ofRectangle >*p_param)
+	{
+		ofRectangle const& rect = p_param->get();
+		ofRectangle max_rect = p_param->getMax();
+		ofRectangle min_rect = p_param->getMin();
+		float len = std::max<float>(max_rect.width - min_rect.width, max_rect.height - min_rect.height);
+		if (len <= 0.f)
+		{
+			len = 1.f;
+		}
+
+		float v4[4]{ rect.x, rect.y, rect.width, rect.height };
+		if (ImGui::DragFloat4(p_param->getName().c_str(), v4, len * 0.01f))
+		{
+			p_param->set(ofRectangle(v4[0], v4[1], v4[2], v4[3]));
+		}
+	}
+
 	void gf_draw_text_input(ofParameter < std::string >* p_param)
 	{
 		enum { MaxSizeBuf = 256 };
@@ -375,6 +393,45 @@ namespace
 		if (ImGui::InputText(p_param->getName().c_str(), buf, MaxSizeBuf))
 		{
 			p_param->set(buf);
+		}
+	}
+
+	char const* gf_get_gl_internal_fmt_name(int glInternalFormat) 
+	{
+		switch (glInternalFormat) 
+		{
+		case GL_RGBA:				return "GL_RGBA";
+#ifndef TARGET_OPENGLES
+		case GL_RGBA8:				return "GL_RGBA8";
+#endif
+		case GL_RGB:				return "GL_RGB";
+#ifndef TARGET_OPENGLES
+		case GL_RGB8:				return "GL_RGB8";
+#endif
+		case GL_LUMINANCE:			return "GL_LUMINANCE";
+#ifndef TARGET_OPENGLES
+		case GL_LUMINANCE8:			return "GL_LUMINANCE8";
+		case GL_RGBA16:				return "GL_RGBA16";
+		case GL_RGB16:				return "GL_RGB16";
+		case GL_LUMINANCE16:		return "GL_LUMINANCE16";
+		case GL_RGBA32F_ARB:		return "GL_RGBA32F_ARB";
+		case GL_RGB32F_ARB:			return "GL_RGB32F_ARB";
+		//added ===================================================
+		//case GL_RGB32F:				return "GL_RGB32F";
+		//case GL_RGBA32F:			return "GL_RGBA32F";
+		//=========================================================
+		case GL_LUMINANCE32F_ARB:	return "GL_LUMINANCE32F_ARB";
+#endif
+		case GL_LUMINANCE_ALPHA:	return "GL_LUMINANCE_ALPHA";
+#ifndef TARGET_OPENGLES
+		case GL_LUMINANCE8_ALPHA8:	return "GL_LUMINANCE8_ALPHA8";
+		//added ===================================================
+		case GL_R8:					return "GL_R8";
+		case GL_R16:				return "GL_R16";
+		case GL_R32F:				return "GL_R32F";
+		//=========================================================
+#endif
+		default:					return "unknown glInternalFormat";
 		}
 	}
 
@@ -416,7 +473,7 @@ namespace
 				if (my_tex.is_show_detail)
 				{
 					ImGui::SameLine();
-					ImGui::TextDisabled("w: %.2f, h: %.2f, fmt: %s", tex.getWidth(), tex.getHeight(), ofGetGlInternalFormatName(tex.getTextureData().glInternalFormat).c_str());
+					ImGui::TextDisabled("w: %.2f, h: %.2f, fmt: %s", tex.getWidth(), tex.getHeight(), gf_get_gl_internal_fmt_name(tex.getTextureData().glInternalFormat));
 				}
 			}
 			ImGui::PopID();
@@ -595,6 +652,7 @@ std::vector< ofxImGuiParameter* >	ofxImGuiParameter::s_box;
 ofEvent< void >						ofxImGuiParameter::s_event;
 ofMutex								ofxImGuiParameter::s_mutex;
 ofxImGuiParameter::BindedID const	ofxImGuiParameter::InvalidBindedID = 0;
+ofRectangle const					ofxImGuiParameter::DefaultPosAndSize = ofRectangle(10.f, 10.f, 320.f, 640.f);
 
 typedef ofxImGuiParameter::ParamInfo ParamInfo;
 typedef ofxImGuiParameter::EnumType EnumType;
@@ -750,7 +808,35 @@ ofxImGuiParameter::~ofxImGuiParameter()
 	exit();
 }
 
-bool ofxImGuiParameter::setup(std::string const& title, ofRectangle rect, Style default_style)
+bool ofxImGuiParameter::setup(std::string const& title, ofRectangle const& rect, Style default_style)
+{
+	return mf_setup(title, rect, default_style);
+}
+
+bool ofxImGuiParameter::setup(std::string const& title, Style default_style)
+{
+	return mf_setup(title, DefaultPosAndSize, default_style);
+}
+
+bool ofxImGuiParameter::is_setup()
+{
+	ofScopedLock locker(m_mutex);
+	return m_is_setup;
+}
+
+void ofxImGuiParameter::exit()
+{
+	{
+		ofScopedLock lockerS(s_mutex);
+
+		{
+			ofScopedLock locker(m_mutex);
+			mf_exit();
+		}
+	}
+}
+
+bool ofxImGuiParameter::mf_setup(std::string const& title, ofRectangle const& rect, Style default_style)
 {
 	{
 		ofScopedLock locker_s(s_mutex);
@@ -780,7 +866,7 @@ bool ofxImGuiParameter::setup(std::string const& title, ofRectangle rect, Style 
 			switch (default_style)
 			{
 			default:
-			case StyleSlider: 
+			case StyleSlider:
 				m_default_draw_i_func = (gf_draw_func)&gf_draw_int_slider_default;
 				m_default_draw_f_func = (gf_draw_func)&gf_draw_float_slider_default;
 				break;
@@ -798,24 +884,6 @@ bool ofxImGuiParameter::setup(std::string const& title, ofRectangle rect, Style 
 
 			m_is_setup = true;
 			return true;
-		}
-	}
-}
-
-bool ofxImGuiParameter::is_setup()
-{
-	ofScopedLock locker(m_mutex);
-	return m_is_setup;
-}
-
-void ofxImGuiParameter::exit()
-{
-	{
-		ofScopedLock lockerS(s_mutex);
-
-		{
-			ofScopedLock locker(m_mutex);
-			mf_exit();
 		}
 	}
 }
@@ -1045,6 +1113,7 @@ bool ofxImGuiParameter::load(std::string const& filepath)
 
 void ofxImGuiParameter::sf_draw(ParamInfo* p_param_info)
 {
+	ImGui::Indent(8.f);
 	if (p_param_info->func)
 	{
 		p_param_info->func(p_param_info->sp_param.get());
@@ -1052,12 +1121,15 @@ void ofxImGuiParameter::sf_draw(ParamInfo* p_param_info)
 	else //Group
 	{
 		bool is_open = p_param_info->arg;
+
 		ImGui::SetNextTreeNodeOpen(is_open, ImGuiCond_Appearing);
 		if (ImGui::CollapsingHeader(p_param_info->sp_param->getName().c_str()))
 		{
 			for (size_t i = 0; i < p_param_info->children.size(); ++i)
 			{
+				ImGui::PushID((int)i);
 				sf_draw(p_param_info->children[i]);
+				ImGui::PopID();
 			}
 			p_param_info->arg = 1;
 		}
@@ -1066,6 +1138,7 @@ void ofxImGuiParameter::sf_draw(ParamInfo* p_param_info)
 			p_param_info->arg = 0;
 		}
 	}
+	ImGui::Unindent(8.f);
 }
 
 void ofxImGuiParameter::mf_draw_dialog()
@@ -1143,13 +1216,27 @@ void ofxImGuiParameter::mf_draw_dialog()
 	ImGui::End();	
 }
 
+void gf_remove_any_bad_char(std::string& str)
+{
+	std::replace(str.begin(), str.end(), ' ', '_');
+	std::replace(str.begin(), str.end(), '(', '_');
+	std::replace(str.begin(), str.end(), ')', '_');
+	std::replace(str.begin(), str.end(), ':', '_');
+	std::replace(str.begin(), str.end(), '<', '_');
+	std::replace(str.begin(), str.end(), '>', '_');
+	std::replace(str.begin(), str.end(), '[', '_');
+	std::replace(str.begin(), str.end(), ']', '_');
+	std::replace(str.begin(), str.end(), '-', '_');
+}
+
 void gf_save_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& container, gf_draw_func i_func, gf_draw_func f_func)
 {
 	for (size_t i = 0; i < container.size(); ++i)
 	{
 		ParamInfo* p_info = container[i];
 		std::string tag_name = p_info->sp_param->getName();
-		std::replace(tag_name.begin(), tag_name.end(), ' ', '_');
+		gf_remove_any_bad_char(tag_name);
+
 		if (p_info->func == NULL)
 		{
 			if (gf_force_push_tag(xml_settings, tag_name, "IsOpen", p_info->arg ? "true" : "false"))
@@ -1254,6 +1341,18 @@ void gf_save_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 					xml_settings.popTag();
 				}
 			}
+			else if (p_info->func == (gf_draw_func)&gf_draw_rect)
+			{
+				ofRectangle const& rect = p_info->sp_param->cast<ofRectangle>().get();
+				if (gf_force_push_tag(xml_settings, tag_name))
+				{
+					xml_settings.setValue("X", (double)rect.x);
+					xml_settings.setValue("Y", (double)rect.y);
+					xml_settings.setValue("Width", (double)rect.width);
+					xml_settings.setValue("Height", (double)rect.height);
+					xml_settings.popTag();
+				}
+			}
 			else if (p_info->func == (gf_draw_func)&gf_draw_text_input)
 			{
 				xml_settings.setValue(tag_name, p_info->sp_param->cast<std::string>().get());
@@ -1280,7 +1379,8 @@ void gf_load_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 	{
 		ParamInfo* p_info = container[i];
 		std::string tag_name = p_info->sp_param->getName();
-		std::replace(tag_name.begin(), tag_name.end(), ' ', '_');
+		gf_remove_any_bad_char(tag_name);
+
 		if (p_info->func == NULL)
 		{
 			std::string value = xml_settings.getAttribute(tag_name, "IsOpen", p_info->arg ? "true" : "false", 0);
@@ -1465,6 +1565,21 @@ void gf_load_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 					xml_settings.popTag();
 				}
 			}
+			else if (p_info->func == (gf_draw_func)&gf_draw_rect)
+			{
+				ofParameter< ofRectangle >& param_rect = p_info->sp_param->cast< ofRectangle >();
+				ofRectangle rect = param_rect.get();
+
+				if (xml_settings.pushTag(tag_name))
+				{
+					rect.x = (float)xml_settings.getValue("X", (double)rect.x);
+					rect.y = (float)xml_settings.getValue("Y", (double)rect.y);
+					rect.width = (float)xml_settings.getValue("Width", (double)rect.width);
+					rect.height = (float)xml_settings.getValue("Height", (double)rect.height);
+					param_rect.set(rect);
+					xml_settings.popTag();
+				}
+			}
 			else if (p_info->func == (gf_draw_func)&gf_draw_text_input)
 			{
 				ofParameter<std::string>& param_str = p_info->sp_param->cast<std::string>();
@@ -1536,6 +1651,10 @@ ofxImGuiParameter::BindedID ofxImGuiParameter::mf_bind(ofAbstractParameter const
 	else if (type_name == typeid(ofParameter<ofVec4f>).name())
 	{
 		p_info->func = (gf_draw_func)&gf_draw_vec4f;
+	}
+	else if (type_name == typeid(ofParameter<ofRectangle>).name())
+	{
+		p_info->func = (gf_draw_func)&gf_draw_rect;
 	}
 	else if (type_name == typeid(ofParameter< ValueType < float > >).name())
 	{
