@@ -663,7 +663,7 @@ bool ofxImGuiParameter::GetEnumTypeFormDirectory(EnumType* p_out, std::string co
 
 		for (size_t i = 0; i < size; ++i)
 		{
-			ofFile& file_child = dir[i];
+			ofFile file_child = dir[i];
 
 			if (file_child.isFile())
 			{
