@@ -1216,17 +1216,46 @@ void ofxImGuiParameter::mf_draw_dialog()
 	ImGui::End();	
 }
 
+bool gf_is_bad_char(char c)
+{
+	if (c < '0') 
+		return true;
+
+	if (c > '9')
+	{
+		if (c < 'A') 
+			return true;
+
+		if (c > 'Z')
+		{
+			if (c < 'a')
+				return true;
+
+			if (c > 'z')
+				return true;
+		}
+	}
+	return false;
+}
+
 void gf_remove_any_bad_char(std::string& str)
 {
-	std::replace(str.begin(), str.end(), ' ', '_');
-	std::replace(str.begin(), str.end(), '(', '_');
-	std::replace(str.begin(), str.end(), ')', '_');
-	std::replace(str.begin(), str.end(), ':', '_');
-	std::replace(str.begin(), str.end(), '<', '_');
-	std::replace(str.begin(), str.end(), '>', '_');
-	std::replace(str.begin(), str.end(), '[', '_');
-	std::replace(str.begin(), str.end(), ']', '_');
-	std::replace(str.begin(), str.end(), '-', '_');
+	std::replace_if(str.begin(), str.end(), std::bind(&gf_is_bad_char, std::placeholders::_1), '_');
+	//std::replace(str.begin(), str.end(), ' ', '_');
+	//std::replace(str.begin(), str.end(), '(', '_');
+	//std::replace(str.begin(), str.end(), ')', '_');
+	//std::replace(str.begin(), str.end(), ':', '_');
+	//std::replace(str.begin(), str.end(), '<', '_');
+	//std::replace(str.begin(), str.end(), '>', '_');
+	//std::replace(str.begin(), str.end(), '[', '_');
+	//std::replace(str.begin(), str.end(), ']', '_');
+	//std::replace(str.begin(), str.end(), '{', '_');
+	//std::replace(str.begin(), str.end(), '}', '_');
+	//std::replace(str.begin(), str.end(), '-', '_');
+	//std::replace(str.begin(), str.end(), '\\', '_');
+	//std::replace(str.begin(), str.end(), '/', '_');
+	//std::replace(str.begin(), str.end(), '!', '_');
+	//std::replace(str.begin(), str.end(), '?', '_');
 }
 
 void gf_save_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& container, gf_draw_func i_func, gf_draw_func f_func)
