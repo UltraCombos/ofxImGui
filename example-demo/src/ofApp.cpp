@@ -98,7 +98,7 @@ void ofApp::draw(){
     if (show_test_window)
     {
         ImGui::SetNextWindowPos(ofVec2f(650, 20), ImGuiSetCond_FirstUseEver);
-        ImGui::ShowTestWindow(&show_test_window);
+        ImGui::ShowDemoWindow(&show_test_window);
     }
     
     
