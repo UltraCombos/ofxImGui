@@ -19,6 +19,10 @@ public:
 		{
 			m_xml.setToParent();
 		}
+		else
+		{
+			m_xml.clear();
+		}
 		return yes;
 	}
 
@@ -44,6 +48,11 @@ public:
 
 	bool pushTag(const std::string& tag, int which = 0)
 	{
+		if (!m_xml.exists(tag))
+		{
+			return false;
+		}
+
 		return m_xml.setTo(tag);
 	}
 
@@ -72,6 +81,11 @@ public:
 	template< typename T>
 	T getAttribute(const std::string& tag, const std::string& attribute, T const& defaultValue, int n = 0)
 	{
+		if (!m_xml.exists(tag))
+		{
+			return defaultValue;
+		}
+
 		bool yes = m_xml.setTo(tag);
 		if (!yes)
 		{
@@ -97,6 +111,11 @@ public:
 	template< typename T >
 	int	setAttribute(const std::string& tag, const std::string& attribute, T const& value, int which = 0)
 	{
+		if (!m_xml.exists(tag))
+		{
+			return -1;
+		}
+
 		bool yes = m_xml.setTo(tag);
 		if (!yes)
 		{
@@ -1025,6 +1044,11 @@ bool ofxImGuiParameter::save(std::string const& filepath)
 
 	ofxXmlSettings xml_settings;
 	bool yes = xml_settings.load(xml_filepath);
+	if (!yes)
+	{
+		xml_settings.addTag("ofxImGuiParameter");
+		xml_settings.popTag();
+	}
 
 	if (gf_force_push_tag(xml_settings, "ofxImGuiParameter"))
 	{
