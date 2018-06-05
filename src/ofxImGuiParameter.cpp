@@ -454,6 +454,59 @@ namespace
 		}
 	}
 
+	
+	typedef std::shared_ptr< ofBaseVideoPlayer > sptr_vid_player;
+
+	void gf_draw_video_player(ofParameter < sptr_vid_player >* p_param)
+	{
+		ofParameter< sptr_vid_player >& param = *p_param;
+		sptr_vid_player sp_player = param.get();
+		if (sp_player == nullptr)
+		{
+			return;
+		}
+
+		ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Appearing);
+		if (ImGui::CollapsingHeader(p_param->getName().c_str()))
+		{
+			if (sp_player->isLoaded())
+			{
+				float duration = sp_player->getDuration();
+				float time = sp_player->getPosition() * duration;
+				if (ImGui::SliderFloat("time", &time, 0.f, duration))
+				{
+					sp_player->setPosition(time / duration);
+				}
+
+				if (ImGui::Button("play"))
+				{
+					sp_player->play();
+				}
+
+				ImGui::SameLine();
+				if (ImGui::Button("stop"))
+				{
+					sp_player->stop();
+				}
+
+				ImGui::SameLine();
+				if (ImGui::Button("pause/resume"))
+				{
+					sp_player->setPaused(!sp_player->isPaused());
+				}
+
+				bool yes = sp_player->getLoopState() == OF_LOOP_NORMAL ? true : false;
+				ImGui::Checkbox("is loop", &yes);
+				yes = sp_player->isPlaying();
+				ImGui::SameLine();
+				ImGui::Checkbox("is playing", &yes);
+				yes = sp_player->isPaused();
+				ImGui::SameLine();
+				ImGui::Checkbox("is paused", &yes);
+			}
+		}
+	}
+
 	void gf_draw_texture(ofParameter< MyTex >* p_param)
 	{
 		ofParameter< MyTex >& param = *p_param;
@@ -1265,21 +1318,6 @@ bool gf_is_bad_char(char c)
 void gf_remove_any_bad_char(std::string& str)
 {
 	std::replace_if(str.begin(), str.end(), std::bind(&gf_is_bad_char, std::placeholders::_1), '_');
-	//std::replace(str.begin(), str.end(), ' ', '_');
-	//std::replace(str.begin(), str.end(), '(', '_');
-	//std::replace(str.begin(), str.end(), ')', '_');
-	//std::replace(str.begin(), str.end(), ':', '_');
-	//std::replace(str.begin(), str.end(), '<', '_');
-	//std::replace(str.begin(), str.end(), '>', '_');
-	//std::replace(str.begin(), str.end(), '[', '_');
-	//std::replace(str.begin(), str.end(), ']', '_');
-	//std::replace(str.begin(), str.end(), '{', '_');
-	//std::replace(str.begin(), str.end(), '}', '_');
-	//std::replace(str.begin(), str.end(), '-', '_');
-	//std::replace(str.begin(), str.end(), '\\', '_');
-	//std::replace(str.begin(), str.end(), '/', '_');
-	//std::replace(str.begin(), str.end(), '!', '_');
-	//std::replace(str.begin(), str.end(), '?', '_');
 }
 
 void gf_save_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& container, gf_draw_func i_func, gf_draw_func f_func)
@@ -1746,6 +1784,10 @@ ofxImGuiParameter::BindedID ofxImGuiParameter::mf_bind(ofAbstractParameter const
 	else if (type_name == typeid(ofParameter< std::string >).name())
 	{
 		p_info->func = (gf_draw_func)&gf_draw_text_input;
+	}
+	else if (type_name == typeid(ofParameter < sptr_vid_player >).name())
+	{
+		p_info->func = (gf_draw_func)&gf_draw_video_player;
 	}
 	else if (type_name == typeid(ofParameter< ofTexture >).name())
 	{
