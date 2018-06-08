@@ -404,7 +404,7 @@ namespace
 
 	void gf_draw_text_input(ofParameter < std::string >* p_param)
 	{
-		enum { MaxSizeBuf = 256 };
+		enum { MaxSizeBuf = 256 + 128 };
 
 		char buf[MaxSizeBuf];
 		strncpy(buf, p_param->get().c_str(), MaxSizeBuf);
@@ -456,6 +456,7 @@ namespace
 
 	
 	typedef std::shared_ptr< ofBaseVideoPlayer > sptr_vid_player;
+	typedef std::shared_ptr< ofBaseSoundPlayer > sptr_snd_player;
 
 	void gf_draw_video_player(ofParameter < sptr_vid_player >* p_param)
 	{
@@ -503,6 +504,56 @@ namespace
 				yes = sp_player->isPaused();
 				ImGui::SameLine();
 				ImGui::Checkbox("is paused", &yes);
+			}
+		}
+	}
+
+	void gf_draw_sound_player(ofParameter < sptr_snd_player >* p_param)
+	{
+		ofParameter< sptr_snd_player >& param = *p_param;
+		sptr_snd_player sp_player = param.get();
+		if (sp_player == nullptr)
+		{
+			return;
+		}
+
+		ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Appearing);
+		if (ImGui::CollapsingHeader(p_param->getName().c_str()))
+		{
+			if (sp_player->isLoaded())
+			{
+				float pos = sp_player->getPosition();
+				if (ImGui::SliderFloat("position", &pos, 0.f, 1.f))
+				{
+					sp_player->setPosition(pos);
+				}
+
+				if (ImGui::Button("play"))
+				{
+					sp_player->play();
+				}
+
+				ImGui::SameLine();
+				if (ImGui::Button("stop"))
+				{
+					sp_player->stop();
+				}
+
+				//ImGui::SameLine();
+				//if (ImGui::Button("pause/resume"))
+				//{
+				//	if (sp_player->isPlaying())
+				//	{
+				//		sp_player->setPaused(true);
+				//	}
+				//	else
+				//	{
+				//		sp_player->setPaused(false);
+				//	}
+				//}
+
+				bool yes = sp_player->isPlaying();
+				ImGui::Checkbox("is playing", &yes);
 			}
 		}
 	}
@@ -1788,6 +1839,10 @@ ofxImGuiParameter::BindedID ofxImGuiParameter::mf_bind(ofAbstractParameter const
 	else if (type_name == typeid(ofParameter < sptr_vid_player >).name())
 	{
 		p_info->func = (gf_draw_func)&gf_draw_video_player;
+	}
+	else if (type_name == typeid(ofParameter< sptr_snd_player >).name())
+	{
+		p_info->func = (gf_draw_func)&gf_draw_sound_player;
 	}
 	else if (type_name == typeid(ofParameter< ofTexture >).name())
 	{
