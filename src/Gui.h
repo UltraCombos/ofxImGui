@@ -29,13 +29,13 @@ namespace ofxImGui
 		BaseTheme* theme;
 
 		GLuint loadImage(ofImage& image);
-		GLuint loadImage(std::string imagePath);
+		GLuint loadImage(const std::string& imagePath);
 
-		GLuint loadPixels(std::string imagePath);
+		GLuint loadPixels(const std::string& imagePath);
 		GLuint loadPixels(ofPixels& pixels);
 
-		GLuint loadTexture(std::string imagePath);
-		GLuint loadTexture(ofTexture& texture, std::string imagePath);
+		GLuint loadTexture(const std::string& imagePath);
+		GLuint loadTexture(ofTexture& texture, const std::string& imagePath);
 
 		std::vector<ofTexture*> loadedTextures;
 	};
