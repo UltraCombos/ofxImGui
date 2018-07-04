@@ -14,7 +14,7 @@
 
 int main()
 {
-    ofSetLogLevel(OF_LOG_VERBOSE);
+    //ofSetLogLevel(OF_LOG_VERBOSE);
 #if defined(TARGET_OPENGLES)
     #if (OF_VERSION_MINOR == 9)
         ofGLESWindowSettings settings;
