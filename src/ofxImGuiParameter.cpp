@@ -12,6 +12,14 @@ The78ester
 typedef class ofxXmlSettings2ofXml
 {
 public:
+#if OF_VERSION_MINOR >= 10
+	ofxXmlSettings2ofXml()
+	{
+		m_stack.push_back(m_xml);
+	}
+
+#endif
+
 	bool load(std::string const& p)
 	{
 		bool yes = m_xml.load(p);
@@ -24,8 +32,8 @@ public:
 		{
 			m_xml.clear();
 		}
-
 #else
+		m_stack.clear();
 		m_stack.push_back(m_xml);
 
 #endif
@@ -86,6 +94,7 @@ public:
 		}
 
 		m_stack.push_back(xml);
+		return true;
 #endif
 	}
 
@@ -152,7 +161,21 @@ public:
 		}
 
 		return ofFromString<T>(val);
+
 #else
+		ofXml xml = m_stack.back().getChild(tag);
+		if (!xml)
+		{ 
+			return defaultValue;
+		}
+
+		ofXml::Attribute attr = xml.getAttribute(attribute);
+		if (!attr)
+		{
+			return defaultValue;
+		}
+
+		return ofFromString< T >(attr.getValue());
 
 #endif
 	}
@@ -165,6 +188,7 @@ public:
 	template< typename T >
 	int	setAttribute(const std::string& tag, const std::string& attribute, T const& value, int which = 0)
 	{
+#if OF_VERSION_MINOR < 10
 		if (!m_xml.exists(tag))
 		{
 			return -1;
@@ -185,6 +209,23 @@ public:
 		}
 
 		return 0;
+#else
+		ofXml xml = m_stack.back().getChild(tag);
+		if (!xml)
+		{
+			return -1;
+		}
+
+		ofXml::Attribute attr = xml.setAttribute(attribute, ofToString(value));
+		if (!attr)
+		{
+			return -1;
+		}
+
+		return 0;
+
+#endif
+
 	}
 
 	int setAttribute(const std::string& tag, const std::string& attribute, char const* value, int which = 0)
@@ -195,6 +236,7 @@ public:
 	template < typename T >
 	int setValue(const std::string&  tag, T const& value, int which = 0)
 	{
+#if OF_VERSION_MINOR < 10
 		if (!m_xml.exists(tag))
 		{
 			bool yes = m_xml.addChild(tag);
@@ -205,6 +247,22 @@ public:
 		}
 
 		return m_xml.setValue(tag, ofToString(value));
+#else
+		ofXml xml = m_stack.back().getChild(tag);
+		if (!xml)
+		{
+			xml = m_stack.back().appendChild(tag);
+			if (!xml)
+			{
+				return -1;
+			}
+		}
+
+		xml.set(value);
+		return 0;
+
+#endif
+
 	}
 
 	int setValue(const std::string&  tag, char const* value, int which = 0)
@@ -1207,11 +1265,13 @@ bool ofxImGuiParameter::save(std::string const& filepath)
 
 	ofxXmlSettings xml_settings;
 	bool yes = xml_settings.load(xml_filepath);
+#if OF_VERSION_MINOR < 10
 	if (!yes)
 	{
 		xml_settings.addTag("ofxImGuiParameter");
 		xml_settings.popTag();
 	}
+#endif
 
 	if (gf_force_push_tag(xml_settings, "ofxImGuiParameter"))
 	{
