@@ -40,18 +40,6 @@
     <ClCompile Include="..\..\..\addons\ofxImGui\libs\imgui\src\imgui_draw.cpp">
       <Filter>addons\ofxImGui\libs\imgui\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\addons\ofxXmlSettings\src\ofxXmlSettings.cpp">
-      <Filter>addons\ofxXmlSettings\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\addons\ofxXmlSettings\libs\tinyxml.cpp">
-      <Filter>addons\ofxXmlSettings\libs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\addons\ofxXmlSettings\libs\tinyxmlerror.cpp">
-      <Filter>addons\ofxXmlSettings\libs</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\addons\ofxXmlSettings\libs\tinyxmlparser.cpp">
-      <Filter>addons\ofxXmlSettings\libs</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ofxImGuiParameter.cpp">
       <Filter>addons\ofxImGui\src</Filter>
     </ClCompile>
@@ -77,15 +65,6 @@
     </Filter>
     <Filter Include="addons\ofxImGui\libs\imgui\src">
       <UniqueIdentifier>{8f90a1fe-50e5-469a-8d64-01e8f2dc99e6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="addons\ofxXmlSettings">
-      <UniqueIdentifier>{e3c17501-f1d7-41db-841a-0d473deb6dc0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="addons\ofxXmlSettings\src">
-      <UniqueIdentifier>{709ac37c-8237-4a77-a87c-0bcd4df04f88}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="addons\ofxXmlSettings\libs">
-      <UniqueIdentifier>{4f8472aa-8de3-4dc4-812e-eac04a9bd339}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -139,12 +118,6 @@
     </ClInclude>
     <ClInclude Include="..\..\..\addons\ofxImGui\libs\imgui\src\stb_truetype.h">
       <Filter>addons\ofxImGui\libs\imgui\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\addons\ofxXmlSettings\src\ofxXmlSettings.h">
-      <Filter>addons\ofxXmlSettings\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\addons\ofxXmlSettings\libs\tinyxml.h">
-      <Filter>addons\ofxXmlSettings\libs</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ofxImGuiParameter.h">
       <Filter>addons\ofxImGui\src</Filter>

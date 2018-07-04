@@ -186,10 +186,6 @@
     <ClCompile Include="..\..\..\addons\ofxImGui\src\Gui.cpp" />
     <ClCompile Include="..\..\..\addons\ofxImGui\src\Helpers.cpp" />
     <ClCompile Include="..\..\..\addons\ofxImGui\src\ofxImGuiLoggerChannel.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxXmlSettings\libs\tinyxml.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxXmlSettings\libs\tinyxmlerror.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxXmlSettings\libs\tinyxmlparser.cpp" />
-    <ClCompile Include="..\..\..\addons\ofxXmlSettings\src\ofxXmlSettings.cpp" />
     <ClCompile Include="..\src\ofxImGuiParameter.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\ofApp.cpp" />
@@ -211,8 +207,6 @@
     <ClInclude Include="..\..\..\addons\ofxImGui\src\ofxImGui.h" />
     <ClInclude Include="..\..\..\addons\ofxImGui\src\ofxImGuiLoggerChannel.h" />
     <ClInclude Include="..\..\..\addons\ofxImGui\src\ThemeTest.h" />
-    <ClInclude Include="..\..\..\addons\ofxXmlSettings\libs\tinyxml.h" />
-    <ClInclude Include="..\..\..\addons\ofxXmlSettings\src\ofxXmlSettings.h" />
     <ClInclude Include="..\src\ofxImGuiParameter.h" />
     <ClInclude Include="src\ofApp.h" />
   </ItemGroup>
