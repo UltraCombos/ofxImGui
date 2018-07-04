@@ -1,14 +1,17 @@
 #include "ofMain.h"
 #include "ofApp.h"
+
 #if (OF_VERSION_MINOR != 9) && defined(TARGET_OPENGLES)
 #include "ofGLProgrammableRenderer.h"
 #endif
 
-#define FORCE_PROGRAMMMABLE 1
+#define FORCE_PROGRAMMMABLE
 
 #ifdef FORCE_PROGRAMMMABLE
 #include "ofGLProgrammableRenderer.h"
+#include "ofWindowSettings.h"
 #endif
+
 int main()
 {
     ofSetLogLevel(OF_LOG_VERBOSE);
@@ -27,8 +30,15 @@ int main()
 #else
 #ifdef FORCE_PROGRAMMMABLE
     ofGLWindowSettings glWindowSettings;
-    glWindowSettings.width = 1280;
-    glWindowSettings.height = 720;
+	#if OF_VERSION_MINOR < 10
+		glWindowSettings.width = 1280;
+		glWindowSettings.height = 720;
+
+	#else
+		glWindowSettings.setSize(1280, 720);
+
+	#endif
+
     glWindowSettings.setGLVersion(3, 2);
     ofCreateWindow(glWindowSettings);
 #else
