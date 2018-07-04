@@ -20,6 +20,7 @@ namespace ofxImGui
 
 		virtual void setup() = 0;
 		virtual void exit() = 0;
+		virtual void render() = 0;
 		virtual bool createDeviceObjects() = 0;
 		virtual void invalidateDeviceObjects() = 0;
 

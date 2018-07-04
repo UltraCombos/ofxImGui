@@ -22,6 +22,7 @@ namespace ofxImGui
 		// BaseEngine required
 		void setup() override;
 		void exit() override;
+		void render() override;
 		bool createDeviceObjects() override;
 		void invalidateDeviceObjects() override;
 
@@ -37,6 +38,10 @@ namespace ofxImGui
 
 		static GLuint g_FontTexture;
 		static unsigned int g_VaoHandle;
+
+	private:
+		typedef void(*RenderDrawListsFn)(ImDrawData*);
+		RenderDrawListsFn m_render_func;
 	};
 }
 

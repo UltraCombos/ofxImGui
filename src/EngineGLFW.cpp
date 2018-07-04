@@ -40,11 +40,13 @@ namespace ofxImGui
 
 		if (ofIsGLProgrammableRenderer())
 		{
-			io.RenderDrawListsFn = programmableRenderDrawLists;
+			//io.RenderDrawListsFn = programmableRenderDrawLists;
+			m_render_func = &programmableRenderDrawLists;
 		}
 		else
 		{
-			io.RenderDrawListsFn = fixedRenderDrawLists;
+			//io.RenderDrawListsFn = fixedRenderDrawLists;
+			m_render_func = &fixedRenderDrawLists;
 		}
 
 		io.SetClipboardTextFn = &BaseEngine::setClipboardString;
@@ -86,6 +88,14 @@ namespace ofxImGui
 
 		isSetup = false;
 	}
+
+	void EngineGLFW::render()
+	{
+		if (!isSetup) return;
+
+		m_render_func(ImGui::GetDrawData());
+	}
+
 
 	//--------------------------------------------------------------
 	void remapToGLFWConvention(int& button)
