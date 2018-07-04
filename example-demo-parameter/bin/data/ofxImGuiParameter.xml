@@ -1,41 +1,42 @@
+<?xml version="1.0"?>
 <ofxImGuiParameter>
-    <Settings4ofxImGuiParameter>
-        <PosAndSize>
-            <X>26</X>
-            <Y>15</Y>
-            <Width>534</Width>
-            <Height>484</Height>
-        </PosAndSize>
-        <IsLockedShortcut>false</IsLockedShortcut>
-        <IsHidden>false</IsHidden>
-        <IsEnableMessage>true</IsEnableMessage>
-        <IsMessageAutoGone>true</IsMessageAutoGone>
-    </Settings4ofxImGuiParameter>
-    <Background_Color PixelType="U8">
-        <R>99</R>
-        <G>136</G>
-        <B>135</B>
-        <A>255</A>
-    </Background_Color>
-    <RPI_Camera_Settings IsOpen="true">
-        <Sharpness>-14</Sharpness>
-        <Contrast>3</Contrast>
-        <Brightness>55</Brightness>
-        <Saturation>9</Saturation>
-        <IsAutoISO>true</IsAutoISO>
-        <ISO>1140</ISO>
-        <IsAutoShutter>true</IsAutoShutter>
-        <ShutterSpeed_MicroSec Style="InputField">
-            <Value>200</Value>
-            <MinOrStep>10</MinOrStep>
-            <MaxOrStepFast>100</MaxOrStepFast>
-        </ShutterSpeed_MicroSec>
-        <DynRangeExp>1</DynRangeExp>
-        <Ev_Compensation>2</Ev_Compensation>
-        <WhiteBalance>Off</WhiteBalance>
-        <ImageFilter>Noise</ImageFilter>
-        <Exposure>Off</Exposure>
-        <MeteringMode>Matrix</MeteringMode>
-        <Mirror>None</Mirror>
-    </RPI_Camera_Settings>
+	<Settings4ofxImGuiParameter>
+		<PosAndSize>
+			<X>26</X>
+			<Y>15</Y>
+			<Width>534</Width>
+			<Height>484</Height>
+		</PosAndSize>
+		<IsLockedShortcut>false</IsLockedShortcut>
+		<IsHidden>false</IsHidden>
+		<IsEnableMessage>true</IsEnableMessage>
+		<IsMessageAutoGone>true</IsMessageAutoGone>
+	</Settings4ofxImGuiParameter>
+	<Background_Color PixelType="U8">
+		<R>99</R>
+		<G>136</G>
+		<B>135</B>
+		<A>255</A>
+	</Background_Color>
+	<RPI_Camera_Settings IsOpen="true">
+		<Sharpness>-14</Sharpness>
+		<Contrast>3</Contrast>
+		<Brightness>55</Brightness>
+		<Saturation>9</Saturation>
+		<IsAutoISO>true</IsAutoISO>
+		<ISO>1140</ISO>
+		<IsAutoShutter>true</IsAutoShutter>
+		<ShutterSpeed_MicroSec Style="InputField">
+			<Value>200</Value>
+			<MinOrStep>10</MinOrStep>
+			<MaxOrStepFast>100</MaxOrStepFast>
+		</ShutterSpeed_MicroSec>
+		<DynRangeExp>1</DynRangeExp>
+		<Ev_Compensation>2</Ev_Compensation>
+		<WhiteBalance>Off</WhiteBalance>
+		<ImageFilter>Noise</ImageFilter>
+		<Exposure>Off</Exposure>
+		<MeteringMode>Matrix</MeteringMode>
+		<Mirror>None</Mirror>
+	</RPI_Camera_Settings>
 </ofxImGuiParameter>
