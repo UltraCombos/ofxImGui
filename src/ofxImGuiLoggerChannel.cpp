@@ -1,5 +1,6 @@
 #include "ofxImGuiLoggerChannel.h"
 
+using namespace std;
 //--------------------------------------------------------------
 
 ImGuiTextBuffer& ofxImGui::LoggerChannel::getBuffer(){

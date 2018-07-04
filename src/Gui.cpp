@@ -10,6 +10,8 @@
 #include "EngineGLFW.h"
 #endif
 
+using namespace std;
+
 namespace ofxImGui
 {
 	//--------------------------------------------------------------

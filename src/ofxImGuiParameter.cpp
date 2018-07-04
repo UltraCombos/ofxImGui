@@ -15,6 +15,7 @@ public:
 	bool load(std::string const& p)
 	{
 		bool yes = m_xml.load(p);
+#if OF_VERSION_MINOR < 10
 		if (yes)
 		{
 			m_xml.setToParent();
@@ -23,6 +24,11 @@ public:
 		{
 			m_xml.clear();
 		}
+
+#else
+		m_stack.push_back(m_xml);
+
+#endif
 		return yes;
 	}
 
@@ -33,44 +39,88 @@ public:
 
 	bool tagExists(std::string const& tag)
 	{
+#if OF_VERSION_MINOR < 10
 		return m_xml.exists(tag);
+
+#else
+		return m_stack.back().getChild(tag);
+
+#endif
 	}
 
 	int addTag(std::string const& tag)
 	{
+#if OF_VERSION_MINOR < 10
 		bool yes = m_xml.addChild(tag);
 		if (!yes)
 		{
 			return -1;
 		}
 		return m_xml.getNumChildren(tag) - 1;
+
+#else
+		ofXml xml = m_stack.back().appendChild(tag);
+		if (!xml)
+		{
+			return -1;
+		}
+
+		return 0;
+#endif
 	}
 
 	bool pushTag(const std::string& tag, int which = 0)
 	{
+#if OF_VERSION_MINOR < 10
 		if (!m_xml.exists(tag))
 		{
 			return false;
 		}
 
 		return m_xml.setTo(tag);
+#else
+		ofXml xml = m_stack.back().getChild(tag);
+		if (!xml)
+		{
+			return false;
+		}
+
+		m_stack.push_back(xml);
+#endif
 	}
 
 	int	popTag()
 	{
+#if OF_VERSION_MINOR < 10
 		m_xml.setToParent();
+
+#else
+		m_stack.pop_back();
+
+#endif
 		return 0;
 	}
 
 	template < typename T >
 	T getValue(const std::string& tag, T const& defaultValue)
 	{
+#if OF_VERSION_MINOR < 10
 		if (!m_xml.exists(tag))
 		{
 			return defaultValue;
 		}
 
 		return m_xml.getValue< T >(tag, T());
+#else
+		ofXml xml = m_stack.back().getChild(tag);
+		if (!xml)
+		{
+			return defaultValue;
+		}
+
+		return xml.getValue< T >();
+#endif
+
 	}
 
 	std::string getValue(const std::string& tag, char const* defaultValue)
@@ -81,6 +131,7 @@ public:
 	template< typename T>
 	T getAttribute(const std::string& tag, const std::string& attribute, T const& defaultValue, int n = 0)
 	{
+#if OF_VERSION_MINOR < 10
 		if (!m_xml.exists(tag))
 		{
 			return defaultValue;
@@ -101,6 +152,9 @@ public:
 		}
 
 		return ofFromString<T>(val);
+#else
+
+#endif
 	}
 
 	std::string getAttribute(const std::string& tag, const std::string& attribute, char const* defaultValue, int n = 0)
@@ -160,6 +214,11 @@ public:
 
 private:
 	ofXml m_xml;
+#if OF_VERSION_MINOR >= 10
+	std::vector < ofXml > m_stack;
+
+#endif
+
 } ofxXmlSettings;
 
 #endif

@@ -1,5 +1,7 @@
 #include "Helpers.h"
 
+using namespace std;
+
 //--------------------------------------------------------------
 ofxImGui::Settings::Settings()
 	: windowPos(kImGuiMargin, kImGuiMargin)
