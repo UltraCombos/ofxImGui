@@ -1298,7 +1298,13 @@ bool ofxImGuiParameter::save(std::string const& filepath)
 	}
 
 	ofLogNotice("ofxImGuiParameter", "Save %s to %s", m_title.c_str(), xml_filepath.c_str());
-	return xml_settings.save(xml_filepath);
+	yes = xml_settings.save(xml_filepath);
+	if (yes)
+	{
+		ofNotifyEvent(m_on_save_event, xml_filepath, this);
+	}
+
+	return yes;
 }
 
 bool ofxImGuiParameter::load(std::string const& filepath)
@@ -1353,6 +1359,7 @@ bool ofxImGuiParameter::load(std::string const& filepath)
 	xml_settings.popTag();
 
 	ofLogNotice("ofxImGuiParameter", "Load %s from %s", m_title.c_str(), xml_filepath.c_str());
+	ofNotifyEvent(m_on_load_event, xml_filepath, this);
 	return true;
 }
 

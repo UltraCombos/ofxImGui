@@ -110,6 +110,9 @@ public:
 
 	ofEvent< void >& get_on_pre_draw_parameter_event();
 	ofEvent< void >& get_on_post_draw_parameter_event();
+	ofEvent< std::string const >& get_on_save_event();
+	ofEvent< std::string const >& get_on_load_event();
+
 private:
 
 	static std::vector< ofxImGuiParameter* >	s_box;
@@ -118,8 +121,10 @@ private:
 
 	static void sf_draw(ParamInfo* p_param_info);
 
-	ofEvent< void >				m_pre_draw_event;
-	ofEvent< void >				m_post_draw_event;
+	ofEvent< void >						m_pre_draw_event;
+	ofEvent< void >						m_post_draw_event;
+	ofEvent< std::string const >		m_on_save_event;
+	ofEvent< std::string const >		m_on_load_event;
 
 	ofMutex						m_mutex;
 	gf_draw_func				m_default_draw_i_func;
@@ -203,6 +208,16 @@ inline ofEvent< void >& ofxImGuiParameter::get_on_pre_draw_parameter_event()
 inline ofEvent< void >& ofxImGuiParameter::get_on_post_draw_parameter_event()
 {
 	return m_post_draw_event;
+}
+
+inline ofEvent< std::string const >& ofxImGuiParameter::get_on_save_event()
+{
+	return m_on_save_event;
+}
+
+inline ofEvent< std::string const >& ofxImGuiParameter::get_on_load_event()
+{
+	return m_on_load_event;
 }
 
 typedef ofxImGuiParameter::ValueType< int >		ofxImGuiInt;
