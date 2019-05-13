@@ -283,7 +283,11 @@ private:
 
 namespace
 {
+	typedef std::shared_ptr< ofBaseVideoPlayer > sptr_vid_player;
+	typedef std::shared_ptr< ofBaseSoundPlayer > sptr_snd_player;
 	typedef std::shared_ptr< ofParameter< ofTexture > > sp_param_tex;
+	//typedef std::shared_ptr< ofParameter < sptr_vid_player > > sp_param_vid;
+
 	struct MyTex  
 	{
 		sp_param_tex	sp_param_texture;
@@ -294,6 +298,14 @@ namespace
 	};
 
 	typedef std::shared_ptr< ofParameter< MyTex > > sp_parm_my_tex;
+
+	/*
+	struct MyVid
+	{
+		sp_param_vid	sp_param_video;
+		ofTexture*		p_texture;
+	};
+	*/
 
 	void gf_draw_bool(ofParameter< bool >* p_param)
 	{
@@ -567,13 +579,16 @@ namespace
 		case GL_R32F:				return "GL_R32F";
 		//=========================================================
 #endif
+		case GL_COMPRESSED_RGB_S3TC_DXT1_EXT:	return "GL_COMPRESSED_RGB_S3TC_DXT1";
+		case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:	return "GL_COMPRESSED_RGBA_S3TC_DXT1";
+		case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:	return "GL_COMPRESSED_RGBA_S3TC_DXT3";
+		case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:	return "GL_COMPRESSED_RGBA_S3TC_DXT5";
+
 		default:					return "unknown glInternalFormat";
 		}
-	}
 
-	
-	typedef std::shared_ptr< ofBaseVideoPlayer > sptr_vid_player;
-	typedef std::shared_ptr< ofBaseSoundPlayer > sptr_snd_player;
+
+	}
 
 	void gf_draw_video_player(ofParameter < sptr_vid_player >* p_param)
 	{
@@ -589,6 +604,21 @@ namespace
 		{
 			if (sp_player->isLoaded())
 			{
+				ofTexture* p_tex = sp_player->getTexturePtr();
+				if (p_tex)
+				{
+					ImGui::TextDisabled("w: %.2f, h: %.2f, fmt: %s", p_tex->getWidth(), p_tex->getHeight(), gf_get_gl_internal_fmt_name(p_tex->getTextureData().glInternalFormat));
+				}
+				else
+				{
+					ofVideoPlayer* p_vid_player = dynamic_cast<ofVideoPlayer*>(sp_player.get());
+					if (p_vid_player)
+					{
+						ofTexture& tex = p_vid_player->getTexture();
+						ImGui::TextDisabled("w: %.2f, h: %.2f, fmt: %s", tex.getWidth(), tex.getHeight(), gf_get_gl_internal_fmt_name(tex.getTextureData().glInternalFormat));
+					}
+				}
+
 				float duration = sp_player->getDuration();
 				float time = sp_player->getPosition() * duration;
 				if (ImGui::SliderFloat("time", &time, 0.f, duration))
@@ -712,7 +742,6 @@ namespace
 
 				if (my_tex.is_show_detail)
 				{
-					ImGui::SameLine();
 					ImGui::TextDisabled("w: %.2f, h: %.2f, fmt: %s", tex.getWidth(), tex.getHeight(), gf_get_gl_internal_fmt_name(tex.getTextureData().glInternalFormat));
 				}
 			}
