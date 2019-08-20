@@ -286,7 +286,7 @@ namespace
 	typedef std::shared_ptr< ofBaseVideoPlayer > sptr_vid_player;
 	typedef std::shared_ptr< ofBaseSoundPlayer > sptr_snd_player;
 	typedef std::shared_ptr< ofParameter< ofTexture > > sp_param_tex;
-	//typedef std::shared_ptr< ofParameter < sptr_vid_player > > sp_param_vid;
+	typedef std::shared_ptr< ofAppBaseWindow > sptr_window;
 
 	struct MyTex  
 	{
@@ -298,14 +298,6 @@ namespace
 	};
 
 	typedef std::shared_ptr< ofParameter< MyTex > > sp_parm_my_tex;
-
-	/*
-	struct MyVid
-	{
-		sp_param_vid	sp_param_video;
-		ofTexture*		p_texture;
-	};
-	*/
 
 	void gf_draw_bool(ofParameter< bool >* p_param)
 	{
@@ -1185,9 +1177,9 @@ void ofxImGuiParameter::mf_exit()
 	m_is_setup = false;
 }
 
-ofxImGuiParameter::BindedID ofxImGuiParameter::bind(ofAbstractParameter const& param)
+ofxImGuiParameter::BindedID ofxImGuiParameter::bind(ofAbstractParameter const& param, Style style)
 {
-	return mf_bind(param, m_parameters);
+	return mf_bind(param, m_parameters, style);
 }
 
 void ofxImGuiParameter::unbind(BindedID id)
@@ -1548,7 +1540,11 @@ void gf_save_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 			{
 				xml_settings.setValue(tag_name, p_info->sp_param->cast<bool>().get() ? "true" : "false");
 			}
-			else if (p_info->func == f_func)
+			else if (	
+						p_info->func == (gf_draw_func)&gf_draw_float_slider_default || 
+						p_info->func == (gf_draw_func)&gf_draw_float_drag_default || 
+						p_info->func == (gf_draw_func)&gf_draw_float_input_default
+					)
 			{
 				xml_settings.setValue(tag_name, (double)p_info->sp_param->cast<float>().get());
 			}
@@ -1560,7 +1556,11 @@ void gf_save_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 			{
 				gf_save_xml_value_type <int, int>(xml_settings, p_info, tag_name);
 			}
-			else if (p_info->func == i_func)
+			else if (	
+						p_info->func == (gf_draw_func)&gf_draw_int_slider_default || 
+						p_info->func == (gf_draw_func)&gf_draw_int_drag_default || 
+						p_info->func == (gf_draw_func)&gf_draw_int_input_default
+					)
 			{
 				xml_settings.setValue(tag_name, p_info->sp_param->cast<int>().get());
 			}
@@ -1704,13 +1704,21 @@ void gf_load_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 				std::string value = xml_settings.getValue(tag_name, param_b.get() ? "true" : "false");
 				param_b.set(value == "true");
 			}
-			else if (p_info->func == f_func)
+			else if (	
+						p_info->func == (gf_draw_func)&gf_draw_float_slider_default || 
+						p_info->func == (gf_draw_func)&gf_draw_float_drag_default || 
+						p_info->func == (gf_draw_func)&gf_draw_float_input_default
+					)
 			{
 				ofParameter<float>& param_f = p_info->sp_param->cast<float>();
 				double value = xml_settings.getValue(tag_name, (double)param_f.get());
 				param_f.set(static_cast<float>(value));
 			}
-			else if (p_info->func == i_func)
+			else if (	
+						p_info->func == (gf_draw_func)&gf_draw_int_slider_default || 
+						p_info->func == (gf_draw_func)&gf_draw_int_drag_default || 
+						p_info->func == (gf_draw_func)&gf_draw_int_input_default
+					)
 			{
 				ofParameter<int>& param_i = p_info->sp_param->cast<int>();
 				int value = xml_settings.getValue(tag_name, param_i.get());
@@ -1907,7 +1915,7 @@ void gf_load_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 	}
 }
 
-ofxImGuiParameter::BindedID ofxImGuiParameter::mf_bind(ofAbstractParameter const& param, std::vector< ParamInfo* >& contanier)
+ofxImGuiParameter::BindedID ofxImGuiParameter::mf_bind(ofAbstractParameter const& param, std::vector< ParamInfo* >& contanier, Style style)
 {
 	ParamInfo* p_info = new ParamInfo();
 	shared_ptr<ofAbstractParameter> sp_param = param.newReference();
@@ -1918,7 +1926,7 @@ ofxImGuiParameter::BindedID ofxImGuiParameter::mf_bind(ofAbstractParameter const
 		ofParameterGroup const& group = (ofParameterGroup const&)param;
 		for (size_t i = 0; i < group.size(); ++i)
 		{
-			mf_bind(group[i], p_info->children);
+			mf_bind(group[i], p_info->children, style);
 		}
 	}
 	else if (type_name == typeid(ofParameter<bool>).name())
@@ -1927,11 +1935,48 @@ ofxImGuiParameter::BindedID ofxImGuiParameter::mf_bind(ofAbstractParameter const
 	}
 	else if (type_name == typeid(ofParameter<int>).name())
 	{
-		p_info->func = m_default_draw_i_func;
+		switch (style)
+		{
+		default:
+		case StyleNone:
+			p_info->func = m_default_draw_i_func;
+			break;
+
+		case StyleSlider:
+			p_info->func = (gf_draw_func)&gf_draw_int_slider_default;
+			break;
+
+		case StyleDrag:
+			p_info->func = (gf_draw_func)&gf_draw_int_drag_default;
+			break;
+
+		case StyleInputField:
+			p_info->func = (gf_draw_func)&gf_draw_int_input_default;
+			break;
+		}
+
 	}
 	else if (type_name == typeid(ofParameter<float>).name())
 	{
-		p_info->func = m_default_draw_f_func;
+		switch (style)
+		{
+		default:
+		case StyleNone:
+			p_info->func = m_default_draw_f_func;
+			break;
+
+		case StyleSlider:
+			p_info->func = (gf_draw_func)&gf_draw_float_slider_default;
+			break;
+
+		case StyleDrag:
+			p_info->func = (gf_draw_func)&gf_draw_float_drag_default;
+			break;
+
+		case StyleInputField:
+			p_info->func = (gf_draw_func)&gf_draw_float_input_default;
+			break;
+		}
 	}
 	else if (type_name == typeid(ofParameter<EnumType>).name())
 	{

@@ -28,6 +28,7 @@ public:
 
 	enum Style
 	{
+		StyleNone,
 		StyleInputField,
 		StyleSlider,
 		StyleDrag,
@@ -92,7 +93,7 @@ public:
 
 	bool is_setup();
 	void exit();
-	BindedID bind(ofAbstractParameter const& param);
+	BindedID bind(ofAbstractParameter const& param, Style style = StyleNone);
 	void unbind(BindedID bid);
 	void draw();
 	bool save(std::string const& filepath = "");
@@ -148,7 +149,7 @@ private:
 	void mf_exit();
 	void mf_draw_dialog();
 
-	BindedID mf_bind(ofAbstractParameter const& param, std::vector< ParamInfo* >& contanier);
+	BindedID mf_bind(ofAbstractParameter const& param, std::vector< ParamInfo* >& contanier, Style style);
 	void mf_unbind(std::vector< ParamInfo* >& contanier);
 	void mf_unbind(BindedID bid, std::vector< ParamInfo* >& contanier);
 
