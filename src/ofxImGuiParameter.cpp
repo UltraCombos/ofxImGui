@@ -591,7 +591,7 @@ namespace
 			return;
 		}
 
-		ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Appearing);
+		ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
 		if (ImGui::CollapsingHeader(p_param->getName().c_str()))
 		{
 			if (sp_player->isLoaded())
@@ -656,7 +656,7 @@ namespace
 			return;
 		}
 
-		ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Appearing);
+		ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
 		if (ImGui::CollapsingHeader(p_param->getName().c_str()))
 		{
 			if (sp_player->isLoaded())
@@ -703,7 +703,7 @@ namespace
 		MyTex my_tex = param.get();
 		bool is_changed = false;
 
-		ImGui::SetNextTreeNodeOpen(my_tex.is_open, ImGuiCond_Appearing);
+		ImGui::SetNextItemOpen(my_tex.is_open, ImGuiCond_Appearing);
 		if (ImGui::CollapsingHeader(p_param->getName().c_str()))
 		{
 			ofParameter< ofTexture>& param_tex = *my_tex.sp_param_texture;
@@ -1397,7 +1397,7 @@ void ofxImGuiParameter::sf_draw(ParamInfo* p_param_info)
 	{
 		bool is_open = p_param_info->arg;
 
-		ImGui::SetNextTreeNodeOpen(is_open, ImGuiCond_Appearing);
+		ImGui::SetNextItemOpen(is_open, ImGuiCond_Appearing);
 		if (ImGui::CollapsingHeader(p_param_info->sp_param->getName().c_str()))
 		{
 			for (size_t i = 0; i < p_param_info->children.size(); ++i)
