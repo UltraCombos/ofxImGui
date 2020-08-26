@@ -789,6 +789,29 @@ namespace
 		}
 	}
 
+	void gf_draw_button(ofParameter < ofxImGuiButton >* p_param)
+	{
+		ofParameter< ofxImGuiButton >& param = *p_param;
+		ofxImGuiButton value_obj = p_param->get();
+
+		if (ImGui::Button(p_param->getName().c_str()))
+		{
+			p_param->set(value_obj);
+		}
+	}
+
+	void gf_draw_button_sl(ofParameter < ofxImGuiButtonSL >* p_param)
+	{
+		ofParameter< ofxImGuiButtonSL >& param = *p_param;
+		ofxImGuiButtonSL value_obj = p_param->get();
+
+		ImGui::SameLine();
+		if (ImGui::Button(p_param->getName().c_str()))
+		{
+			p_param->set(value_obj);
+		}
+	}
+
 	bool gf_force_push_tag(ofxXmlSettings& xml_settings, std::string const& tag, std::string const& attri = "", std::string const& attri_val = "")
 	{
 		if (!xml_settings.tagExists(tag))
@@ -2058,6 +2081,14 @@ ofxImGuiParameter::BindedID ofxImGuiParameter::mf_bind(ofAbstractParameter const
 
 		sp_param = sp_temp;
 		p_info->func = (gf_draw_func)&gf_draw_texture;
+	}
+	else if (type_name == typeid(ofParameter< ofxImGuiButton >).name())
+	{
+		p_info->func = (gf_draw_func)&gf_draw_button;
+	}
+	else if (type_name == typeid(ofParameter< ofxImGuiButtonSL >).name())
+	{
+		p_info->func = (gf_draw_func)&gf_draw_button_sl;
 	}
 	else
 	{

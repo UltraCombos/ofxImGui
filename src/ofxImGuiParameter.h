@@ -34,6 +34,12 @@ public:
 		StyleDrag,
 	};
 
+	template < bool >
+	struct EventType
+	{
+
+	};
+
 	struct EnumType
 	{
 		int							select;
@@ -224,5 +230,7 @@ inline ofEvent< std::string const >& ofxImGuiParameter::get_on_load_event()
 typedef ofxImGuiParameter::ValueType< int >		ofxImGuiInt;
 typedef ofxImGuiParameter::ValueType< float	>	ofxImGuiFloat;
 typedef ofxImGuiParameter::EnumType				ofxImGuiEnum;
+typedef	ofxImGuiParameter::EventType< false >	ofxImGuiButton;
+typedef ofxImGuiParameter::EventType< true >	ofxImGuiButtonSL;
 
 #endif//INCLUDE_OF_ADDONS_OFXIMGUIPARAMETER_H_
