@@ -812,6 +812,29 @@ namespace
 		}
 	}
 
+	void gf_draw_label_int(ofxROParamInt* p_param)
+	{
+		ImGui::LabelText(p_param->getName().c_str(), "%d", p_param->get());
+	}
+
+	void gf_draw_label_int_ro(ofAbstractParameter* p_param)
+	{
+		int val = p_param->castReadOnly<int, void>();
+		ImGui::LabelText(p_param->getName().c_str(), "%d", val);
+	}
+
+	void gf_draw_label_float_ro(ofAbstractParameter* p_param)
+	{
+		float val = p_param->castReadOnly<float, void>();
+		ImGui::LabelText(p_param->getName().c_str(), "%.2f", val);
+	}
+
+	void gf_draw_label_string_ro(ofAbstractParameter* p_param)
+	{
+		std::string val = p_param->castReadOnly<std::string, void>();
+		ImGui::LabelText(p_param->getName().c_str(), "%s", val.c_str());
+	}
+
 	bool gf_force_push_tag(ofxXmlSettings& xml_settings, std::string const& tag, std::string const& attri = "", std::string const& attri_val = "")
 	{
 		if (!xml_settings.tagExists(tag))
@@ -1587,6 +1610,11 @@ void gf_save_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 			{
 				xml_settings.setValue(tag_name, p_info->sp_param->cast<int>().get());
 			}
+			else if (p_info->func == (gf_draw_func)&gf_draw_label_int)
+			{
+				ofxROParamInt* p_param = (ofxROParamInt*)p_info->sp_param.get();
+				xml_settings.setValue(tag_name, p_param->get());
+			}
 			else if (p_info->func == (gf_draw_func)&gf_draw_color_u8)
 			{
 				ofColor const& color = p_info->sp_param->cast<ofColor>().get();
@@ -1747,6 +1775,13 @@ void gf_load_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 				int value = xml_settings.getValue(tag_name, param_i.get());
 				param_i.set(value);
 			}
+			else if (p_info->func == (gf_draw_func)&gf_draw_label_int)
+			{
+				ofxROParamInt* p_param = (ofxROParamInt*)p_info->sp_param.get();				
+				int value = xml_settings.getValue(tag_name, p_param->get());
+				ofxROPSetter<int>::set(*p_param, value);
+			}
+		
 			else if (p_info->func == (gf_draw_func)&gf_draw_float_input_spec || p_info->func == (gf_draw_func)&gf_draw_float_slider_spec)
 			{
 				gf_load_xml_value_type <float, double>(xml_settings, p_info, tag_name);
@@ -2090,10 +2125,38 @@ ofxImGuiParameter::BindedID ofxImGuiParameter::mf_bind(ofAbstractParameter const
 	{
 		p_info->func = (gf_draw_func)&gf_draw_button_sl;
 	}
+	else if (type_name == typeid(ofxROParamInt).name())
+	{
+		p_info->func = (gf_draw_func)&gf_draw_label_int;
+	}
 	else
 	{
-		delete p_info;
-		return InvalidBindedID;
+		do 
+		{
+			if (sp_param->isReadOnly())
+			{
+				if (sp_param->valueType() == typeid(int).name())
+				{
+					p_info->func = (gf_draw_func)&gf_draw_label_int_ro;
+					break;
+				}
+				else if (sp_param->valueType() == typeid(float).name())
+				{
+					p_info->func = (gf_draw_func)&gf_draw_label_float_ro;
+					break;
+				}
+				else if (sp_param->valueType() == typeid(std::string).name())
+				{
+					p_info->func = (gf_draw_func)&gf_draw_label_string_ro;
+					break;
+				}
+
+			}
+
+			delete p_info;
+			return InvalidBindedID;
+
+		} while (0);
 	}
 
 	p_info->sp_param = sp_param;

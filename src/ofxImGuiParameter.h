@@ -17,6 +17,27 @@ struct ofxImGuiParamInfo
 	std::vector< ofxImGuiParamInfo* >	children;
 };
 
+template < typename TYPE >
+class ofxROPSetter
+{
+	typedef ofxROPSetter < TYPE > Self;
+
+public:
+	static void setName(ofReadOnlyParameter< TYPE, Self >& param, std::string const& name)
+	{
+		param.setName(name);
+	}
+
+	static void set(ofReadOnlyParameter< TYPE, Self >& param, TYPE val)
+	{
+		param = val;
+	}
+};
+
+typedef ofReadOnlyParameter< int, ofxROPSetter< int > > ofxROParamInt;
+typedef ofReadOnlyParameter< float, ofxROPSetter< float > > ofxROParamFloat;
+typedef ofReadOnlyParameter< std::string, ofxROPSetter< std::string > > ofxROParamString;
+
 class ofxImGuiParameter
 {
 public:
@@ -81,6 +102,12 @@ public:
 		, arg1(a1)
 		, style(s)
 		{}
+	};
+
+	template < typename TYPE >
+	struct LabelType
+	{
+		TYPE value;
 	};
 
 	static bool GetEnumTypeFormDirectory(EnumType* p_out, std::string const& in_path, std::string const& ext_filter);
@@ -232,5 +259,9 @@ typedef ofxImGuiParameter::ValueType< float	>	ofxImGuiFloat;
 typedef ofxImGuiParameter::EnumType				ofxImGuiEnum;
 typedef	ofxImGuiParameter::EventType< false >	ofxImGuiButton;
 typedef ofxImGuiParameter::EventType< true >	ofxImGuiButtonSL;
+
+typedef ofxImGuiParameter::LabelType< int >			ofxImGuiLabelInt;
+typedef ofxImGuiParameter::LabelType< float	>		ofxImGuiLabelFloat;
+typedef ofxImGuiParameter::LabelType< std::string >	ofxImGuiLabel;
 
 #endif//INCLUDE_OF_ADDONS_OFXIMGUIPARAMETER_H_
