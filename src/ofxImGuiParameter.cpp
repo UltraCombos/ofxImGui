@@ -1102,6 +1102,7 @@ ofEvent< void >& ofxImGuiParameter::GetOnDrawEvent()
 
 ofxImGuiParameter::ofxImGuiParameter()
 : m_show_dialog(0)
+, m_help("UltraCombos")
 , m_is_visible(true)
 , m_is_setup(false)
 , m_is_locked_shortcut(false)
@@ -1297,6 +1298,13 @@ void ofxImGuiParameter::draw()
 				{
 					ImGui::MenuItem("Message Auto Gone", "", &m_is_dialog_auto_gone);
 				}
+
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("Help"))
+			{
+				ImGui::MenuItem(m_help.c_str(), "", false, false);
 
 				ImGui::EndMenu();
 			}

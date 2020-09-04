@@ -133,7 +133,8 @@ public:
 	bool load(std::string const& filepath = "");
 
 	void set_xml_filepath(std::string const& file);
-	
+	void set_help(std::string const& help);
+
 	bool is_visible();
 	bool is_locked_shortcut();
 	bool is_enable_dialog();
@@ -168,6 +169,8 @@ private:
 	std::string					m_xml_filepath;
 	std::string					m_msg_of_dialog;
 	std::string					m_title_of_dialog;
+	std::string					m_help;
+
 	ofRectangle					m_pos_and_size;
 	std::vector< ParamInfo* >	m_parameters;
 	size_t						m_show_dialog;
@@ -202,6 +205,11 @@ private:
 inline void ofxImGuiParameter::set_xml_filepath(std::string const& file)
 {
 	m_xml_filepath = file;
+}
+
+inline void ofxImGuiParameter::set_help(std::string const& help)
+{
+	m_help = help;
 }
 
 inline bool ofxImGuiParameter::is_visible()
