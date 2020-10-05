@@ -1057,6 +1057,7 @@ ofEvent< void >& ofxImGuiParameter::GetOnDrawEvent()
 ofxImGuiParameter::ofxImGuiParameter()
 : m_show_dialog(0)
 , m_is_visible(true)
+, m_is_fitting_window(false)
 , m_is_setup(false)
 , m_is_locked_shortcut(false)
 , m_is_enable_dialog(true)
@@ -1201,22 +1202,34 @@ void ofxImGuiParameter::draw()
 
 	do
 	{
-		ImGui::SetNextWindowPos(ImVec2(m_pos_and_size.getX(), m_pos_and_size.getY()), ImGuiCond_Appearing);
-		ImGui::SetNextWindowSize(ImVec2(m_pos_and_size.getWidth(), m_pos_and_size.getHeight()), ImGuiCond_Appearing);
+		auto cond = m_is_fitting_window ? ImGuiCond_Always : ImGuiCond_Appearing;
+		ImGui::SetNextWindowPos(ImVec2(m_pos_and_size.getX(), m_pos_and_size.getY()), cond);
+		ImGui::SetNextWindowSize(ImVec2(m_pos_and_size.getWidth(), m_pos_and_size.getHeight()), cond);		
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_HorizontalScrollbar ;
+		if (m_is_fitting_window)window_flags |= ImGuiWindowFlags_NoTitleBar| ImGuiWindowFlags_NoResize;
+		
 
-		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_HorizontalScrollbar;
 		if (!ImGui::Begin(m_title.c_str(), NULL, window_flags))
 		{
 			break;
 		}
 
-		ImVec2 pos = ImGui::GetWindowPos();
-		ImVec2 size = ImGui::GetWindowSize();
-
-		m_pos_and_size.x = pos.x;
-		m_pos_and_size.y = pos.y;
-		m_pos_and_size.width = size.x;
-		m_pos_and_size.height = size.y;
+		if (m_is_fitting_window == false)
+		{
+			ImVec2 pos = ImGui::GetWindowPos();
+			ImVec2 size = ImGui::GetWindowSize();
+			m_pos_and_size.x = pos.x;
+			m_pos_and_size.y = pos.y;
+			m_pos_and_size.width = size.x;
+			m_pos_and_size.height = size.y;
+		}
+		else
+		{
+			m_pos_and_size.x = 0;
+			m_pos_and_size.y = 0;
+			m_pos_and_size.width = ofGetWidth();
+			m_pos_and_size.height = ofGetHeight();
+		}
 
 		m_is_focused = ImGui::IsWindowFocused();
 
@@ -1244,7 +1257,9 @@ void ofxImGuiParameter::draw()
 					ImGui::MenuItem("Hidden", "Crtl+H", &is_hidden);
 					m_is_visible = !is_hidden;
 				}
-
+				{
+					ImGui::MenuItem("Fit Window", "", &m_is_fitting_window);
+				}
 				ImGui::MenuItem("Lock Shortcut", "", &m_is_locked_shortcut);
 				ImGui::MenuItem("Enable Message", "", &m_is_enable_dialog);
 				if (m_is_enable_dialog)
@@ -1311,6 +1326,7 @@ bool ofxImGuiParameter::save(std::string const& filepath)
 			xml_settings.setValue("IsHidden", m_is_visible ? "false" : "true");
 			xml_settings.setValue("IsEnableMessage", m_is_enable_dialog ? "true" : "false");
 			xml_settings.setValue("IsMessageAutoGone", m_is_dialog_auto_gone ? "true" : "false");
+			xml_settings.setValue("IsFittingWindow", m_is_fitting_window ? "true" : "false");
 			xml_settings.popTag();
 		}
 
@@ -1371,6 +1387,9 @@ bool ofxImGuiParameter::load(std::string const& filepath)
 
 		value = xml_settings.getValue("IsMessageAutoGone", m_is_dialog_auto_gone ? "true" : "false");
 		m_is_dialog_auto_gone = value == "true";
+
+		value = xml_settings.getValue("IsFittingWindow", m_is_fitting_window ? "true" : "false");
+		m_is_fitting_window = value == "true";
 
 		xml_settings.popTag();
 	}

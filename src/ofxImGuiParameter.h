@@ -104,11 +104,12 @@ public:
 	bool is_visible();
 	bool is_locked_shortcut();
 	bool is_enable_dialog();
+	bool is_fitting_window();
 
 	void set_visible(bool yes);
 	void lock_shortcut(bool yes);
 	void enable_dialog(bool yes);
-
+	void set_fit_window(bool yes);
 	ofEvent< void >& get_on_pre_draw_parameter_event();
 	ofEvent< void >& get_on_post_draw_parameter_event();
 	ofEvent< std::string const >& get_on_save_event();
@@ -138,12 +139,13 @@ private:
 	ofRectangle					m_pos_and_size;
 	std::vector< ParamInfo* >	m_parameters;
 	size_t						m_show_dialog;
-	bool						m_is_visible;
+	bool						m_is_visible;	
 	bool						m_is_setup;
 	bool						m_is_locked_shortcut;
 	bool						m_is_focused;
 	bool						m_is_enable_dialog;
 	bool						m_is_dialog_auto_gone;
+	bool						m_is_fitting_window;
 
 	bool mf_setup(std::string const& title, ofRectangle const& rect, Style default_style);
 	void mf_exit();
@@ -185,6 +187,10 @@ inline bool ofxImGuiParameter::is_enable_dialog()
 {
 	return m_is_enable_dialog;
 }
+inline bool ofxImGuiParameter::is_fitting_window()
+{
+	return m_is_fitting_window;
+}
 
 inline void ofxImGuiParameter::set_visible(bool yes)
 {
@@ -199,6 +205,11 @@ inline void ofxImGuiParameter::lock_shortcut(bool yes)
 inline void ofxImGuiParameter::enable_dialog(bool yes)
 {
 	m_is_enable_dialog = yes;
+}
+
+inline void ofxImGuiParameter::set_fit_window(bool yes)
+{
+	m_is_fitting_window = yes;
 }
 
 inline ofEvent< void >& ofxImGuiParameter::get_on_pre_draw_parameter_event()
