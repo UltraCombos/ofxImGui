@@ -591,7 +591,7 @@ namespace
 			return;
 		}
 
-		ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Appearing);
+		ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
 		if (ImGui::CollapsingHeader(p_param->getName().c_str()))
 		{
 			if (sp_player->isLoaded())
@@ -656,7 +656,7 @@ namespace
 			return;
 		}
 
-		ImGui::SetNextTreeNodeOpen(true, ImGuiCond_Appearing);
+		ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
 		if (ImGui::CollapsingHeader(p_param->getName().c_str()))
 		{
 			if (sp_player->isLoaded())
@@ -703,7 +703,7 @@ namespace
 		MyTex my_tex = param.get();
 		bool is_changed = false;
 
-		ImGui::SetNextTreeNodeOpen(my_tex.is_open, ImGuiCond_Appearing);
+		ImGui::SetNextItemOpen(my_tex.is_open, ImGuiCond_Appearing);
 		if (ImGui::CollapsingHeader(p_param->getName().c_str()))
 		{
 			ofParameter< ofTexture>& param_tex = *my_tex.sp_param_texture;
@@ -787,6 +787,52 @@ namespace
 		{
 			p_param->set(my_tex);
 		}
+	}
+
+	void gf_draw_button(ofParameter < ofxImGuiButton >* p_param)
+	{
+		ofParameter< ofxImGuiButton >& param = *p_param;
+		ofxImGuiButton value_obj = p_param->get();
+
+		if (ImGui::Button(p_param->getName().c_str()))
+		{
+			p_param->set(value_obj);
+		}
+	}
+
+	void gf_draw_button_sl(ofParameter < ofxImGuiButtonSL >* p_param)
+	{
+		ofParameter< ofxImGuiButtonSL >& param = *p_param;
+		ofxImGuiButtonSL value_obj = p_param->get();
+
+		ImGui::SameLine();
+		if (ImGui::Button(p_param->getName().c_str()))
+		{
+			p_param->set(value_obj);
+		}
+	}
+
+	void gf_draw_label_int(ofxROParamInt* p_param)
+	{
+		ImGui::LabelText(p_param->getName().c_str(), "%d", p_param->get());
+	}
+
+	void gf_draw_label_int_ro(ofAbstractParameter* p_param)
+	{
+		int val = p_param->castReadOnly<int, void>();
+		ImGui::LabelText(p_param->getName().c_str(), "%d", val);
+	}
+
+	void gf_draw_label_float_ro(ofAbstractParameter* p_param)
+	{
+		float val = p_param->castReadOnly<float, void>();
+		ImGui::LabelText(p_param->getName().c_str(), "%.2f", val);
+	}
+
+	void gf_draw_label_string_ro(ofAbstractParameter* p_param)
+	{
+		std::string val = p_param->castReadOnly<std::string, void>();
+		ImGui::LabelText(p_param->getName().c_str(), "%s", val.c_str());
 	}
 
 	bool gf_force_push_tag(ofxXmlSettings& xml_settings, std::string const& tag, std::string const& attri = "", std::string const& attri_val = "")
@@ -1056,6 +1102,7 @@ ofEvent< void >& ofxImGuiParameter::GetOnDrawEvent()
 
 ofxImGuiParameter::ofxImGuiParameter()
 : m_show_dialog(0)
+, m_help("UltraCombos")
 , m_is_visible(true)
 , m_is_fitting_window(false)
 , m_is_setup(false)
@@ -1270,6 +1317,13 @@ void ofxImGuiParameter::draw()
 				ImGui::EndMenu();
 			}
 
+			if (ImGui::BeginMenu("Help"))
+			{
+				ImGui::MenuItem(m_help.c_str(), "", false, false);
+
+				ImGui::EndMenu();
+			}
+
 			ImGui::EndMenuBar();
 		}
 
@@ -1416,7 +1470,7 @@ void ofxImGuiParameter::sf_draw(ParamInfo* p_param_info)
 	{
 		bool is_open = p_param_info->arg;
 
-		ImGui::SetNextTreeNodeOpen(is_open, ImGuiCond_Appearing);
+		ImGui::SetNextItemOpen(is_open, ImGuiCond_Appearing);
 		if (ImGui::CollapsingHeader(p_param_info->sp_param->getName().c_str()))
 		{
 			for (size_t i = 0; i < p_param_info->children.size(); ++i)
@@ -1583,6 +1637,11 @@ void gf_save_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 			{
 				xml_settings.setValue(tag_name, p_info->sp_param->cast<int>().get());
 			}
+			else if (p_info->func == (gf_draw_func)&gf_draw_label_int)
+			{
+				ofxROParamInt* p_param = (ofxROParamInt*)p_info->sp_param.get();
+				xml_settings.setValue(tag_name, p_param->get());
+			}
 			else if (p_info->func == (gf_draw_func)&gf_draw_color_u8)
 			{
 				ofColor const& color = p_info->sp_param->cast<ofColor>().get();
@@ -1743,6 +1802,13 @@ void gf_load_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 				int value = xml_settings.getValue(tag_name, param_i.get());
 				param_i.set(value);
 			}
+			else if (p_info->func == (gf_draw_func)&gf_draw_label_int)
+			{
+				ofxROParamInt* p_param = (ofxROParamInt*)p_info->sp_param.get();				
+				int value = xml_settings.getValue(tag_name, p_param->get());
+				ofxROPSetter<int>::set(*p_param, value);
+			}
+		
 			else if (p_info->func == (gf_draw_func)&gf_draw_float_input_spec || p_info->func == (gf_draw_func)&gf_draw_float_slider_spec)
 			{
 				gf_load_xml_value_type <float, double>(xml_settings, p_info, tag_name);
@@ -2078,10 +2144,46 @@ ofxImGuiParameter::BindedID ofxImGuiParameter::mf_bind(ofAbstractParameter const
 		sp_param = sp_temp;
 		p_info->func = (gf_draw_func)&gf_draw_texture;
 	}
+	else if (type_name == typeid(ofParameter< ofxImGuiButton >).name())
+	{
+		p_info->func = (gf_draw_func)&gf_draw_button;
+	}
+	else if (type_name == typeid(ofParameter< ofxImGuiButtonSL >).name())
+	{
+		p_info->func = (gf_draw_func)&gf_draw_button_sl;
+	}
+	else if (type_name == typeid(ofxROParamInt).name())
+	{
+		p_info->func = (gf_draw_func)&gf_draw_label_int;
+	}
 	else
 	{
-		delete p_info;
-		return InvalidBindedID;
+		do 
+		{
+			if (sp_param->isReadOnly())
+			{
+				if (sp_param->valueType() == typeid(int).name())
+				{
+					p_info->func = (gf_draw_func)&gf_draw_label_int_ro;
+					break;
+				}
+				else if (sp_param->valueType() == typeid(float).name())
+				{
+					p_info->func = (gf_draw_func)&gf_draw_label_float_ro;
+					break;
+				}
+				else if (sp_param->valueType() == typeid(std::string).name())
+				{
+					p_info->func = (gf_draw_func)&gf_draw_label_string_ro;
+					break;
+				}
+
+			}
+
+			delete p_info;
+			return InvalidBindedID;
+
+		} while (0);
 	}
 
 	p_info->sp_param = sp_param;

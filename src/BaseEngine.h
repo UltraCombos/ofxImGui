@@ -53,6 +53,8 @@ namespace ofxImGui
 		static unsigned int g_VboHandle;
 		static unsigned int g_ElementsHandle;
 
+		static char g_BufferClipboard [2048];
+
 		bool mousePressed[5] = { false };
 		bool mouseReleased = true;
 

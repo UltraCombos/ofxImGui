@@ -20,6 +20,8 @@ namespace ofxImGui
 	unsigned int BaseEngine::g_VboHandle = 0;
 	unsigned int BaseEngine::g_ElementsHandle = 0;
 
+	char BaseEngine::g_BufferClipboard [2048];
+
 	//--------------------------------------------------------------
 	void BaseEngine::onKeyPressed(ofKeyEventArgs& event)
 	{
@@ -71,13 +73,18 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	const char* BaseEngine::getClipboardString(void* user_data)
 	{
-		return &ofGetWindowPtr()->getClipboardString()[0];
+		std::string str = ofGetWindowPtr()->getClipboardString();
+		strncpy(g_BufferClipboard, str.c_str(), sizeof(g_BufferClipboard));
+		g_BufferClipboard[sizeof(g_BufferClipboard) - 1] = '\0';
+		return g_BufferClipboard;
 	}
 
 	//--------------------------------------------------------------
 	void BaseEngine::setClipboardString(void* user_data, const char * text)
 	{
-		ofGetWindowPtr()->setClipboardString(text);
+		strncpy(g_BufferClipboard, text, sizeof(g_BufferClipboard));
+		g_BufferClipboard[sizeof(g_BufferClipboard) - 1] = '\0';
+		ofGetWindowPtr()->setClipboardString(g_BufferClipboard);
 	}
 
 	//--------------------------------------------------------------
