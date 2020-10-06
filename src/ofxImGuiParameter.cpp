@@ -834,6 +834,15 @@ namespace
 		std::string val = p_param->castReadOnly<std::string, void>();
 		ImGui::LabelText(p_param->getName().c_str(), "%s", val.c_str());
 	}
+	void gf_draw_label_color_ro(ofAbstractParameter* p_param)
+	{		
+		ofColor val = p_param->castReadOnly<ofColor, void>();
+		
+		ImGui::ColorButton(p_param->getName().c_str(), ImVec4(val.r, val.g, val.b, val.a), ImGuiColorEditFlags_NoTooltip);
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(0);
+		ImGui::LabelText(p_param->getName().c_str(), "%s", "");
+	}
 
 	bool gf_force_push_tag(ofxXmlSettings& xml_settings, std::string const& tag, std::string const& attri = "", std::string const& attri_val = "")
 	{
@@ -1595,9 +1604,14 @@ void gf_save_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 {
 	for (size_t i = 0; i < container.size(); ++i)
 	{
+		
 		ParamInfo* p_info = container[i];
+		if (p_info->sp_param->isSerializable() == false)
+			continue;
 		std::string tag_name = p_info->sp_param->getName();
 		gf_remove_any_bad_char(tag_name);
+
+		
 
 		if (p_info->func == NULL)
 		{
@@ -1753,6 +1767,8 @@ void gf_load_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 	for (size_t i = 0; i < container.size(); ++i)
 	{
 		ParamInfo* p_info = container[i];
+		if (p_info->sp_param->isSerializable() == false)
+			continue;
 		std::string tag_name = p_info->sp_param->getName();
 		gf_remove_any_bad_char(tag_name);
 
@@ -2175,6 +2191,11 @@ ofxImGuiParameter::BindedID ofxImGuiParameter::mf_bind(ofAbstractParameter const
 				else if (sp_param->valueType() == typeid(std::string).name())
 				{
 					p_info->func = (gf_draw_func)&gf_draw_label_string_ro;
+					break;
+				}
+				else if (sp_param->valueType() == typeid(ofColor).name())
+				{
+					p_info->func = (gf_draw_func)&gf_draw_label_color_ro;
 					break;
 				}
 
