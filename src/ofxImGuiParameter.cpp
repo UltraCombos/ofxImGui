@@ -816,7 +816,7 @@ namespace
 	{
 		ImGui::LabelText(p_param->getName().c_str(), "%d", p_param->get());
 	}
-
+#if OF_VERSION_MINOR >= 10
 	void gf_draw_label_int_ro(ofAbstractParameter* p_param)
 	{
 		int val = p_param->castReadOnly<int, void>();
@@ -843,7 +843,7 @@ namespace
 		ImGui::SetNextItemWidth(0);
 		ImGui::LabelText(p_param->getName().c_str(), "%s", "");
 	}
-
+#endif
 	bool gf_force_push_tag(ofxXmlSettings& xml_settings, std::string const& tag, std::string const& attri = "", std::string const& attri_val = "")
 	{
 		if (!xml_settings.tagExists(tag))
@@ -2174,6 +2174,7 @@ ofxImGuiParameter::BindedID ofxImGuiParameter::mf_bind(ofAbstractParameter const
 	}
 	else
 	{
+#if OF_VERSION_MINOR >= 10
 		do 
 		{
 			if (sp_param->isReadOnly())
@@ -2205,6 +2206,7 @@ ofxImGuiParameter::BindedID ofxImGuiParameter::mf_bind(ofAbstractParameter const
 			return InvalidBindedID;
 
 		} while (0);
+#endif
 	}
 
 	p_info->sp_param = sp_param;
