@@ -1244,6 +1244,11 @@ void ofxImGuiParameter::unbind(BindedID id)
 	mf_unbind(id ,m_parameters);
 }
 
+bool ofxImGuiParameter::enable_save_and_load(BindedID bid, bool yes)
+{
+	return mf_enable_save_and_load(bid, m_parameters, yes);
+}
+
 void ofxImGuiParameter::draw()
 {
 	if (m_show_dialog)
@@ -1361,6 +1366,7 @@ bool ofxImGuiParameter::save(std::string const& filepath)
 	}
 
 	xml_filepath = ofToDataPath(xml_filepath);
+	ofNotifyEvent(m_on_pre_save_event, xml_filepath);
 
 	ofxXmlSettings xml_settings;
 	bool yes = xml_settings.load(xml_filepath);
@@ -1416,6 +1422,9 @@ bool ofxImGuiParameter::load(std::string const& filepath)
 	}
 
 	xml_filepath = ofToDataPath(xml_filepath);
+
+	ofNotifyEvent(m_on_pre_load_event, xml_filepath);
+
 	ofxXmlSettings xml_settings;
 	if (!xml_settings.load(xml_filepath))
 	{
@@ -1604,14 +1613,14 @@ void gf_save_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 {
 	for (size_t i = 0; i < container.size(); ++i)
 	{
-		
 		ParamInfo* p_info = container[i];
 		if (p_info->sp_param->isSerializable() == false)
+		{
 			continue;
+		}
+
 		std::string tag_name = p_info->sp_param->getName();
 		gf_remove_any_bad_char(tag_name);
-
-		
 
 		if (p_info->func == NULL)
 		{
@@ -1623,6 +1632,11 @@ void gf_save_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 		}
 		else
 		{
+			if (!p_info->enable_sl)
+			{
+				continue;
+			}
+
 			if (p_info->func == (gf_draw_func)&gf_draw_bool)
 			{
 				xml_settings.setValue(tag_name, p_info->sp_param->cast<bool>().get() ? "true" : "false");
@@ -1768,7 +1782,10 @@ void gf_load_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 	{
 		ParamInfo* p_info = container[i];
 		if (p_info->sp_param->isSerializable() == false)
+		{
 			continue;
+		}
+
 		std::string tag_name = p_info->sp_param->getName();
 		gf_remove_any_bad_char(tag_name);
 
@@ -1792,6 +1809,11 @@ void gf_load_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 		}
 		else
 		{
+			if (!p_info->enable_sl)
+			{
+				continue;
+			}
+
 			if (p_info->func == (gf_draw_func)&gf_draw_bool)
 			{
 				ofParameter<bool>& param_b = p_info->sp_param->cast<bool>();
@@ -2019,6 +2041,8 @@ void gf_load_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 ofxImGuiParameter::BindedID ofxImGuiParameter::mf_bind(ofAbstractParameter const& param, std::vector< ParamInfo* >& contanier, Style style)
 {
 	ParamInfo* p_info = new ParamInfo();
+	p_info->enable_sl = true;
+
 	shared_ptr<ofAbstractParameter> sp_param = param.newReference();
 	std::string type_name = param.type();
 	if (type_name == typeid(ofParameterGroup).name())
@@ -2244,6 +2268,36 @@ void ofxImGuiParameter::mf_unbind(BindedID bid, std::vector< ParamInfo* >& conta
 		contanier.erase(iter);
 		return;
 	}
+}
+
+bool ofxImGuiParameter::mf_enable_save_and_load(std::vector< ParamInfo* >& contanier, bool yes)
+{
+	typedef std::vector< ParamInfo* >::iterator iterator;
+	for (iterator iter = contanier.begin(); iter != contanier.end(); ++iter)
+	{
+		ParamInfo* p_info = *iter;
+		mf_enable_save_and_load(p_info->children, yes);
+		p_info->enable_sl = yes;
+	}
+	return true;
+}
+
+bool ofxImGuiParameter::mf_enable_save_and_load(BindedID bid, std::vector< ParamInfo* >& contanier, bool yes)
+{
+	typedef std::vector< ParamInfo* >::iterator iterator;
+	for (iterator iter = contanier.begin(); iter != contanier.end(); ++iter)
+	{
+		ParamInfo* p_info = *iter;
+		if (reinterpret_cast<BindedID>(p_info) != bid)
+		{
+			continue;
+		}
+
+		mf_enable_save_and_load(p_info->children, yes);
+		p_info->enable_sl = yes;
+		return true;
+	}
+	return false;
 }
 
 void ofxImGuiParameter::mf_show_dialog(std::string const& tittle, std::string const& message)

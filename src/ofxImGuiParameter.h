@@ -15,6 +15,7 @@ struct ofxImGuiParamInfo
 	gf_draw_func						func;
 	size_t								arg;
 	std::vector< ofxImGuiParamInfo* >	children;
+	bool								enable_sl;
 };
 
 template < typename TYPE >
@@ -128,6 +129,9 @@ public:
 	void exit();
 	BindedID bind(ofAbstractParameter const& param, Style style = StyleNone);
 	void unbind(BindedID bid);
+
+	bool enable_save_and_load(BindedID bid, bool yes);
+
 	void draw();
 	bool save(std::string const& filepath = "");
 	bool load(std::string const& filepath = "");
@@ -146,6 +150,10 @@ public:
 	void set_fit_window(bool yes);
 	ofEvent< void >& get_on_pre_draw_parameter_event();
 	ofEvent< void >& get_on_post_draw_parameter_event();
+
+	ofEvent< std::string const >& get_on_pre_save_event();
+	ofEvent< std::string const >& get_on_pre_load_event();
+
 	ofEvent< std::string const >& get_on_save_event();
 	ofEvent< std::string const >& get_on_load_event();
 
@@ -159,6 +167,8 @@ private:
 
 	ofEvent< void >						m_pre_draw_event;
 	ofEvent< void >						m_post_draw_event;
+	ofEvent< std::string const >		m_on_pre_save_event;
+	ofEvent< std::string const >		m_on_pre_load_event;
 	ofEvent< std::string const >		m_on_save_event;
 	ofEvent< std::string const >		m_on_load_event;
 
@@ -188,8 +198,12 @@ private:
 	void mf_draw_dialog();
 
 	BindedID mf_bind(ofAbstractParameter const& param, std::vector< ParamInfo* >& contanier, Style style);
+
 	void mf_unbind(std::vector< ParamInfo* >& contanier);
 	void mf_unbind(BindedID bid, std::vector< ParamInfo* >& contanier);
+
+	bool mf_enable_save_and_load(std::vector< ParamInfo* >& contanier, bool yes);
+	bool mf_enable_save_and_load(BindedID bid, std::vector< ParamInfo* >& contanier, bool yes);
 
 	void mf_show_dialog(std::string const& tittle, std::string const& message);
 	
@@ -261,6 +275,16 @@ inline ofEvent< void >& ofxImGuiParameter::get_on_pre_draw_parameter_event()
 inline ofEvent< void >& ofxImGuiParameter::get_on_post_draw_parameter_event()
 {
 	return m_post_draw_event;
+}
+
+inline ofEvent< std::string const >& ofxImGuiParameter::get_on_pre_save_event()
+{
+	return m_on_pre_save_event;
+}
+
+inline ofEvent< std::string const >& ofxImGuiParameter::get_on_pre_load_event()
+{
+	return m_on_pre_load_event;
 }
 
 inline ofEvent< std::string const >& ofxImGuiParameter::get_on_save_event()
