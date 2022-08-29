@@ -816,7 +816,7 @@ namespace
 	{
 		ImGui::LabelText(p_param->getName().c_str(), "%d", p_param->get());
 	}
-
+#if OF_VERSION_MINOR >= 10
 	void gf_draw_label_int_ro(ofAbstractParameter* p_param, void*)
 	{
 		int val = p_param->castReadOnly<int, void>();
@@ -834,7 +834,16 @@ namespace
 		std::string val = p_param->castReadOnly<std::string, void>();
 		ImGui::LabelText(p_param->getName().c_str(), "%s", val.c_str());
 	}
-
+	void gf_draw_label_color_ro(ofAbstractParameter* p_param)
+	{		
+		ofColor val = p_param->castReadOnly<ofColor, void>();
+		
+		ImGui::ColorButton(p_param->getName().c_str(), ImVec4(val.r, val.g, val.b, val.a), ImGuiColorEditFlags_NoTooltip);
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(0);
+		ImGui::LabelText(p_param->getName().c_str(), "%s", "");
+	}
+#endif
 	void gf_draw_label_bool_ro(ofAbstractParameter* p_param, void*)
 	{
 		bool val = p_param->castReadOnly<bool, void>();
@@ -1112,6 +1121,7 @@ ofxImGuiParameter::ofxImGuiParameter()
 : m_show_dialog(0)
 , m_help("UltraCombos")
 , m_is_visible(true)
+, m_is_fitting_window(false)
 , m_is_setup(false)
 , m_is_locked_shortcut(false)
 , m_is_enable_dialog(true)
@@ -1242,6 +1252,11 @@ void ofxImGuiParameter::unbind(BindedID id)
 	mf_unbind(id ,m_parameters);
 }
 
+bool ofxImGuiParameter::enable_save_and_load(BindedID bid, bool yes)
+{
+	return mf_enable_save_and_load(bid, m_parameters, yes);
+}
+
 void ofxImGuiParameter::draw()
 {
 	if (m_show_dialog)
@@ -1256,22 +1271,34 @@ void ofxImGuiParameter::draw()
 
 	do
 	{
-		ImGui::SetNextWindowPos(ImVec2(m_pos_and_size.getX(), m_pos_and_size.getY()), ImGuiCond_Appearing);
-		ImGui::SetNextWindowSize(ImVec2(m_pos_and_size.getWidth(), m_pos_and_size.getHeight()), ImGuiCond_Appearing);
+		auto cond = m_is_fitting_window ? ImGuiCond_Always : ImGuiCond_Appearing;
+		ImGui::SetNextWindowPos(ImVec2(m_pos_and_size.getX(), m_pos_and_size.getY()), cond);
+		ImGui::SetNextWindowSize(ImVec2(m_pos_and_size.getWidth(), m_pos_and_size.getHeight()), cond);		
+		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_HorizontalScrollbar ;
+		if (m_is_fitting_window)window_flags |= ImGuiWindowFlags_NoTitleBar| ImGuiWindowFlags_NoResize;
+		
 
-		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_HorizontalScrollbar;
 		if (!ImGui::Begin(m_title.c_str(), NULL, window_flags))
 		{
 			break;
 		}
 
-		ImVec2 pos = ImGui::GetWindowPos();
-		ImVec2 size = ImGui::GetWindowSize();
-
-		m_pos_and_size.x = pos.x;
-		m_pos_and_size.y = pos.y;
-		m_pos_and_size.width = size.x;
-		m_pos_and_size.height = size.y;
+		if (m_is_fitting_window == false)
+		{
+			ImVec2 pos = ImGui::GetWindowPos();
+			ImVec2 size = ImGui::GetWindowSize();
+			m_pos_and_size.x = pos.x;
+			m_pos_and_size.y = pos.y;
+			m_pos_and_size.width = size.x;
+			m_pos_and_size.height = size.y;
+		}
+		else
+		{
+			m_pos_and_size.x = 0;
+			m_pos_and_size.y = 0;
+			m_pos_and_size.width = ofGetWidth();
+			m_pos_and_size.height = ofGetHeight();
+		}
 
 		m_is_focused = ImGui::IsWindowFocused();
 
@@ -1299,7 +1326,9 @@ void ofxImGuiParameter::draw()
 					ImGui::MenuItem("Hidden", "Crtl+H", &is_hidden);
 					m_is_visible = !is_hidden;
 				}
-
+				{
+					ImGui::MenuItem("Fit Window", "", &m_is_fitting_window);
+				}
 				ImGui::MenuItem("Lock Shortcut", "", &m_is_locked_shortcut);
 				ImGui::MenuItem("Enable Message", "", &m_is_enable_dialog);
 				if (m_is_enable_dialog)
@@ -1345,6 +1374,7 @@ bool ofxImGuiParameter::save(std::string const& filepath)
 	}
 
 	xml_filepath = ofToDataPath(xml_filepath);
+	ofNotifyEvent(m_on_pre_save_event, xml_filepath);
 
 	ofxXmlSettings xml_settings;
 	bool yes = xml_settings.load(xml_filepath);
@@ -1373,6 +1403,7 @@ bool ofxImGuiParameter::save(std::string const& filepath)
 			xml_settings.setValue("IsHidden", m_is_visible ? "false" : "true");
 			xml_settings.setValue("IsEnableMessage", m_is_enable_dialog ? "true" : "false");
 			xml_settings.setValue("IsMessageAutoGone", m_is_dialog_auto_gone ? "true" : "false");
+			xml_settings.setValue("IsFittingWindow", m_is_fitting_window ? "true" : "false");
 			xml_settings.popTag();
 		}
 
@@ -1399,6 +1430,9 @@ bool ofxImGuiParameter::load(std::string const& filepath)
 	}
 
 	xml_filepath = ofToDataPath(xml_filepath);
+
+	ofNotifyEvent(m_on_pre_load_event, xml_filepath);
+
 	ofxXmlSettings xml_settings;
 	if (!xml_settings.load(xml_filepath))
 	{
@@ -1433,6 +1467,9 @@ bool ofxImGuiParameter::load(std::string const& filepath)
 
 		value = xml_settings.getValue("IsMessageAutoGone", m_is_dialog_auto_gone ? "true" : "false");
 		m_is_dialog_auto_gone = value == "true";
+
+		value = xml_settings.getValue("IsFittingWindow", m_is_fitting_window ? "true" : "false");
+		m_is_fitting_window = value == "true";
 
 		xml_settings.popTag();
 	}
@@ -1585,6 +1622,11 @@ void gf_save_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 	for (size_t i = 0; i < container.size(); ++i)
 	{
 		ParamInfo* p_info = container[i];
+		if (p_info->sp_param->isSerializable() == false)
+		{
+			continue;
+		}
+
 		std::string tag_name = p_info->sp_param->getName();
 		gf_remove_any_bad_char(tag_name);
 
@@ -1598,6 +1640,11 @@ void gf_save_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 		}
 		else
 		{
+			if (!p_info->enable_sl)
+			{
+				continue;
+			}
+
 			if (p_info->func == (gf_draw_func)&gf_draw_bool)
 			{
 				xml_settings.setValue(tag_name, p_info->sp_param->cast<bool>().get() ? "true" : "false");
@@ -1742,6 +1789,11 @@ void gf_load_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 	for (size_t i = 0; i < container.size(); ++i)
 	{
 		ParamInfo* p_info = container[i];
+		if (p_info->sp_param->isSerializable() == false)
+		{
+			continue;
+		}
+
 		std::string tag_name = p_info->sp_param->getName();
 		gf_remove_any_bad_char(tag_name);
 
@@ -1765,6 +1817,11 @@ void gf_load_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 		}
 		else
 		{
+			if (!p_info->enable_sl)
+			{
+				continue;
+			}
+
 			if (p_info->func == (gf_draw_func)&gf_draw_bool)
 			{
 				ofParameter<bool>& param_b = p_info->sp_param->cast<bool>();
@@ -1992,6 +2049,8 @@ void gf_load_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 ofxImGuiParameter::BindedID ofxImGuiParameter::mf_bind(ofAbstractParameter const& param, std::vector< ParamInfo* >& contanier, Style style, char const* fmt)
 {
 	ParamInfo* p_info = new ParamInfo();
+	p_info->enable_sl = true;
+
 	shared_ptr<ofAbstractParameter> sp_param = param.newReference();
 	std::string type_name = param.type();
 	
@@ -2159,6 +2218,7 @@ ofxImGuiParameter::BindedID ofxImGuiParameter::mf_bind(ofAbstractParameter const
 	}
 	else
 	{
+#if OF_VERSION_MINOR >= 10
 		do 
 		{
 			if (sp_param->isReadOnly())
@@ -2178,18 +2238,22 @@ ofxImGuiParameter::BindedID ofxImGuiParameter::mf_bind(ofAbstractParameter const
 					p_info->func = (gf_draw_func)&gf_draw_label_string_ro;
 					break;
 				}
-				else if (sp_param->valueType() == typeid(bool).name())
+				else if (sp_param->valueType() == typeid(ofColor).name())
+				{
+					p_info->func = (gf_draw_func)&gf_draw_label_color_ro;
+					break;
+				}				else if (sp_param->valueType() == typeid(bool).name())
 				{
 					p_info->func = (gf_draw_func)&gf_draw_label_bool_ro;
 					break;
 				}
-
 			}
 
 			delete p_info;
 			return InvalidBindedID;
 
 		} while (0);
+#endif
 	}
 
 	p_info->sp_param = sp_param;
@@ -2227,6 +2291,36 @@ void ofxImGuiParameter::mf_unbind(BindedID bid, std::vector< ParamInfo* >& conta
 		contanier.erase(iter);
 		return;
 	}
+}
+
+bool ofxImGuiParameter::mf_enable_save_and_load(std::vector< ParamInfo* >& contanier, bool yes)
+{
+	typedef std::vector< ParamInfo* >::iterator iterator;
+	for (iterator iter = contanier.begin(); iter != contanier.end(); ++iter)
+	{
+		ParamInfo* p_info = *iter;
+		mf_enable_save_and_load(p_info->children, yes);
+		p_info->enable_sl = yes;
+	}
+	return true;
+}
+
+bool ofxImGuiParameter::mf_enable_save_and_load(BindedID bid, std::vector< ParamInfo* >& contanier, bool yes)
+{
+	typedef std::vector< ParamInfo* >::iterator iterator;
+	for (iterator iter = contanier.begin(); iter != contanier.end(); ++iter)
+	{
+		ParamInfo* p_info = *iter;
+		if (reinterpret_cast<BindedID>(p_info) != bid)
+		{
+			continue;
+		}
+
+		mf_enable_save_and_load(p_info->children, yes);
+		p_info->enable_sl = yes;
+		return true;
+	}
+	return false;
 }
 
 void ofxImGuiParameter::mf_show_dialog(std::string const& tittle, std::string const& message)
