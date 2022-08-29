@@ -817,6 +817,12 @@ namespace
 		ImGui::LabelText(p_param->getName().c_str(), "%d", p_param->get());
 	}
 #if OF_VERSION_MINOR >= 10
+	void gf_draw_label_bool_ro(ofAbstractParameter* p_param)
+	{
+		bool val = p_param->castReadOnly<bool, void>();
+		ImGui::LabelText(p_param->getName().c_str(), "%s", val? "[X]": "[ ]");
+	}
+
 	void gf_draw_label_int_ro(ofAbstractParameter* p_param)
 	{
 		int val = p_param->castReadOnly<int, void>();
@@ -842,6 +848,11 @@ namespace
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(0);
 		ImGui::LabelText(p_param->getName().c_str(), "%s", "");
+	}
+	void gf_draw_label_rect_ro(ofAbstractParameter* p_param)
+	{
+		ofRectangle val = p_param->castReadOnly<ofRectangle, void>();
+		ImGui::LabelText(p_param->getName().c_str(), "[%.3f, %.3f, %.3f, %.3f]", val.x, val.y, val.width, val.height);
 	}
 #endif
 	bool gf_force_push_tag(ofxXmlSettings& xml_settings, std::string const& tag, std::string const& attri = "", std::string const& attri_val = "")
@@ -2221,6 +2232,16 @@ ofxImGuiParameter::BindedID ofxImGuiParameter::mf_bind(ofAbstractParameter const
 				else if (sp_param->valueType() == typeid(ofColor).name())
 				{
 					p_info->func = (gf_draw_func)&gf_draw_label_color_ro;
+					break;
+				}
+				else if (sp_param->valueType() == typeid(ofRectangle).name())
+				{
+					p_info->func = (gf_draw_func)&gf_draw_label_rect_ro;
+					break;
+				}
+				else if (sp_param->valueType() == typeid(bool).name())
+				{
+					p_info->func = (gf_draw_func)&gf_draw_label_bool_ro;
 					break;
 				}
 
