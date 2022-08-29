@@ -7,13 +7,14 @@ The78ester
 
 #include <ofMain.h>
 
-typedef void(*gf_draw_func)(ofAbstractParameter*);
+typedef void(*gf_draw_func)(ofAbstractParameter*, void*);
 
 struct ofxImGuiParamInfo
 {
 	shared_ptr<ofAbstractParameter>		sp_param;
 	gf_draw_func						func;
 	size_t								arg;
+	char								fmt[8];
 	std::vector< ofxImGuiParamInfo* >	children;
 };
 
@@ -126,7 +127,7 @@ public:
 
 	bool is_setup();
 	void exit();
-	BindedID bind(ofAbstractParameter const& param, Style style = StyleNone);
+	BindedID bind(ofAbstractParameter const& param, Style style = StyleNone, char const* fmt = NULL);
 	void unbind(BindedID bid);
 	void draw();
 	bool save(std::string const& filepath = "");
@@ -170,6 +171,8 @@ private:
 	std::string					m_msg_of_dialog;
 	std::string					m_title_of_dialog;
 	std::string					m_help;
+	std::string					m_fmt_input;
+	std::string					m_fmt_label;
 
 	ofRectangle					m_pos_and_size;
 	std::vector< ParamInfo* >	m_parameters;
@@ -185,7 +188,7 @@ private:
 	void mf_exit();
 	void mf_draw_dialog();
 
-	BindedID mf_bind(ofAbstractParameter const& param, std::vector< ParamInfo* >& contanier, Style style);
+	BindedID mf_bind(ofAbstractParameter const& param, std::vector< ParamInfo* >& contanier, Style style, char const* fmt);
 	void mf_unbind(std::vector< ParamInfo* >& contanier);
 	void mf_unbind(BindedID bid, std::vector< ParamInfo* >& contanier);
 

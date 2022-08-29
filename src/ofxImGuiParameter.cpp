@@ -299,7 +299,7 @@ namespace
 
 	typedef std::shared_ptr< ofParameter< MyTex > > sp_parm_my_tex;
 
-	void gf_draw_bool(ofParameter< bool >* p_param)
+	void gf_draw_bool(ofParameter< bool >* p_param, void*)
 	{
 		bool b_value = p_param->get();
 		bool yes = ImGui::Checkbox(p_param->getName().c_str(), &b_value);
@@ -309,17 +309,17 @@ namespace
 		}
 	}
 
-	void gf_draw_float_slider_default(ofParameter< float >* p_param)
+	void gf_draw_float_slider_default(ofParameter< float >* p_param, char const* fmt)
 	{
 		float f_value = p_param->get();
-		bool yes = ImGui::SliderFloat(p_param->getName().c_str(), &f_value, p_param->getMin(), p_param->getMax());
+		bool yes = ImGui::SliderFloat(p_param->getName().c_str(), &f_value, p_param->getMin(), p_param->getMax(), fmt);
 		if (yes)
 		{
 			p_param->set(f_value);
 		}
 	}
 
-	void gf_draw_int_slider_default(ofParameter< int >* p_param)
+	void gf_draw_int_slider_default(ofParameter< int >* p_param, void*)
 	{
 		int i_value = p_param->get();
 		bool yes = ImGui::SliderInt(p_param->getName().c_str(), &i_value, p_param->getMin(), p_param->getMax());
@@ -329,18 +329,18 @@ namespace
 		}
 	}
 
-	void gf_draw_float_drag_default(ofParameter< float >* p_param)
+	void gf_draw_float_drag_default(ofParameter< float >* p_param, char const* fmt)
 	{
 		float f_value = p_param->get();
 		float delta = p_param->getMax() - p_param->getMin();
-		bool yes = ImGui::DragFloat(p_param->getName().c_str(), &f_value, delta * 0.005f ,p_param->getMin(), p_param->getMax());
+		bool yes = ImGui::DragFloat(p_param->getName().c_str(), &f_value, delta * 0.005f ,p_param->getMin(), p_param->getMax(), fmt);
 		if (yes)
 		{
 			p_param->set(f_value);
 		}
 	}
 
-	void gf_draw_int_drag_default(ofParameter< int >* p_param)
+	void gf_draw_int_drag_default(ofParameter< int >* p_param, void*)
 	{
 		int i_value = p_param->get();
 		float delta = p_param->getMax() - p_param->getMin();
@@ -351,11 +351,11 @@ namespace
 		}
 	}
 
-	void gf_draw_float_input_default(ofParameter< float >* p_param)
+	void gf_draw_float_input_default(ofParameter< float >* p_param, char const* fmt)
 	{
 		float f_value = p_param->get();
 		float delta = p_param->getMax() - p_param->getMin();
-		bool yes = ImGui::InputFloat(p_param->getName().c_str(), &f_value, delta * 0.01f , delta * 0.1f);
+		bool yes = ImGui::InputFloat(p_param->getName().c_str(), &f_value, delta * 0.01f , delta * 0.1f, fmt);
 		if (yes)
 		{
 			f_value = ofClamp(f_value, p_param->getMin(), p_param->getMax());
@@ -363,7 +363,7 @@ namespace
 		}
 	}
 
-	void gf_draw_int_input_default(ofParameter< int >* p_param)
+	void gf_draw_int_input_default(ofParameter< int >* p_param, void*)
 	{
 		int i_value = p_param->get();
 		int delta = p_param->getMax() - p_param->getMin();
@@ -377,17 +377,17 @@ namespace
 		}
 	}
 
-	void gf_draw_float_slider_spec(ofParameter< ofxImGuiFloat >* p_param)
+	void gf_draw_float_slider_spec(ofParameter< ofxImGuiFloat >* p_param, char const* fmt)
 	{
 		ofxImGuiFloat value_obj = p_param->get();
-		bool yes = ImGui::SliderFloat(p_param->getName().c_str(), &value_obj.value, value_obj.arg0, value_obj.arg1);
+		bool yes = ImGui::SliderFloat(p_param->getName().c_str(), &value_obj.value, value_obj.arg0, value_obj.arg1, fmt);
 		if (yes)
 		{
 			p_param->set(value_obj);
 		}
 	}
 
-	void gf_draw_float_drag_spec(ofParameter< ofxImGuiFloat >* p_param)
+	void gf_draw_float_drag_spec(ofParameter< ofxImGuiFloat >* p_param, char const* fmt)
 	{
 		ofxImGuiFloat value_obj = p_param->get();
 		bool yes = ImGui::DragFloat(p_param->getName().c_str(), &value_obj.value, value_obj.arg0, value_obj.arg1);
@@ -397,17 +397,17 @@ namespace
 		}
 	}
 
-	void gf_draw_float_input_spec(ofParameter< ofxImGuiFloat >* p_param)
+	void gf_draw_float_input_spec(ofParameter< ofxImGuiFloat >* p_param, char const* fmt)
 	{
 		ofxImGuiFloat value_obj = p_param->get();
-		bool yes = ImGui::InputFloat(p_param->getName().c_str(), &value_obj.value, value_obj.arg0, value_obj.arg1);
+		bool yes = ImGui::InputFloat(p_param->getName().c_str(), &value_obj.value, value_obj.arg0, value_obj.arg1, fmt);
 		if (yes)
 		{
 			p_param->set(value_obj);
 		}
 	}
 
-	void gf_draw_int_slider_spec(ofParameter< ofxImGuiInt >* p_param)
+	void gf_draw_int_slider_spec(ofParameter< ofxImGuiInt >* p_param, void*)
 	{
 		ofxImGuiInt value_obj = p_param->get();
 		bool yes = ImGui::SliderInt(p_param->getName().c_str(), &value_obj.value, value_obj.arg0, value_obj.arg1);
@@ -417,7 +417,7 @@ namespace
 		}
 	}
 
-	void gf_draw_int_drag_spec(ofParameter< ofxImGuiInt >* p_param)
+	void gf_draw_int_drag_spec(ofParameter< ofxImGuiInt >* p_param, void*)
 	{
 		ofxImGuiInt value_obj = p_param->get();
 		bool yes = ImGui::DragInt(p_param->getName().c_str(), &value_obj.value, value_obj.arg0, value_obj.arg1);
@@ -427,7 +427,7 @@ namespace
 		}
 	}
 
-	void gf_draw_int_input_spec(ofParameter< ofxImGuiInt >* p_param)
+	void gf_draw_int_input_spec(ofParameter< ofxImGuiInt >* p_param, void*)
 	{
 		ofxImGuiInt value_obj = p_param->get();
 		bool yes = ImGui::InputInt(p_param->getName().c_str(), &value_obj.value, value_obj.arg0, value_obj.arg1);
@@ -437,7 +437,7 @@ namespace
 		}
 	}
 
-	void gf_draw_enum(ofParameter< ofxImGuiEnum >* p_param)
+	void gf_draw_enum(ofParameter< ofxImGuiEnum >* p_param, void*)
 	{
 		enum { MaxComboNum = 5, };
 
@@ -460,7 +460,7 @@ namespace
 		delete[] items;
 	}
 
-	void gf_draw_color_u8(ofParameter< ofColor >* p_param)
+	void gf_draw_color_u8(ofParameter< ofColor >* p_param, void*)
 	{
 		ImVec4 color = p_param->get();
 		if (ImGui::ColorEdit4(p_param->getName().c_str(), (float*)&color))
@@ -469,7 +469,7 @@ namespace
 		}
 	}
 
-	void gf_draw_color_f32(ofParameter< ofFloatColor >* p_param)
+	void gf_draw_color_f32(ofParameter< ofFloatColor >* p_param, void*)
 	{
 		ImVec4 color = p_param->get();
 		if (ImGui::ColorEdit4(p_param->getName().c_str(), (float*)&color))
@@ -478,34 +478,34 @@ namespace
 		}
 	}
 
-	void gf_draw_vec2f(ofParameter< ofVec2f >* p_param)
+	void gf_draw_vec2f(ofParameter< ofVec2f >* p_param, char const* fmt)
 	{
 		ofVec2f vec2f = p_param->get();
-		if (ImGui::DragFloat2(p_param->getName().c_str(), vec2f.getPtr()))
+		if (ImGui::DragFloat2(p_param->getName().c_str(), vec2f.getPtr(), 1.f, 0.f, 0.f, fmt))
 		{
 			p_param->set(vec2f);
 		}
 	}
 
-	void gf_draw_vec3f(ofParameter< ofVec3f >* p_param)
+	void gf_draw_vec3f(ofParameter< ofVec3f >* p_param, char const* fmt)
 	{
 		ofVec3f vec3f = p_param->get();
-		if (ImGui::DragFloat3(p_param->getName().c_str(), vec3f.getPtr()))
+		if (ImGui::DragFloat3(p_param->getName().c_str(), vec3f.getPtr(), 1.f, 0.f, 0.f, fmt))
 		{
 			p_param->set(vec3f);
 		}
 	}
 
-	void gf_draw_vec4f(ofParameter< ofVec4f >* p_param)
+	void gf_draw_vec4f(ofParameter< ofVec4f >* p_param, char const* fmt)
 	{
 		ofVec4f vec4f = p_param->get();
-		if (ImGui::DragFloat4(p_param->getName().c_str(), vec4f.getPtr()))
+		if (ImGui::DragFloat4(p_param->getName().c_str(), vec4f.getPtr(), 1.f, 0.f, 0.f, fmt))
 		{
 			p_param->set(vec4f);
 		}
 	}
 
-	void gf_draw_rect(ofParameter< ofRectangle >*p_param)
+	void gf_draw_rect(ofParameter< ofRectangle >*p_param, char const* fmt)
 	{
 		ofRectangle const& rect = p_param->get();
 		ofRectangle max_rect = p_param->getMax();
@@ -517,13 +517,13 @@ namespace
 		}
 
 		float v4[4]{ rect.x, rect.y, rect.width, rect.height };
-		if (ImGui::DragFloat4(p_param->getName().c_str(), v4, len * 0.01f))
+		if (ImGui::DragFloat4(p_param->getName().c_str(), v4, len * 0.01f, 0.f, 0.f, fmt))
 		{
 			p_param->set(ofRectangle(v4[0], v4[1], v4[2], v4[3]));
 		}
 	}
 
-	void gf_draw_text_input(ofParameter < std::string >* p_param)
+	void gf_draw_text_input(ofParameter < std::string >* p_param, void*)
 	{
 		enum { MaxSizeBuf = 256 + 128 };
 
@@ -582,7 +582,7 @@ namespace
 
 	}
 
-	void gf_draw_video_player(ofParameter < sptr_vid_player >* p_param)
+	void gf_draw_video_player(ofParameter < sptr_vid_player >* p_param, void*)
 	{
 		ofParameter< sptr_vid_player >& param = *p_param;
 		sptr_vid_player sp_player = param.get();
@@ -647,7 +647,7 @@ namespace
 		}
 	}
 
-	void gf_draw_sound_player(ofParameter < sptr_snd_player >* p_param)
+	void gf_draw_sound_player(ofParameter < sptr_snd_player >* p_param, void*)
 	{
 		ofParameter< sptr_snd_player >& param = *p_param;
 		sptr_snd_player sp_player = param.get();
@@ -697,7 +697,7 @@ namespace
 		}
 	}
 
-	void gf_draw_texture(ofParameter< MyTex >* p_param)
+	void gf_draw_texture(ofParameter< MyTex >* p_param, void*)
 	{
 		ofParameter< MyTex >& param = *p_param;
 		MyTex my_tex = param.get();
@@ -789,7 +789,7 @@ namespace
 		}
 	}
 
-	void gf_draw_button(ofParameter < ofxImGuiButton >* p_param)
+	void gf_draw_button(ofParameter < ofxImGuiButton >* p_param, void*)
 	{
 		ofParameter< ofxImGuiButton >& param = *p_param;
 		ofxImGuiButton value_obj = p_param->get();
@@ -800,7 +800,7 @@ namespace
 		}
 	}
 
-	void gf_draw_button_sl(ofParameter < ofxImGuiButtonSL >* p_param)
+	void gf_draw_button_sl(ofParameter < ofxImGuiButtonSL >* p_param, void*)
 	{
 		ofParameter< ofxImGuiButtonSL >& param = *p_param;
 		ofxImGuiButtonSL value_obj = p_param->get();
@@ -812,27 +812,35 @@ namespace
 		}
 	}
 
-	void gf_draw_label_int(ofxROParamInt* p_param)
+	void gf_draw_label_int(ofxROParamInt* p_param, void*)
 	{
 		ImGui::LabelText(p_param->getName().c_str(), "%d", p_param->get());
 	}
 
-	void gf_draw_label_int_ro(ofAbstractParameter* p_param)
+	void gf_draw_label_int_ro(ofAbstractParameter* p_param, void*)
 	{
 		int val = p_param->castReadOnly<int, void>();
 		ImGui::LabelText(p_param->getName().c_str(), "%d", val);
 	}
 
-	void gf_draw_label_float_ro(ofAbstractParameter* p_param)
+	void gf_draw_label_float_ro(ofAbstractParameter* p_param, char const* fmt)
 	{
 		float val = p_param->castReadOnly<float, void>();
-		ImGui::LabelText(p_param->getName().c_str(), "%.2f", val);
+		ImGui::LabelText(p_param->getName().c_str(), fmt, val);
 	}
 
-	void gf_draw_label_string_ro(ofAbstractParameter* p_param)
+	void gf_draw_label_string_ro(ofAbstractParameter* p_param, void*)
 	{
 		std::string val = p_param->castReadOnly<std::string, void>();
 		ImGui::LabelText(p_param->getName().c_str(), "%s", val.c_str());
+	}
+
+	void gf_draw_label_bool_ro(ofAbstractParameter* p_param, void*)
+	{
+		bool val = p_param->castReadOnly<bool, void>();
+		ImGui::Checkbox(p_param->getName().c_str(), &val);
+		//ImGui::ColorButton(p_param->getName().c_str(), val ? ofFloatColor::green : ofFloatColor::red, ImGuiColorEditFlags_NoTooltip);
+		//ImGui::LabelText(p_param->getName().c_str(), "%s", val.c_str());
 	}
 
 	bool gf_force_push_tag(ofxXmlSettings& xml_settings, std::string const& tag, std::string const& attri = "", std::string const& attri_val = "")
@@ -1224,9 +1232,9 @@ void ofxImGuiParameter::mf_exit()
 	m_is_setup = false;
 }
 
-ofxImGuiParameter::BindedID ofxImGuiParameter::bind(ofAbstractParameter const& param, Style style)
+ofxImGuiParameter::BindedID ofxImGuiParameter::bind(ofAbstractParameter const& param, Style style, char const* fmt)
 {
-	return mf_bind(param, m_parameters, style);
+	return mf_bind(param, m_parameters, style, fmt);
 }
 
 void ofxImGuiParameter::unbind(BindedID id)
@@ -1445,7 +1453,7 @@ void ofxImGuiParameter::sf_draw(ParamInfo* p_param_info)
 	ImGui::Indent(8.f);
 	if (p_param_info->func)
 	{
-		p_param_info->func(p_param_info->sp_param.get());
+		p_param_info->func(p_param_info->sp_param.get(), p_param_info->fmt);
 	}
 	else //Group
 	{
@@ -1981,18 +1989,30 @@ void gf_load_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 	}
 }
 
-ofxImGuiParameter::BindedID ofxImGuiParameter::mf_bind(ofAbstractParameter const& param, std::vector< ParamInfo* >& contanier, Style style)
+ofxImGuiParameter::BindedID ofxImGuiParameter::mf_bind(ofAbstractParameter const& param, std::vector< ParamInfo* >& contanier, Style style, char const* fmt)
 {
 	ParamInfo* p_info = new ParamInfo();
 	shared_ptr<ofAbstractParameter> sp_param = param.newReference();
 	std::string type_name = param.type();
+	
+	enum { Num = sizeof(p_info->fmt) };
+	if (fmt)
+	{
+		strncpy(p_info->fmt, fmt, Num);
+		p_info->fmt[Num - 1] = '\0';
+	}
+	else
+	{
+		strncpy(p_info->fmt, "%.3f", Num);
+	}
+
 	if (type_name == typeid(ofParameterGroup).name())
 	{
 		p_info->func = NULL;
 		ofParameterGroup const& group = (ofParameterGroup const&)param;
 		for (size_t i = 0; i < group.size(); ++i)
 		{
-			mf_bind(group[i], p_info->children, style);
+			mf_bind(group[i], p_info->children, style, fmt);
 		}
 	}
 	else if (type_name == typeid(ofParameter<bool>).name())
@@ -2156,6 +2176,11 @@ ofxImGuiParameter::BindedID ofxImGuiParameter::mf_bind(ofAbstractParameter const
 				else if (sp_param->valueType() == typeid(std::string).name())
 				{
 					p_info->func = (gf_draw_func)&gf_draw_label_string_ro;
+					break;
+				}
+				else if (sp_param->valueType() == typeid(bool).name())
+				{
+					p_info->func = (gf_draw_func)&gf_draw_label_bool_ro;
 					break;
 				}
 
