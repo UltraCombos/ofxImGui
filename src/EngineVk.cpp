@@ -42,6 +42,7 @@ namespace ofxImGui
 
 		setupImageAllocator();
 
+		pContext = ImGui::GetCurrentContext();
 		ImGuiIO& io = ImGui::GetIO();
 
 		io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;

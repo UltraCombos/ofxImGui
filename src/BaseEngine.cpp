@@ -17,14 +17,28 @@ namespace ofxImGui
 	int BaseEngine::g_AttribLocationPosition = 0;
 	int BaseEngine::g_AttribLocationColor = 0;
 
-	unsigned int BaseEngine::g_VboHandle = 0;
-	unsigned int BaseEngine::g_ElementsHandle = 0;
+	//unsigned int BaseEngine::m_VboHandle = 0;
+	//unsigned int BaseEngine::m_ElementsHandle = 0;
 
 	char BaseEngine::g_BufferClipboard [2048];
+
+	ImGuiContextScope::ImGuiContextScope(ImGuiContext* pContext)
+	: m_pContext(ImGui::GetCurrentContext())
+	{
+		ImGui::SetCurrentContext(pContext);
+	}
+
+	ImGuiContextScope::~ImGuiContextScope()
+	{
+		ImGui::SetCurrentContext(m_pContext);
+	}
+
 
 	//--------------------------------------------------------------
 	void BaseEngine::onKeyPressed(ofKeyEventArgs& event)
 	{
+		ImGuiContextScope scope(pContext);
+
 		int key = event.keycode;
 		ImGuiIO& io = ImGui::GetIO();
 		io.KeysDown[key] = true;
@@ -59,6 +73,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void BaseEngine::onMouseScrolled(ofMouseEventArgs& event)
 	{
+		ImGuiContextScope scope(pContext);
 		ImGuiIO& io = ImGui::GetIO();
 		io.MouseWheel = event.scrollY;
 	}
@@ -66,6 +81,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void BaseEngine::onWindowResized(ofResizeEventArgs& window)
 	{
+		ImGuiContextScope scope(pContext);
 		ImGuiIO& io = ImGui::GetIO();
 		io.DisplaySize = ImVec2((float)window.width, (float)window.height);
 	}

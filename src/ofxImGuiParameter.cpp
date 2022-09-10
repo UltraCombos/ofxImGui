@@ -481,7 +481,9 @@ namespace
 	void gf_draw_vec2f(ofParameter< ofVec2f >* p_param, char const* fmt)
 	{
 		ofVec2f vec2f = p_param->get();
-		if (ImGui::DragFloat2(p_param->getName().c_str(), vec2f.getPtr(), 1.f, 0.f, 0.f, fmt))
+		ofVec2f v2fmin = p_param->getMin();
+		ofVec2f v2fmax = p_param->getMax();
+		if (ImGui::DragFloat2(p_param->getName().c_str(), vec2f.getPtr(), 0.01f, v2fmin.x, v2fmax.x, fmt))
 		{
 			p_param->set(vec2f);
 		}
@@ -490,7 +492,9 @@ namespace
 	void gf_draw_vec3f(ofParameter< ofVec3f >* p_param, char const* fmt)
 	{
 		ofVec3f vec3f = p_param->get();
-		if (ImGui::DragFloat3(p_param->getName().c_str(), vec3f.getPtr(), 1.f, 0.f, 0.f, fmt))
+		ofVec3f v3fmin = p_param->getMin();
+		ofVec3f v3fmax = p_param->getMax();
+		if (ImGui::DragFloat3(p_param->getName().c_str(), vec3f.getPtr(), 0.01f, v3fmin.x, v3fmax.x, fmt))
 		{
 			p_param->set(vec3f);
 		}
@@ -499,7 +503,9 @@ namespace
 	void gf_draw_vec4f(ofParameter< ofVec4f >* p_param, char const* fmt)
 	{
 		ofVec4f vec4f = p_param->get();
-		if (ImGui::DragFloat4(p_param->getName().c_str(), vec4f.getPtr(), 1.f, 0.f, 0.f, fmt))
+		ofVec4f v4fmin = p_param->getMin();
+		ofVec4f v4fmax = p_param->getMax();
+		if (ImGui::DragFloat4(p_param->getName().c_str(), vec4f.getPtr(), 0.01f, v4fmin.x, v4fmax.x, fmt))
 		{
 			p_param->set(vec4f);
 		}
@@ -974,11 +980,23 @@ namespace
 		param.set(value_obj);
 	}
 
-	ofxImGui::Gui* g_p_gui_ins = NULL;
+	//ofxImGui::Gui* g_p_gui_ins = NULL;
 }
 
-std::vector< ofxImGuiParameter* >	ofxImGuiParameter::s_box;
-ofEvent< void >						ofxImGuiParameter::s_event;
+class ofxImGuiParameter::Context
+{
+public:
+	ofxImGui::Gui*						p_gui;
+	std::vector< ofxImGuiParameter* >	box;
+	ofEvent< void >						event;
+
+	ofxImGuiParameter::Context()
+	: p_gui(new ofxImGui::Gui())
+	{}
+};
+
+//std::vector< ofxImGuiParameter* >	ofxImGuiParameter::s_box;
+//ofEvent< void >						ofxImGuiParameter::s_event;
 ofMutex								ofxImGuiParameter::s_mutex;
 ofxImGuiParameter::BindedID const	ofxImGuiParameter::InvalidBindedID = 0;
 ofRectangle const					ofxImGuiParameter::DefaultPosAndSize = ofRectangle(10.f, 10.f, 320.f, 640.f);
@@ -991,6 +1009,7 @@ void gf_load_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 
 namespace
 {
+	ofxImGuiParameter::Context* g_p_context = NULL;
 	bool gf_check_ext(std::string const& ext, std::vector<std::string> const& box_ext)
 	{
 		if (box_ext.empty())
@@ -1069,61 +1088,122 @@ bool ofxImGuiParameter::GetEnumTypeFormDirectory(EnumType* p_out, std::string co
 	return true;
 }
 
-void ofxImGuiParameter::Initialize()
+bool isInited = false;
+
+ofxImGuiParameter::Context* ofxImGuiParameter::Initialize()
 {
 	ofScopedLock locker_s(s_mutex);
-	if (!g_p_gui_ins)
-	{
-		g_p_gui_ins = new ofxImGui::Gui();
-	}
 
-	g_p_gui_ins->setup();
+	Context* p_context = new Context();
+	g_p_context = p_context;
+	p_context->p_gui->setup();
+	return p_context;
 }
 
-void ofxImGuiParameter::Finalize()
+void ofxImGuiParameter::Finalize(Context* pContext)
 {
 	ofScopedLock locker_s(s_mutex);
-	for (size_t i = 0; i < s_box.size(); ++i)
-	{
-		s_box[i]->mf_exit();
-	}
-
-	if (g_p_gui_ins)
-	{
-		delete g_p_gui_ins;
-		g_p_gui_ins = NULL;
-	}
-}
-
-void ofxImGuiParameter::Draw()
-{
-	ofScopedLock locker_s(s_mutex);
-	if (!g_p_gui_ins)
+	Context* p_context = pContext ? pContext : g_p_context;
+	if (!p_context)
 	{
 		return;
 	}
 
-	g_p_gui_ins->begin();
-
-	ofNotifyEvent(s_event, g_p_gui_ins);
-		
-	for (size_t i = 0; i < s_box.size(); ++i)
+	for (size_t i = 0; i < p_context->box.size(); ++i)
 	{
-		s_box[i]->draw();
+		p_context->box[i]->mf_exit();
 	}
 
-	g_p_gui_ins->end();
+	if (p_context)
+	{
+		if (p_context == g_p_context)
+		{
+			g_p_context = NULL;
+		}
+
+		delete p_context;
+	}
 }
 
-ofEvent< void >& ofxImGuiParameter::GetOnDrawEvent()
+ofxImGuiParameter::Context* ofxImGuiParameter::GetCurrentContext()
 {
-	return s_event;
+	ofScopedLock locker_s(s_mutex);
+	return g_p_context;
+}
+
+void ofxImGuiParameter::SetCurrentContext(Context* pContext)
+{
+	ofScopedLock locker_s(s_mutex);
+	if (!pContext)
+	{
+		return;
+	}
+
+	g_p_context = pContext;
+}
+
+bool ofxImGuiParameter::IsMouseCaptured(Context* pContext)
+{
+	ofScopedLock locker_s(s_mutex);
+	Context* p_context = pContext ? pContext : g_p_context;
+	if (!p_context)
+	{
+		return false;
+	}
+
+	return p_context->p_gui->isMouseCaptured();
+}
+
+bool ofxImGuiParameter::IsKeyboardCaptured(Context* pContext)
+{
+	ofScopedLock locker_s(s_mutex);
+	Context* p_context = pContext ? pContext : g_p_context;
+	if (!p_context)
+	{
+		return false;
+	}
+
+	return p_context->p_gui->isKeyboardCaptured();
+}
+
+void ofxImGuiParameter::Draw(Context* pContext)
+{
+	ofScopedLock locker_s(s_mutex);
+	Context* p_context = pContext ? pContext : g_p_context;
+	if (!p_context)
+	{
+		return;
+	}
+
+	p_context->p_gui->begin();
+
+	ofNotifyEvent(p_context->event, p_context->p_gui);
+		
+	for (size_t i = 0; i < p_context->box.size(); ++i)
+	{
+		p_context->box[i]->draw();
+	}
+
+	p_context->p_gui->end();
+}
+
+ofEvent< void >& ofxImGuiParameter::GetOnDrawEvent(Context* pContext)
+{
+	ofScopedLock locker_s(s_mutex);
+	Context* p_context = pContext ? pContext : g_p_context;
+	if (!p_context)
+	{
+		return ofEvent<void>();
+	}
+
+	return p_context->event;
 }
 
 /////////////////////////////////////////////////////////////////////////////
 
 ofxImGuiParameter::ofxImGuiParameter()
-: m_show_dialog(0)
+: m_p_context(NULL)
+, m_show_dialog(0)
 , m_help("UltraCombos")
 , m_is_visible(true)
 , m_is_fitting_window(false)
@@ -1141,12 +1221,22 @@ ofxImGuiParameter::~ofxImGuiParameter()
 
 bool ofxImGuiParameter::setup(std::string const& title, ofRectangle const& rect, Style default_style)
 {
-	return mf_setup(title, rect, default_style);
+	return mf_setup(NULL, title, rect, default_style);
 }
 
 bool ofxImGuiParameter::setup(std::string const& title, Style default_style)
 {
-	return mf_setup(title, DefaultPosAndSize, default_style);
+	return mf_setup(NULL, title, DefaultPosAndSize, default_style);
+}
+
+bool ofxImGuiParameter::setup(Context* pContext, std::string const& title, ofRectangle const& rect, Style default_style)
+{
+	return mf_setup(pContext, title, rect, default_style);
+}
+
+bool ofxImGuiParameter::setup(Context* pContext, std::string const& title, Style default_style)
+{
+	return mf_setup(pContext, title, DefaultPosAndSize, default_style);
 }
 
 bool ofxImGuiParameter::is_setup()
@@ -1167,11 +1257,11 @@ void ofxImGuiParameter::exit()
 	}
 }
 
-bool ofxImGuiParameter::mf_setup(std::string const& title, ofRectangle const& rect, Style default_style)
+bool ofxImGuiParameter::mf_setup(Context* pContext, std::string const& title, ofRectangle const& rect, Style default_style)
 {
 	{
 		ofScopedLock locker_s(s_mutex);
-
+		Context* p_context = pContext ? pContext : g_p_context;
 		{
 			ofScopedLock locker(m_mutex);
 
@@ -1183,13 +1273,13 @@ bool ofxImGuiParameter::mf_setup(std::string const& title, ofRectangle const& re
 			}
 
 			m_pos_and_size = rect;
-			ImGui::GetIO().MouseDrawCursor = false;
+			//ImGui::GetIO().MouseDrawCursor = false;
 			if (m_is_setup)
 			{
 				return true;
 			}
 
-			s_box.push_back(this);
+			p_context->box.push_back(this);
 
 			ofAddListener(ofEvents().keyPressed, this, &ofxImGuiParameter::mf_on_key_pressed);
 			//ofAddListener(ofEvents().keyReleased, this, &ofxImGuiParameter::mf_on_key_released);
@@ -1213,6 +1303,7 @@ bool ofxImGuiParameter::mf_setup(std::string const& title, ofRectangle const& re
 				break;
 			}
 
+			m_p_context = p_context;
 			m_is_setup = true;
 			return true;
 		}
@@ -1229,16 +1320,16 @@ void ofxImGuiParameter::mf_exit()
 	//ofRemoveListener(ofEvents().keyReleased, this, &ofxImGuiParameter::mf_on_key_released);
 	ofRemoveListener(ofEvents().keyPressed, this, &ofxImGuiParameter::mf_on_key_pressed);
 
-	for (size_t i = 0; i < s_box.size(); ++i)
+	for (size_t i = 0; i < m_p_context->box.size(); ++i)
 	{
-		if (s_box[i] == this)
+		if (m_p_context->box[i] == this)
 		{
-			size_t last_index = s_box.size() - 1;
+			size_t last_index = m_p_context->box.size() - 1;
 			if (i != last_index)
 			{
-				s_box[i] = s_box[last_index];
+				m_p_context->box[i] = m_p_context->box[last_index];
 			}
-			s_box.pop_back();
+			m_p_context->box.pop_back();
 			break;
 		}
 	}

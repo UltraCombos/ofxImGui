@@ -13,6 +13,7 @@ namespace ofxImGui
 	{
 		if (isSetup) return;
 
+		pContext = ImGui::GetCurrentContext();
 		ImGuiIO& io = ImGui::GetIO();
 
 		io.KeyMap[ImGuiKey_Tab] = OF_KEY_TAB;
@@ -131,8 +132,8 @@ namespace ofxImGui
 		g_AttribLocationUV = glGetAttribLocation(g_ShaderHandle, "UV");
 		g_AttribLocationColor = glGetAttribLocation(g_ShaderHandle, "Color");
 
-		glGenBuffers(1, &g_VboHandle);
-		glGenBuffers(1, &g_ElementsHandle);
+		glGenBuffers(1, &m_VboHandle);
+		glGenBuffers(1, &m_ElementsHandle);
 
 		ImGuiIO& io = ImGui::GetIO();
 
@@ -168,9 +169,9 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void EngineOpenGLES::invalidateDeviceObjects()
 	{
-		if (g_VboHandle) glDeleteBuffers(1, &g_VboHandle);
-		if (g_ElementsHandle) glDeleteBuffers(1, &g_ElementsHandle);
-		g_VboHandle = g_ElementsHandle = 0;
+		if (m_VboHandle) glDeleteBuffers(1, &m_VboHandle);
+		if (m_ElementsHandle) glDeleteBuffers(1, &m_ElementsHandle);
+		m_VboHandle = m_ElementsHandle = 0;
 
 		g_Shader.unload();
 		g_ShaderHandle = 0;
@@ -210,7 +211,7 @@ namespace ofxImGui
 		glUniformMatrix4fv(g_UniformLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0]);
 
 		// Render command lists
-		glBindBuffer(GL_ARRAY_BUFFER, g_VboHandle);
+		glBindBuffer(GL_ARRAY_BUFFER, m_VboHandle);
 		glEnableVertexAttribArray(g_AttribLocationPosition);
 		glEnableVertexAttribArray(g_AttribLocationUV);
 		glEnableVertexAttribArray(g_AttribLocationColor);
@@ -224,10 +225,10 @@ namespace ofxImGui
 			const ImDrawList* cmd_list = draw_data->CmdLists[n];
 			const ImDrawIdx* idx_buffer_offset = 0;
 
-			glBindBuffer(GL_ARRAY_BUFFER, g_VboHandle);
+			glBindBuffer(GL_ARRAY_BUFFER, m_VboHandle);
 			glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)cmd_list->VtxBuffer.size() * sizeof(ImDrawVert), (GLvoid*)&cmd_list->VtxBuffer.front(), GL_STREAM_DRAW);
 
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ElementsHandle);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ElementsHandle);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)cmd_list->IdxBuffer.size() * sizeof(ImDrawIdx), (GLvoid*)&cmd_list->IdxBuffer.front(), GL_STREAM_DRAW);
 
 			for (const ImDrawCmd* pcmd = cmd_list->CmdBuffer.begin(); pcmd != cmd_list->CmdBuffer.end(); pcmd++)

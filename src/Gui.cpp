@@ -19,42 +19,49 @@ namespace ofxImGui
 		: lastTime(0.0f)
 		, engine(nullptr)
 		, theme(nullptr)
+		, m_pContext(NULL)
+		, m_pContextPre(NULL)
 	{}
 
 	//--------------------------------------------------------------
 	void Gui::setup(BaseTheme* theme_)
 	{
 		//1.6x
-		ImGui::CreateContext();
+		m_pContext = ImGui::CreateContext();
 
-		ImGuiIO& io = ImGui::GetIO();
+		{
+			ImGuiContextScope scope(m_pContext);
+			ImGuiIO& io = ImGui::GetIO();
 
-		io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
-		io.MouseDrawCursor = false;
+			io.DisplaySize = ImVec2((float)ofGetWidth(), (float)ofGetHeight());
+			io.MouseDrawCursor = false;
 
 #if defined(TARGET_OPENGLES)
-		engine = new EngineOpenGLES();
+			engine = new EngineOpenGLES();
 #elif defined (OF_TARGET_API_VULKAN) 
-		engine = new EngineVk();
+			engine = new EngineVk();
 #else 
-	engine = new EngineGLFW();
+			engine = new EngineGLFW();
 #endif
 
-		engine->setup();
+			engine->setup();
 
-		if (theme_)
-		{
-			setTheme(theme_);
-		}
-		else
-		{
-			setTheme(new BaseTheme());
+			if (theme_)
+			{
+				setTheme(theme_);
+			}
+			else
+			{
+				setTheme(new BaseTheme());
+			}
 		}
 	}
 
 	//--------------------------------------------------------------
 	void Gui::setTheme(BaseTheme* theme_)
 	{
+		ImGuiContextScope scope(m_pContext);
+
 		if (theme)
 		{
 			delete theme;
@@ -68,18 +75,21 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void Gui::openThemeColorWindow()
 	{
+		ImGuiContextScope scope(m_pContext);
 		theme->themeColorsWindow(true);
 	}
 
 	//--------------------------------------------------------------
 	GLuint Gui::loadPixels(ofPixels& pixels)
 	{
+		ImGuiContextScope scope(m_pContext);
 		return engine->loadTextureImage2D(pixels.getData(), (int)pixels.getWidth(), (int)pixels.getHeight());
 	}
 
 	//--------------------------------------------------------------
 	GLuint Gui::loadPixels(const std::string& imagePath)
 	{
+		ImGuiContextScope scope(m_pContext);
 		if (!engine) return -1;
 		ofPixels pixels;
 		ofLoadImage(pixels, imagePath);
@@ -89,6 +99,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	GLuint Gui::loadImage(ofImage& image)
 	{
+		ImGuiContextScope scope(m_pContext);
 		if (!engine) return -1;
 		return loadPixels(image.getPixels());
 	}
@@ -96,12 +107,14 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	GLuint Gui::loadImage(const std::string& imagePath)
 	{
+		ImGuiContextScope scope(m_pContext);
 		return loadPixels(imagePath);
 	}
 
 	//--------------------------------------------------------------
 	GLuint Gui::loadTexture(const std::string& imagePath)
 	{
+		ImGuiContextScope scope(m_pContext);
 		ofDisableArbTex();
 		ofTexture* texture = new ofTexture();
 		ofLoadImage(*texture, imagePath);
@@ -113,6 +126,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	GLuint Gui::loadTexture(ofTexture& texture, const std::string& imagePath)
 	{
+		ImGuiContextScope scope(m_pContext);
 		bool isUsingArb = ofGetUsingArbTex();
 		if (isUsingArb)
 		{
@@ -126,9 +140,24 @@ namespace ofxImGui
 		return texture.getTextureData().textureID;
 	}
 
+	bool Gui::isMouseCaptured()
+	{
+		ImGuiContextScope scope(m_pContext);
+		return ImGui::GetIO().WantCaptureMouse;
+	}
+
+	bool Gui::isKeyboardCaptured()
+	{
+		ImGuiContextScope scope(m_pContext);
+		return ImGui::GetIO().WantCaptureKeyboard;
+	}
+
 	//--------------------------------------------------------------
 	void Gui::begin()
 	{
+		m_pContextPre = ImGui::GetCurrentContext();
+		ImGui::SetCurrentContext(m_pContext);
+
 		if (!engine)
 		{
 			ofLogError(__FUNCTION__) << "setup() call required, calling it for you";
@@ -169,11 +198,15 @@ namespace ofxImGui
 	{
 		ImGui::Render();
 		engine->render();
+
+		ImGui::SetCurrentContext(m_pContextPre);
+		m_pContextPre = NULL;
 	}
 
 	//--------------------------------------------------------------
 	void Gui::close()
 	{
+		ImGuiContextScope scope(m_pContext);
 		if (engine)
 		{
 			delete engine;
@@ -199,6 +232,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	Gui::~Gui()
 	{
+		ImGuiContextScope scope(m_pContext);
 		close();
 
 		//1.5x

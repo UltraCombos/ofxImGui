@@ -34,14 +34,14 @@ namespace ofxImGui
 		void onMousePressed(ofMouseEventArgs& event) override;
 
 		// Custom 
-		static void programmableRenderDrawLists(ImDrawData * draw_data);
-		static void fixedRenderDrawLists(ImDrawData * draw_data);
+		static void programmableRenderDrawLists(ImDrawData * draw_data, EngineGLFW* p_self);
+		static void fixedRenderDrawLists(ImDrawData * draw_data, EngineGLFW* p_self);
 
-		static GLuint g_FontTexture;
-		static unsigned int g_VaoHandle;
+		GLuint m_FontTexture;
+		unsigned int m_VaoHandle;
 
 	private:
-		typedef void(*RenderDrawListsFn)(ImDrawData*);
+		typedef void(*RenderDrawListsFn)(ImDrawData*, void*);
 		RenderDrawListsFn m_render_func;
 	};
 }

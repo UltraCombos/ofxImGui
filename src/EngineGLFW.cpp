@@ -8,14 +8,15 @@
 
 namespace ofxImGui
 {
-	GLuint EngineGLFW::g_FontTexture = 0;
-	unsigned int EngineGLFW::g_VaoHandle = 0;
+	//GLuint EngineGLFW::m_FontTexture = 0;
+	//unsigned int EngineGLFW::m_VaoHandle = 0;
 
 	//--------------------------------------------------------------
 	void EngineGLFW::setup()
 	{
 		if (isSetup) return;
 
+		pContext = ImGui::GetCurrentContext();
 		ImGuiIO& io = ImGui::GetIO();
 
 		io.KeyMap[ImGuiKey_Tab] = GLFW_KEY_TAB;
@@ -41,12 +42,12 @@ namespace ofxImGui
 		if (ofIsGLProgrammableRenderer())
 		{
 			//io.RenderDrawListsFn = programmableRenderDrawLists;
-			m_render_func = &programmableRenderDrawLists;
+			m_render_func = (RenderDrawListsFn)&programmableRenderDrawLists;
 		}
 		else
 		{
 			//io.RenderDrawListsFn = fixedRenderDrawLists;
-			m_render_func = &fixedRenderDrawLists;
+			m_render_func = (RenderDrawListsFn)&fixedRenderDrawLists;
 		}
 
 		io.SetClipboardTextFn = &BaseEngine::setClipboardString;
@@ -86,6 +87,7 @@ namespace ofxImGui
 
 		invalidateDeviceObjects();
 
+		pContext = NULL;
 		isSetup = false;
 	}
 
@@ -93,7 +95,7 @@ namespace ofxImGui
 	{
 		if (!isSetup) return;
 
-		m_render_func(ImGui::GetDrawData());
+		m_render_func(ImGui::GetDrawData(), this);
 	}
 
 
@@ -123,6 +125,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void EngineGLFW::onMousePressed(ofMouseEventArgs& event)
 	{
+		ImGuiContextScope scope(pContext);
 		int button = event.button;
 		if (button >= 0 && button < 5)
 		{
@@ -133,7 +136,7 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
-	void EngineGLFW::programmableRenderDrawLists(ImDrawData * draw_data)
+	void EngineGLFW::programmableRenderDrawLists(ImDrawData * draw_data, EngineGLFW* p_self)
 	{
 		// Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
 		ImGuiIO& io = ImGui::GetIO();
@@ -180,17 +183,17 @@ namespace ofxImGui
 		glUseProgram(g_ShaderHandle);
 		glUniform1i(g_UniformLocationTex, 0);
 		glUniformMatrix4fv(g_UniformLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0]);
-		glBindVertexArray(g_VaoHandle);
+		glBindVertexArray(p_self->m_VaoHandle);
 
 		for (int n = 0; n < draw_data->CmdListsCount; n++)
 		{
 			const ImDrawList* cmd_list = draw_data->CmdLists[n];
 			const ImDrawIdx* idx_buffer_offset = 0;
 
-			glBindBuffer(GL_ARRAY_BUFFER, g_VboHandle);
+			glBindBuffer(GL_ARRAY_BUFFER, p_self->m_VboHandle);
 			glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)cmd_list->VtxBuffer.size() * sizeof(ImDrawVert), (GLvoid*)&cmd_list->VtxBuffer.front(), GL_STREAM_DRAW);
 
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ElementsHandle);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, p_self->m_ElementsHandle);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)cmd_list->IdxBuffer.size() * sizeof(ImDrawIdx), (GLvoid*)&cmd_list->IdxBuffer.front(), GL_STREAM_DRAW);
 
 			for (const ImDrawCmd* pcmd = cmd_list->CmdBuffer.begin(); pcmd != cmd_list->CmdBuffer.end(); pcmd++)
@@ -225,7 +228,7 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
-	void EngineGLFW::fixedRenderDrawLists(ImDrawData * draw_data)
+	void EngineGLFW::fixedRenderDrawLists(ImDrawData * draw_data, EngineGLFW* p_self)
 	{
 		// Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
 		ImGuiIO& io = ImGui::GetIO();
@@ -306,6 +309,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void EngineGLFW::onKeyReleased(ofKeyEventArgs& event)
 	{
+		ImGuiContextScope scope(pContext);
 		int key = event.keycode;
 		ImGuiIO& io = ImGui::GetIO();
 		io.KeysDown[key] = false;
@@ -317,7 +321,9 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
-	void EngineGLFW::onKeyPressed(ofKeyEventArgs& event) {
+	void EngineGLFW::onKeyPressed(ofKeyEventArgs& event) 
+	{
+		ImGuiContextScope scope(pContext);
 		int key = event.keycode;
 		ImGuiIO& io = ImGui::GetIO();
 		io.KeysDown[key] = true;
@@ -387,12 +393,12 @@ namespace ofxImGui
 			g_AttribLocationUV = glGetAttribLocation(g_ShaderHandle, "UV");
 			g_AttribLocationColor = glGetAttribLocation(g_ShaderHandle, "Color");
 
-			glGenBuffers(1, &g_VboHandle);
-			glGenBuffers(1, &g_ElementsHandle);
+			glGenBuffers(1, &m_VboHandle);
+			glGenBuffers(1, &m_ElementsHandle);
 
-			glGenVertexArrays(1, &g_VaoHandle);
-			glBindVertexArray(g_VaoHandle);
-			glBindBuffer(GL_ARRAY_BUFFER, g_VboHandle);
+			glGenVertexArrays(1, &m_VaoHandle);
+			glBindVertexArray(m_VaoHandle);
+			glBindBuffer(GL_ARRAY_BUFFER, m_VboHandle);
 			glEnableVertexAttribArray(g_AttribLocationPosition);
 			glEnableVertexAttribArray(g_AttribLocationUV);
 			glEnableVertexAttribArray(g_AttribLocationColor);
@@ -433,14 +439,14 @@ namespace ofxImGui
 		glGetIntegerv(GL_TEXTURE_BINDING_2D, &last_texture);
 
 		// Upload texture to graphics system
-		glGenTextures(1, &g_FontTexture);
-		glBindTexture(GL_TEXTURE_2D, g_FontTexture);
+		glGenTextures(1, &m_FontTexture);
+		glBindTexture(GL_TEXTURE_2D, m_FontTexture);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
 		// Store our identifier
-		io.Fonts->TexID = (void *)(intptr_t)g_FontTexture;
+		io.Fonts->TexID = (void *)(intptr_t)m_FontTexture;
 
 		// Restore state
 		glBindTexture(GL_TEXTURE_2D, last_texture);
@@ -452,10 +458,10 @@ namespace ofxImGui
 	void EngineGLFW::invalidateDeviceObjects()
 	{
 		if (ofIsGLProgrammableRenderer()) {
-			if (g_VaoHandle) glDeleteVertexArrays(1, &g_VaoHandle);
-			if (g_VboHandle) glDeleteBuffers(1, &g_VboHandle);
-			if (g_ElementsHandle) glDeleteBuffers(1, &g_ElementsHandle);
-			g_VaoHandle = g_VboHandle = g_ElementsHandle = 0;
+			if (m_VaoHandle) glDeleteVertexArrays(1, &m_VaoHandle);
+			if (m_VboHandle) glDeleteBuffers(1, &m_VboHandle);
+			if (m_ElementsHandle) glDeleteBuffers(1, &m_ElementsHandle);
+			m_VaoHandle = m_VboHandle = m_ElementsHandle = 0;
 
 			glDetachShader(g_ShaderHandle, g_VertHandle);
 			glDeleteShader(g_VertHandle);
@@ -469,11 +475,11 @@ namespace ofxImGui
 			g_ShaderHandle = 0;
 		}
 
-		if (g_FontTexture)
+		if (m_FontTexture)
 		{
-			glDeleteTextures(1, &g_FontTexture);
+			glDeleteTextures(1, &m_FontTexture);
 			ImGui::GetIO().Fonts->TexID = 0;
-			g_FontTexture = 0;
+			m_FontTexture = 0;
 		}
 	}
 }

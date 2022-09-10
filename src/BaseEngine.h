@@ -5,8 +5,19 @@
 
 #define OFFSETOF(TYPE, ELEMENT) ((size_t)&(((TYPE *)0)->ELEMENT))
 
+struct ImGuiContext;
 namespace ofxImGui
 {
+	class ImGuiContextScope
+	{
+	public:
+		ImGuiContextScope(ImGuiContext* pContext);
+		~ImGuiContextScope();
+
+	private:
+		ImGuiContext* m_pContext;
+	};
+
 	class BaseEngine
 	{
 	public:
@@ -50,8 +61,8 @@ namespace ofxImGui
 		static int g_AttribLocationUV;
 		static int g_AttribLocationColor;
 
-		static unsigned int g_VboHandle;
-		static unsigned int g_ElementsHandle;
+		unsigned int m_VboHandle;
+		unsigned int m_ElementsHandle;
 
 		static char g_BufferClipboard [2048];
 
@@ -60,6 +71,7 @@ namespace ofxImGui
 
 	protected:
 		bool isSetup;
+		ImGuiContext* pContext;
 	};
 }
 

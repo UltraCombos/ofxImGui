@@ -7,6 +7,7 @@
 #include "BaseEngine.h"
 #include "BaseTheme.h"
 
+struct ImGuiContext;
 namespace ofxImGui
 {
 	class Gui
@@ -38,5 +39,12 @@ namespace ofxImGui
 		GLuint loadTexture(ofTexture& texture, const std::string& imagePath);
 
 		std::vector<ofTexture*> loadedTextures;
+		
+		bool isMouseCaptured();
+		bool isKeyboardCaptured();
+
+	private:
+		ImGuiContext* m_pContext;
+		ImGuiContext* m_pContextPre;
 	};
 }

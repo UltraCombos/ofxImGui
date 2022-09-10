@@ -43,6 +43,7 @@ typedef ofReadOnlyParameter< std::string, ofxROPSetter< std::string > > ofxROPar
 class ofxImGuiParameter
 {
 public:
+	class Context;
 	typedef ofxImGuiParamInfo ParamInfo;
 	typedef uintptr_t BindedID;
 
@@ -114,17 +115,23 @@ public:
 
 	static bool GetEnumTypeFormDirectory(EnumType* p_out, std::string const& in_path, std::string const& ext_filter);
 
-	static void Initialize();
-	static void Finalize();
+	static Context* Initialize();
+	static void Finalize(Context* pContext = NULL);
+	static Context* GetCurrentContext();
+	static void SetCurrentContext(Context* pContext);
+	static bool IsMouseCaptured(Context* pContext = NULL);
+	static bool IsKeyboardCaptured(Context* pContext = NULL);
 
-	static void Draw();
-	static ofEvent< void >& GetOnDrawEvent();
+	static void Draw(Context* pContext = NULL);
+	static ofEvent< void >& GetOnDrawEvent(Context* pContext = NULL);
 
 	ofxImGuiParameter();
 	~ofxImGuiParameter();
 
-	bool setup(std::string const& title = "ofxImGuiParameter", ofRectangle const& rect = DefaultPosAndSize, Style default_style = StyleSlider);
+	bool setup(std::string const& title = "ofxImGuiParameter", ofRectangle const& rect = DefaultPosAndSize, Style default_style = StyleDrag);
 	bool setup(std::string const& title, Style default_style);
+	bool setup(Context* pContext, std::string const& title = "ofxImGuiParameter", ofRectangle const& rect = DefaultPosAndSize, Style default_style = StyleDrag);
+	bool setup(Context* pContext, std::string const& title, Style default_style);
 
 	bool is_setup();
 	void exit();
@@ -160,12 +167,13 @@ public:
 
 private:
 
-	static std::vector< ofxImGuiParameter* >	s_box;
+	//static std::vector< ofxImGuiParameter* >	s_box;
 	static ofMutex								s_mutex;
-	static ofEvent< void >						s_event;
+	//static ofEvent< void >						s_event;
 
 	static void sf_draw(ParamInfo* p_param_info);
 
+	Context*							m_p_context;
 	ofEvent< void >						m_pre_draw_event;
 	ofEvent< void >						m_post_draw_event;
 	ofEvent< std::string const >		m_on_pre_save_event;
@@ -196,7 +204,7 @@ private:
 	bool						m_is_dialog_auto_gone;
 	bool						m_is_fitting_window;
 
-	bool mf_setup(std::string const& title, ofRectangle const& rect, Style default_style);
+	bool mf_setup(Context* pContext, std::string const& title, ofRectangle const& rect, Style default_style);
 	void mf_exit();
 	void mf_draw_dialog();
 
