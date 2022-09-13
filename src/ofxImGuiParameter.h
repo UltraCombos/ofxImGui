@@ -68,6 +68,17 @@ public:
 	{
 		int							select;
 		std::vector < std::string > content;
+		friend std::ostream& operator<<(std::ostream& os, const EnumType& et)
+		{
+			os << et.content[et.select];
+			return os;
+		}
+
+		friend std::istream& operator>> (std::istream& is, EnumType& et)
+		{
+			is >> et.content[et.select];
+			return is;
+		}
 	};
 
 	template< typename TYPE >
@@ -105,6 +116,18 @@ public:
 		, arg1(a1)
 		, style(s)
 		{}
+
+		friend std::ostream& operator<<(std::ostream& os, const ValueType& v)
+		{
+			os << v.value;
+			return os;
+		}
+
+		friend std::istream& operator>> (std::istream& is, ValueType& v)
+		{
+			is >> v.value;
+			return is;
+		}
 	};
 
 	template < typename TYPE >
