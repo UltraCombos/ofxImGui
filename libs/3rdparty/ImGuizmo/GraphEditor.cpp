@@ -79,8 +79,10 @@ enum NodeOperation
     NO_MovingNodes,
     NO_EditInput,
     NO_PanView,
+	NO_ResizingNode,
 };
 static NodeOperation nodeOperation = NO_None;
+static NodeIndex nodeIndexOp = -1;
 
 static void HandleZoomScroll(ImRect regionRect, ViewState& viewState, const Options& options)
 {
@@ -592,6 +594,9 @@ static bool DrawNode(ImDrawList* drawList,
     bool nodeWidgetsActive = (!old_any_active && ImGui::IsAnyItemActive());
     ImVec2 nodeRectangleMax = nodeRectangleMin + nodeSize;
 
+	ImRect resizeRect(nodeRectangleMax - ImVec2(16.f, 16.f), nodeRectangleMax);
+	
+	bool reszieHovered = false;
     bool nodeHovered = false;
     if (ImGui::IsItemHovered() && nodeOperation == NO_None && !overInput)
     {
@@ -616,9 +621,27 @@ static bool DrawNode(ImDrawList* drawList,
             }
         }
     }
+
+	if (node.mSelected && !inMinimap)
+	{
+		if (resizeRect.Contains(io.MousePos))
+		{
+			reszieHovered = true;
+		}
+	}
+
+	if (reszieHovered && io.MouseDown[0])
+	{
+		if (nodeOperation != NO_ResizingNode)
+		{
+			nodeOperation = NO_ResizingNode;
+			nodeIndexOp = nodeIndex;
+		}
+	}
+
     if (nodeMovingActive && io.MouseDown[0] && nodeHovered && !inMinimap)
     {
-        if (nodeOperation != NO_MovingNodes)
+        if (nodeOperation != NO_MovingNodes || nodeOperation != NO_ResizingNode)
         {
             nodeOperation = NO_MovingNodes;
         }
@@ -681,6 +704,13 @@ static bool DrawNode(ImDrawList* drawList,
     {
         delegate.CustomDraw(drawList, customDrawRect, nodeIndex);
     }
+
+	ImVec2 sizeOfCustom = customDrawRect.GetSize();
+	if (reszieHovered && !(sizeOfCustom.x < 16.f || sizeOfCustom.y < 16.f))
+	{
+		ImRect resizeDrawRect(customDrawRect.Max - ImVec2(16.f, 16.f), customDrawRect.Max);
+		drawList->AddTriangleFilled(ImVec2(resizeDrawRect.Max.x, resizeDrawRect.Min.y), ImVec2(resizeDrawRect.Min.x, resizeDrawRect.Max.y), resizeDrawRect.Max, node_bg_color);
+	}
 /*
     const ImTextureID bmpInfo = (ImTextureID)(uint64_t)delegate->GetBitmapInfo(nodeIndex).idx;
     if (bmpInfo)
@@ -972,7 +1002,18 @@ void Show(Delegate& delegate, const Options& options, ViewState& viewState, bool
         
         drawList->PopClipRect();
 
-        if (nodeOperation == NO_MovingNodes)
+		if (nodeOperation == NO_ResizingNode)
+		{
+			if (ImGui::IsMouseDragging(0, 1))
+			{
+				ImVec2 delta = io.MouseDelta / viewState.mFactor;
+				if (fabsf(delta.x) >= 1.f || fabsf(delta.y) >= 1.f)
+				{
+					delegate.ResizeSelectedNode(nodeIndexOp, delta);
+				}
+			}
+		}
+        else if (nodeOperation == NO_MovingNodes)
         {
             if (ImGui::IsMouseDragging(0, 1))
             {

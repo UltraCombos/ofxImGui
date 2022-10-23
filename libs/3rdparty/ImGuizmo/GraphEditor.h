@@ -120,7 +120,7 @@ struct Delegate
 
     virtual void SelectNode(NodeIndex nodeIndex, bool selected) = 0;
     virtual void MoveSelectedNodes(const ImVec2 delta) = 0;
-	//virtual void ResizeSelectedNodes(const ImVec1 delta) = 0;
+	virtual void ResizeSelectedNode(NodeIndex nodeIndex, const ImVec2 delta) = 0;
     
     virtual void AddLink(NodeIndex inputNodeIndex, SlotIndex inputSlotIndex, NodeIndex outputNodeIndex, SlotIndex outputSlotIndex) = 0;
     virtual void DelLink(LinkIndex linkIndex) = 0;
