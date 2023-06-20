@@ -1193,7 +1193,8 @@ ofEvent< void >& ofxImGuiParameter::GetOnDrawEvent(Context* pContext)
 	Context* p_context = pContext ? pContext : g_p_context;
 	if (!p_context)
 	{
-		return ofEvent<void>();
+		static ofEvent<void> g_e;
+		return g_e;
 	}
 
 	return p_context->event;
