@@ -990,7 +990,7 @@ public:
 	std::vector< ofxImGuiParameter* >	box;
 	ofEvent< void >						event;
 
-	ofxImGuiParameter::Context()
+	Context()
 	: p_gui(new ofxImGui::Gui())
 	{}
 };
