@@ -83,11 +83,11 @@ namespace ofxImGui
 	bool EngineOpenGLES::createDeviceObjects()
 	{
 #if defined(TARGET_RASPBERRY_PI)
-		string header = "";
+		std::string header = "";
 #else
-		string header = "precision highp float; \n";
+		std::string header = "precision highp float; \n";
 #endif
-		string vertex_shader = header + R"(
+		std::string vertex_shader = header + R"(
     
     uniform mat4 ProjMat;
     
@@ -233,7 +233,7 @@ namespace ofxImGui
 			const ImDrawList* cmd_list = draw_data->CmdLists[n];
 			const ImDrawIdx* idx_buffer_offset = 0;
 
-			glBindBuffer(GL_ARRAY_BUFFER, m_VboHandle);
+			glBindBuffer(GL_ARRAY_BUFFER, p_self->m_VboHandle);
 			glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)cmd_list->VtxBuffer.size() * sizeof(ImDrawVert), (GLvoid*)&cmd_list->VtxBuffer.front(), GL_STREAM_DRAW);
 
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, p_self->m_ElementsHandle);
