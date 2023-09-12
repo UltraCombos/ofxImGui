@@ -30,7 +30,8 @@ namespace ofxImGui
 		io.KeyMap[ImGuiKey_Enter] = OF_KEY_RETURN;
 		io.KeyMap[ImGuiKey_Escape] = OF_KEY_ESC;
 
-		io.RenderDrawListsFn = rendererDrawLists;
+		//io.RenderDrawListsFn = rendererDrawLists;
+		m_render_func = (RenderDrawListsFn)&rendererDrawLists;
 
 		io.SetClipboardTextFn = &BaseEngine::setClipboardString;
 		io.GetClipboardTextFn = &BaseEngine::getClipboardString;
@@ -70,6 +71,13 @@ namespace ofxImGui
 		invalidateDeviceObjects();
 
 		isSetup = false;
+	}
+
+	void EngineOpenGLES::render()
+	{
+		if (!isSetup) return;
+
+		m_render_func(ImGui::GetDrawData(), this);
 	}
 
 	bool EngineOpenGLES::createDeviceObjects()

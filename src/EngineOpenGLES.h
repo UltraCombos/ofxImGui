@@ -23,6 +23,7 @@ namespace ofxImGui
 		// BaseEngine required
 		void setup() override;
 		void exit() override;
+		void render() override;
 		bool createDeviceObjects() override;
 		void invalidateDeviceObjects() override;
 
@@ -37,6 +38,9 @@ namespace ofxImGui
 		static void rendererDrawLists(ImDrawData * draw_data);
 
 		static ofShader g_Shader;
+	private:
+		typedef void(*RenderDrawListsFn)(ImDrawData*, void*);
+		RenderDrawListsFn m_render_func;
 	};
 }
 
