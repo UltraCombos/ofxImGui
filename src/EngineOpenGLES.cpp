@@ -3,6 +3,7 @@
 #if defined(TARGET_OPENGLES) && (!defined (OF_TARGET_API_VULKAN) )
 
 #include "ofAppRunner.h"
+#include "ofGLProgrammableRenderer.h"
 
 namespace ofxImGui
 {
@@ -107,7 +108,7 @@ namespace ofxImGui
     
     )";
 
-		string fragment_shader = header + R"(
+		std::string fragment_shader = header + R"(
     
     uniform sampler2D Texture;
     
