@@ -35,7 +35,7 @@ namespace ofxImGui
 #endif
 
 		// Custom 
-		static void rendererDrawLists(ImDrawData * draw_data);
+		static void rendererDrawLists(ImDrawData * draw_data, EngineOpenGLES* p_self);
 
 		static ofShader g_Shader;
 	private:

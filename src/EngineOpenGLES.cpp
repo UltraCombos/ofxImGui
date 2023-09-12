@@ -186,7 +186,7 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
-	void EngineOpenGLES::rendererDrawLists(ImDrawData * draw_data)
+	void EngineOpenGLES::rendererDrawLists(ImDrawData * draw_data, EngineOpenGLES* p_self)
 	{
 		GLint last_program, last_texture, last_array_buffer, last_element_array_buffer;
 		glGetIntegerv(GL_CURRENT_PROGRAM, &last_program);
@@ -219,7 +219,7 @@ namespace ofxImGui
 		glUniformMatrix4fv(g_UniformLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0]);
 
 		// Render command lists
-		glBindBuffer(GL_ARRAY_BUFFER, m_VboHandle);
+		glBindBuffer(GL_ARRAY_BUFFER, p_self->m_VboHandle);
 		glEnableVertexAttribArray(g_AttribLocationPosition);
 		glEnableVertexAttribArray(g_AttribLocationUV);
 		glEnableVertexAttribArray(g_AttribLocationColor);
@@ -236,7 +236,7 @@ namespace ofxImGui
 			glBindBuffer(GL_ARRAY_BUFFER, m_VboHandle);
 			glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)cmd_list->VtxBuffer.size() * sizeof(ImDrawVert), (GLvoid*)&cmd_list->VtxBuffer.front(), GL_STREAM_DRAW);
 
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ElementsHandle);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, p_self->m_ElementsHandle);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)cmd_list->IdxBuffer.size() * sizeof(ImDrawIdx), (GLvoid*)&cmd_list->IdxBuffer.front(), GL_STREAM_DRAW);
 
 			for (const ImDrawCmd* pcmd = cmd_list->CmdBuffer.begin(); pcmd != cmd_list->CmdBuffer.end(); pcmd++)
