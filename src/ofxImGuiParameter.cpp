@@ -579,9 +579,10 @@ namespace
 #endif
 		case GL_COMPRESSED_RGB_S3TC_DXT1_EXT:	return "GL_COMPRESSED_RGB_S3TC_DXT1";
 		case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:	return "GL_COMPRESSED_RGBA_S3TC_DXT1";
+#ifndef TARGET_OPENGLES
 		case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:	return "GL_COMPRESSED_RGBA_S3TC_DXT3";
 		case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:	return "GL_COMPRESSED_RGBA_S3TC_DXT5";
-
+#endif
 		default:					return "unknown glInternalFormat";
 		}
 
