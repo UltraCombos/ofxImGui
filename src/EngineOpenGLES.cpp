@@ -40,11 +40,11 @@ namespace ofxImGui
 		createDeviceObjects();
 
 		// Override listeners
-		ofAddListener(ofEvents().keyReleased, this, &EngineOpenGLES::onKeyPressed);
+		ofAddListener(ofEvents().keyPressed, this, &EngineOpenGLES::onKeyPressed);
 		ofAddListener(ofEvents().keyReleased, this, &EngineOpenGLES::onKeyReleased);
 
 		// BaseEngine listeners
-		ofAddListener(ofEvents().keyPressed, (BaseEngine*)this, &BaseEngine::onKeyPressed);
+		//ofAddListener(ofEvents().keyPressed, (BaseEngine*)this, &BaseEngine::onKeyPressed);
 		ofAddListener(ofEvents().mouseDragged, (BaseEngine*)this, &BaseEngine::onMouseDragged);
 		ofAddListener(ofEvents().mousePressed, (BaseEngine*)this, &BaseEngine::onMousePressed);
 		ofAddListener(ofEvents().mouseReleased, (BaseEngine*)this, &BaseEngine::onMouseReleased);
@@ -60,10 +60,11 @@ namespace ofxImGui
 		if (!isSetup) return;
 
 		// Override listeners
+		ofRemoveListener(ofEvents().keyPressed, this, &EngineOpenGLES::onKeyPressed);
 		ofRemoveListener(ofEvents().keyReleased, this, &EngineOpenGLES::onKeyReleased);
 
 		// BaseEngine listeners
-		ofRemoveListener(ofEvents().keyPressed, (BaseEngine*)this, &BaseEngine::onKeyPressed);
+		//ofRemoveListener(ofEvents().keyPressed, (BaseEngine*)this, &BaseEngine::onKeyPressed);
 		ofRemoveListener(ofEvents().mouseDragged, (BaseEngine*)this, &BaseEngine::onMouseDragged);
 		ofRemoveListener(ofEvents().mousePressed, (BaseEngine*)this, &BaseEngine::onMousePressed);
 		ofRemoveListener(ofEvents().mouseReleased, (BaseEngine*)this, &BaseEngine::onMouseReleased);
