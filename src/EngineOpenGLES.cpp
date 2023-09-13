@@ -40,6 +40,7 @@ namespace ofxImGui
 		createDeviceObjects();
 
 		// Override listeners
+		ofAddListener(ofEvents().keyReleased, this, &EngineOpenGLES::onKeyPressed);
 		ofAddListener(ofEvents().keyReleased, this, &EngineOpenGLES::onKeyReleased);
 
 		// BaseEngine listeners
@@ -284,6 +285,27 @@ namespace ofxImGui
 	}
 
 #endif
+
+	void EngineOpenGLES::onKeyPressed(ofKeyEventArgs& event)
+	{
+		ImGuiContextScope scope(pContext);
+		int key = event.keycode;
+		ImGuiIO& io = ImGui::GetIO();
+		io.KeysDown[key] = true;
+
+		/*
+		io.KeyCtrl = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
+		io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT] || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
+		io.KeyAlt = io.KeysDown[GLFW_KEY_LEFT_ALT] || io.KeysDown[GLFW_KEY_RIGHT_ALT];
+		io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
+
+		bool isNumericalKey = (key >= GLFW_KEY_KP_0) && (key <= GLFW_KEY_KP_EQUAL);
+		if (key < GLFW_KEY_ESCAPE || isNumericalKey)
+		*/
+		{
+			io.AddInputCharacter((unsigned short)event.codepoint);
+		}
+	}
 
 	//--------------------------------------------------------------
 	void EngineOpenGLES::onKeyReleased(ofKeyEventArgs& event)

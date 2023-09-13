@@ -27,6 +27,7 @@ namespace ofxImGui
 		bool createDeviceObjects() override;
 		void invalidateDeviceObjects() override;
 
+		void onKeyPressed(ofKeyEventArgs& event) override;
 		void onKeyReleased(ofKeyEventArgs& event) override;
 
 #if defined(TARGET_RASPBERRY_PI)
