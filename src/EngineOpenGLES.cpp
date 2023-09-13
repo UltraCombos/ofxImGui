@@ -287,14 +287,14 @@ namespace ofxImGui
 
 #endif
 
-	void EngineOpenGLES::onKeyPressed(ofKeyEventArgs& event)
+	void EngineOpenGLES::onKeyPressed(ofKeyEventArgs& e)
 	{
 		ImGuiContextScope scope(pContext);
-		int key = event.keycode;
+		int key = e.keycode;
 		ImGuiIO& io = ImGui::GetIO();
 		io.KeysDown[key] = true;
 
-		printf("EngineOpenGLES::onKeyPressed(%d, %d)\n", key, event.codepoint);
+		printf("EngineOpenGLES::onKeyPressed(%d, %d)\n", key, e.codepoint);
 
 		/*
 		io.KeyCtrl = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
@@ -306,14 +306,14 @@ namespace ofxImGui
 		if (key < GLFW_KEY_ESCAPE || isNumericalKey)
 		*/
 		{
-			io.AddInputCharacter((unsigned short)event.codepoint);
+			io.AddInputCharacter((unsigned short)e.codepoint);
 		}
 	}
 
 	//--------------------------------------------------------------
-	void EngineOpenGLES::onKeyReleased(ofKeyEventArgs& event)
+	void EngineOpenGLES::onKeyReleased(ofKeyEventArgs& e)
 	{
-		int key = event.keycode;
+		int key = e.keycode;
 		ImGuiIO& io = ImGui::GetIO();
 		io.KeysDown[key] = false;
 		//io.AddInputCharacter((unsigned short)event.codepoint);
