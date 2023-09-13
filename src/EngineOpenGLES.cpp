@@ -293,6 +293,8 @@ namespace ofxImGui
 		ImGuiIO& io = ImGui::GetIO();
 		io.KeysDown[key] = true;
 
+		printf("EngineOpenGLES::onKeyPressed(%d, %d)\n", key, event.codepoint);
+
 		/*
 		io.KeyCtrl = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
 		io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT] || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
@@ -313,7 +315,7 @@ namespace ofxImGui
 		int key = event.keycode;
 		ImGuiIO& io = ImGui::GetIO();
 		io.KeysDown[key] = false;
-		io.AddInputCharacter((unsigned short)event.codepoint);
+		//io.AddInputCharacter((unsigned short)event.codepoint);
 		//TODO modifiers?
 	}
 }
