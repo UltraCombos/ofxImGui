@@ -290,32 +290,26 @@ namespace ofxImGui
 	void EngineOpenGLES::onKeyPressed(ofKeyEventArgs& e)
 	{
 		ImGuiContextScope scope(pContext);
-		int key = e.keycode;
+		int key = e.key;
 		ImGuiIO& io = ImGui::GetIO();
-		io.KeysDown[key] = true;
 
-		printf("EngineOpenGLES::onKeyPressed(%d, %d)\n", key, e.codepoint);
 
-		/*
-		io.KeyCtrl = io.KeysDown[GLFW_KEY_LEFT_CONTROL] || io.KeysDown[GLFW_KEY_RIGHT_CONTROL];
-		io.KeyShift = io.KeysDown[GLFW_KEY_LEFT_SHIFT] || io.KeysDown[GLFW_KEY_RIGHT_SHIFT];
-		io.KeyAlt = io.KeysDown[GLFW_KEY_LEFT_ALT] || io.KeysDown[GLFW_KEY_RIGHT_ALT];
-		io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
-
-		bool isNumericalKey = (key >= GLFW_KEY_KP_0) && (key <= GLFW_KEY_KP_EQUAL);
-		if (key < GLFW_KEY_ESCAPE || isNumericalKey)
-		*/
+		if (key < 256)
 		{
-			io.AddInputCharacter((unsigned short)e.codepoint);
+			io.KeysDown[key] = true;
+			io.AddInputCharacter((unsigned short)key);
 		}
 	}
 
 	//--------------------------------------------------------------
 	void EngineOpenGLES::onKeyReleased(ofKeyEventArgs& e)
 	{
-		int key = e.keycode;
+		int key = e.key;
 		ImGuiIO& io = ImGui::GetIO();
-		io.KeysDown[key] = false;
+		if (key < 256)
+		{
+			io.KeysDown[key] = false;
+		}
 		//io.AddInputCharacter((unsigned short)event.codepoint);
 		//TODO modifiers?
 	}
