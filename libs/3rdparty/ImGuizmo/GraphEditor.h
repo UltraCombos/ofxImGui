@@ -75,6 +75,7 @@ struct Options
     bool mAllowQuadSelection{ true }; // multiple selection using drag and drop
     bool mRenderGrid{ true }; // grid or nothing
     bool mDrawIONameOnHover{ true }; // only draw node input/output when hovering
+	bool mAllowCloseNode { true };
 };
 
 // View state: scroll position and zoom factor
@@ -88,6 +89,7 @@ struct ViewState
 struct Template
 {
     ImU32 mHeaderColor;
+	ImU32 mHeaderTextColor;
     ImU32 mBackgroundColor;
     ImU32 mBackgroundColorOver;
     ImU8 mInputCount;
@@ -121,6 +123,7 @@ struct Delegate
     virtual void SelectNode(NodeIndex nodeIndex, bool selected) = 0;
     virtual void MoveSelectedNodes(const ImVec2 delta) = 0;
 	virtual void ResizeSelectedNode(NodeIndex nodeIndex, const ImVec2 delta) = 0;
+	virtual void CloseSelectedNode(NodeIndex nodeIndex) = 0;
     
     virtual void AddLink(NodeIndex inputNodeIndex, SlotIndex inputSlotIndex, NodeIndex outputNodeIndex, SlotIndex outputSlotIndex) = 0;
     virtual void DelLink(LinkIndex linkIndex) = 0;

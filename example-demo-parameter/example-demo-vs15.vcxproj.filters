@@ -40,10 +40,9 @@
     <ClCompile Include="..\..\..\addons\ofxImGui\libs\imgui\src\imgui_draw.cpp">
       <Filter>addons\ofxImGui\libs\imgui\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ofxImGuiParameter.cpp">
-      <Filter>addons\ofxImGui\src</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libs\imgui\src\imgui_widgets.cpp">
+    <ClCompile Include="..\..\..\addons\ofxImGui\libs\imgui\src\imgui_widgets.cpp" />
+    <ClCompile Include="..\..\..\addons\ofxImGui\src\ofxImGuiParameter.cpp" />
+    <ClCompile Include="..\libs\imgui\src\imgui_tables.cpp">
       <Filter>addons\ofxImGui\libs\imgui\src</Filter>
     </ClCompile>
   </ItemGroup>
@@ -113,18 +112,10 @@
     <ClInclude Include="..\..\..\addons\ofxImGui\libs\imgui\src\imgui_internal.h">
       <Filter>addons\ofxImGui\libs\imgui\src</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ofxImGuiParameter.h">
-      <Filter>addons\ofxImGui\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libs\imgui\src\imstb_rectpack.h">
-      <Filter>addons\ofxImGui\libs\imgui\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libs\imgui\src\imstb_textedit.h">
-      <Filter>addons\ofxImGui\libs\imgui\src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\libs\imgui\src\imstb_truetype.h">
-      <Filter>addons\ofxImGui\libs\imgui\src</Filter>
-    </ClInclude>
+    <ClInclude Include="..\..\..\addons\ofxImGui\libs\imgui\src\imstb_rectpack.h" />
+    <ClInclude Include="..\..\..\addons\ofxImGui\libs\imgui\src\imstb_textedit.h" />
+    <ClInclude Include="..\..\..\addons\ofxImGui\libs\imgui\src\imstb_truetype.h" />
+    <ClInclude Include="..\..\..\addons\ofxImGui\src\ofxImGuiParameter.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="icon.rc" />

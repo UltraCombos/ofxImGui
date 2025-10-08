@@ -80,6 +80,7 @@ enum NodeOperation
     NO_EditInput,
     NO_PanView,
 	NO_ResizingNode,
+	NO_ClosingNode,
 };
 static NodeOperation nodeOperation = NO_None;
 static NodeIndex nodeIndexOp = -1;
@@ -114,6 +115,7 @@ static void HandleZoomScroll(ImRect regionRect, ViewState& viewState, const Opti
 void GraphEditorClear()
 {
     nodeOperation = NO_None;
+	nodeIndexOp = -1;
 }
 
 static void FitNodes(Delegate& delegate, ViewState& viewState, const ImVec2 viewSize, bool selectedNodesOnly)
@@ -312,6 +314,8 @@ static void HandleQuadSelection(Delegate& delegate, ImDrawList* drawList, const 
             }
 
             nodeOperation = NO_None;
+			nodeIndexOp = -1;
+
             ImRect selectionRect(bmin, bmax);
             for (int nodeIndex = 0; nodeIndex < nodeCount; nodeIndex++)
             {
@@ -593,9 +597,11 @@ static bool DrawNode(ImDrawList* drawList,
     // Save the size of what we have emitted and whether any of the widgets are being used
     bool nodeWidgetsActive = (!old_any_active && ImGui::IsAnyItemActive());
     ImVec2 nodeRectangleMax = nodeRectangleMin + nodeSize;
-
+	ImRect headerRect(nodeRectangleMin, ImVec2(nodeRectangleMax.x, nodeRectangleMin.y + 20));
+	ImRect closeBtnRect(ImVec2(headerRect.Max.x - 16 - 2, headerRect.Min.y + 2), headerRect.Max - ImVec2(2, 2));
 	ImRect resizeRect(nodeRectangleMax - ImVec2(16.f, 16.f), nodeRectangleMax);
 	
+	bool closeHovered = false;
 	bool reszieHovered = false;
     bool nodeHovered = false;
     if (ImGui::IsItemHovered() && nodeOperation == NO_None && !overInput)
@@ -624,13 +630,38 @@ static bool DrawNode(ImDrawList* drawList,
 
 	if (node.mSelected && !inMinimap)
 	{
-		if (resizeRect.Contains(io.MousePos))
+		if (options.mAllowCloseNode && closeBtnRect.Contains(io.MousePos))
+		{
+			if (nodeOperation != NO_MovingNodes && nodeOperation != NO_ResizingNode)
+			{
+				closeHovered = true;
+			}
+		}
+		else if (resizeRect.Contains(io.MousePos))
 		{
 			reszieHovered = true;
 		}
 	}
 
-	if (reszieHovered && io.MouseDown[0])
+	if (options.mAllowCloseNode && closeHovered)
+	{
+		if (ImGui::IsMouseReleased(ImGuiMouseButton_Left))
+		{
+			if (nodeOperation != NO_ClosingNode)
+			{
+				nodeOperation = NO_ClosingNode;
+				nodeIndexOp = nodeIndex;
+			}
+		}
+	}
+	else if (nodeMovingActive && io.MouseDown[0] && nodeHovered && !inMinimap)
+    {
+        if (nodeOperation != NO_MovingNodes && nodeOperation != NO_ResizingNode)
+        {
+            nodeOperation = NO_MovingNodes;
+        }
+    }
+	else if (reszieHovered && ImGui::IsMouseDown(ImGuiMouseButton_Left))
 	{
 		if (nodeOperation != NO_ResizingNode)
 		{
@@ -638,14 +669,6 @@ static bool DrawNode(ImDrawList* drawList,
 			nodeIndexOp = nodeIndex;
 		}
 	}
-
-    if (nodeMovingActive && io.MouseDown[0] && nodeHovered && !inMinimap)
-    {
-        if (nodeOperation != NO_MovingNodes || nodeOperation != NO_ResizingNode)
-        {
-            nodeOperation = NO_MovingNodes;
-        }
-    }
 
     const bool currentSelectedNode = node.mSelected;
     const ImU32 node_bg_color = nodeHovered ? nodeTemplate.mBackgroundColorOver : nodeTemplate.mBackgroundColor;
@@ -691,13 +714,37 @@ static bool DrawNode(ImDrawList* drawList,
 
     //delegate->DrawNodeImage(drawList, ImRect(imgPos, imgPosMax), marge, nodeIndex);
 
-    drawList->AddRectFilled(nodeRectangleMin,
-                            ImVec2(nodeRectangleMax.x, nodeRectangleMin.y + 20),
+    drawList->AddRectFilled(headerRect.Min,
+                            headerRect.Max,
                             nodeTemplate.mHeaderColor, options.mRounding);
 
-    drawList->PushClipRect(nodeRectangleMin, ImVec2(nodeRectangleMax.x, nodeRectangleMin.y + 20), true);
-    drawList->AddText(nodeRectangleMin + ImVec2(2, 2), IM_COL32(0, 0, 0, 255), node.mName);
+    drawList->PushClipRect(headerRect.Min, headerRect.Max, true);
+    drawList->AddText(nodeRectangleMin + ImVec2(2, 2), nodeTemplate.mHeaderTextColor, node.mName);
     drawList->PopClipRect();
+
+	if (options.mAllowCloseNode && closeHovered)
+	{
+		ImU32 const closeBtnBgColor = nodeTemplate.mBackgroundColorOver;
+		ImU32 const closeBtnFgColor = nodeTemplate.mHeaderTextColor;
+
+		ImU32 closeBtnBgColorCur = closeBtnBgColor;
+		ImU32 closeBtnFgColorCur = closeBtnFgColor;
+		if (ImGui::IsMouseDown(ImGuiMouseButton_Left))
+		{
+			std::swap(closeBtnBgColorCur, closeBtnFgColorCur);
+		}
+
+		drawList->AddRectFilled(closeBtnRect.Min,
+			closeBtnRect.Max,
+			closeBtnBgColorCur, options.mRounding);
+
+		ImRect crossRect(closeBtnRect.Min + ImVec2(2, 2), closeBtnRect.Max - ImVec2(2, 2));
+		drawList->AddLine(crossRect.Min, crossRect.Max, closeBtnFgColorCur, 1.5f);
+		drawList->AddLine(ImVec2(crossRect.Max.x, crossRect.Min.y), ImVec2(crossRect.Min.x, crossRect.Max.y), closeBtnFgColorCur, 1.5f);
+	}
+
+	//drawList->PushClipRect(removeBtnRect.Min, removeBtnRect.Max, true);
+	//drawList->PopClipRect();
 
     ImRect customDrawRect(nodeRectangleMin + ImVec2(options.mRounding, 20 + options.mRounding), nodeRectangleMax - ImVec2(options.mRounding, options.mRounding));
     if (customDrawRect.Max.y > customDrawRect.Min.y && customDrawRect.Max.x > customDrawRect.Min.x)
@@ -1002,8 +1049,13 @@ void Show(Delegate& delegate, const Options& options, ViewState& viewState, bool
         
         drawList->PopClipRect();
 
-		if (nodeOperation == NO_ResizingNode)
+		switch (nodeOperation)
 		{
+		case NO_ClosingNode:
+			delegate.CloseSelectedNode(nodeIndexOp);
+			break;
+
+		case NO_ResizingNode:
 			if (ImGui::IsMouseDragging(0, 1))
 			{
 				ImVec2 delta = io.MouseDelta / viewState.mFactor;
@@ -1012,18 +1064,22 @@ void Show(Delegate& delegate, const Options& options, ViewState& viewState, bool
 					delegate.ResizeSelectedNode(nodeIndexOp, delta);
 				}
 			}
+			break;
+
+		case NO_MovingNodes:
+			if (ImGui::IsMouseDragging(0, 1))
+			{
+				ImVec2 delta = io.MouseDelta / viewState.mFactor;
+				if (fabsf(delta.x) >= 1.f || fabsf(delta.y) >= 1.f)
+				{
+					delegate.MoveSelectedNodes(delta);
+				}
+			}
+			break;
+
+		default:
+			break;
 		}
-        else if (nodeOperation == NO_MovingNodes)
-        {
-            if (ImGui::IsMouseDragging(0, 1))
-            {
-                ImVec2 delta = io.MouseDelta / viewState.mFactor;
-                if (fabsf(delta.x) >= 1.f || fabsf(delta.y) >= 1.f)
-                {
-                    delegate.MoveSelectedNodes(delta);
-                }
-            }
-        }
 
         drawList->ChannelsSetCurrent(0);
 
@@ -1041,11 +1097,13 @@ void Show(Delegate& delegate, const Options& options, ViewState& viewState, bool
             if (!io.MouseDown[2])
             {
                 nodeOperation = NO_None;
+				nodeIndexOp = -1;
             }
         }
         else if (nodeOperation != NO_None && !io.MouseDown[0])
         {
             nodeOperation = NO_None;
+			nodeIndexOp = -1;
         }
 
         // right click
