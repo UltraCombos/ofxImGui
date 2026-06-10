@@ -9,6 +9,8 @@
 #include "ofEvents.h"
 #include "imgui.h"
 
+struct ImTextureData;
+
 namespace ofxImGui
 {
 	class EngineGLFW 
@@ -28,12 +30,13 @@ namespace ofxImGui
 		void invalidateDeviceObjects() override;
 
 		bool createFontsTexture();
+		void UpdateTexture(ImTextureData* tex);
 
 		void onKeyReleased(ofKeyEventArgs& event) override;
 		void onKeyPressed(ofKeyEventArgs& event) override;
 		void onMousePressed(ofMouseEventArgs& event) override;
 
-		// Custom 
+		// Custom
 		static void programmableRenderDrawLists(ImDrawData * draw_data, EngineGLFW* p_self);
 		static void fixedRenderDrawLists(ImDrawData * draw_data, EngineGLFW* p_self);
 

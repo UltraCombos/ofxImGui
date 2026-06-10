@@ -177,17 +177,14 @@ namespace ofxImGui
 		}
 		lastTime = currentTime;
 
-		// Update settings
-		io.MousePos = ImVec2((float)ofGetMouseX(), (float)ofGetMouseY());
+		// Update mouse state
+		io.AddMousePosEvent((float)ofGetMouseX(), (float)ofGetMouseY());
 
-		for (int i = 0; i < 5; i++) 
+		for (int i = 0; i < 5; i++)
 		{
-			io.MouseDown[i] = engine->mousePressed[i];
-			// Update for next frame; set to false only if the mouse has been released
+			io.AddMouseButtonEvent(i, engine->mousePressed[i]);
 			if (engine->mouseReleased)
-			{
 				engine->mousePressed[i] = false;
-			}
 		}
 
 		ImGui::NewFrame();

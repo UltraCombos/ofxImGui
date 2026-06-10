@@ -37,12 +37,7 @@ namespace ofxImGui
 	//--------------------------------------------------------------
 	void BaseEngine::onKeyPressed(ofKeyEventArgs& event)
 	{
-		ImGuiContextScope scope(pContext);
-
-		int key = event.keycode;
-		ImGuiIO& io = ImGui::GetIO();
-		io.KeysDown[key] = true;
-		//io->AddInputCharacter((unsigned short)event.codepoint);
+		// Key handling is implemented in derived engine classes (e.g. EngineGLFW)
 	}
 
 	//--------------------------------------------------------------
@@ -75,7 +70,7 @@ namespace ofxImGui
 	{
 		ImGuiContextScope scope(pContext);
 		ImGuiIO& io = ImGui::GetIO();
-		io.MouseWheel = event.scrollY;
+		io.AddMouseWheelEvent(0.0f, event.scrollY);
 	}
 
 	//--------------------------------------------------------------
@@ -87,7 +82,7 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
-	const char* BaseEngine::getClipboardString(void* user_data)
+	const char* BaseEngine::getClipboardString(ImGuiContext*)
 	{
 		std::string str = ofGetWindowPtr()->getClipboardString();
 		strncpy(g_BufferClipboard, str.c_str(), sizeof(g_BufferClipboard));
@@ -96,7 +91,7 @@ namespace ofxImGui
 	}
 
 	//--------------------------------------------------------------
-	void BaseEngine::setClipboardString(void* user_data, const char * text)
+	void BaseEngine::setClipboardString(ImGuiContext*, const char* text)
 	{
 		strncpy(g_BufferClipboard, text, sizeof(g_BufferClipboard));
 		g_BufferClipboard[sizeof(g_BufferClipboard) - 1] = '\0';
