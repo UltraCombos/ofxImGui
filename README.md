@@ -15,8 +15,13 @@ Release versions tested with OF 0.9.x on
 Release versions tested with OF 0.10.0 on
  - Windows 10, Visual Studio 2017
 
+Tested with OF 0.11.2 on
+ - Windows 11, Visual Studio 2017 (ImGui 1.92.8)
+
 #### Upgrade Notes
-Versions 1.83 (Current ImGui)
+Versions 1.92.8 (Current ImGui)
+
+Versions 1.83
 
 Versions 1.77
 
