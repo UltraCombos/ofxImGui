@@ -49,9 +49,9 @@ namespace ImGradient
       color.w = 1.f;
       draw_list->AddRectFilled(p1, p2, ImColor(color));
       if (editing)
-         draw_list->AddRect(p1, p2, 0xFFFFFFFF, 2.f, 15, 2.5f);
+         draw_list->AddRect(p1, p2, 0xFFFFFFFF, 2.f, 2.5f, ImDrawFlags_RoundCornersAll);
       else
-         draw_list->AddRect(p1, p2, 0x80FFFFFF, 2.f, 15, 1.25f);
+         draw_list->AddRect(p1, p2, 0x80FFFFFF, 2.f, 1.25f, ImDrawFlags_RoundCornersAll);
 
       if (rc.Contains(io.MousePos))
       {
@@ -67,7 +67,7 @@ namespace ImGradient
       bool ret = false;
       ImGuiIO& io = ImGui::GetIO();
       ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, 0));
-      ImGui::BeginChildFrame(137, size);
+      ImGui::BeginChild(137, size, ImGuiChildFlags_FrameStyle);
 
       ImDrawList* draw_list = ImGui::GetWindowDrawList();
       const ImVec2 offset = ImGui::GetCursorScreenPos();
@@ -107,7 +107,7 @@ namespace ImGradient
          delegate.AddPoint(delegate.GetPoint(t));
          ret = true;
       }
-      ImGui::EndChildFrame();
+      ImGui::EndChild();
       ImGui::PopStyleVar();
 
       selection = currentSelection;

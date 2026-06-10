@@ -157,7 +157,7 @@ namespace ImSequencer
          ImVec2 childFramePos = ImGui::GetCursorScreenPos();
          ImVec2 childFrameSize(canvas_size.x, canvas_size.y - 8.f - headerSize.y - (hasScrollBar ? scrollBarSize.y : 0));
          ImGui::PushStyleColor(ImGuiCol_FrameBg, 0);
-         ImGui::BeginChildFrame(889, childFrameSize);
+         ImGui::BeginChild(889, childFrameSize, ImGuiChildFlags_FrameStyle);
          sequence->focused = ImGui::IsWindowFocused();
          ImGui::InvisibleButton("contentBar", ImVec2(canvas_size.x, float(controlHeight)));
          const ImVec2 contentMin = ImGui::GetItemRectMin();
@@ -422,7 +422,7 @@ namespace ImSequencer
          // moving
          if (/*backgroundRect.Contains(io.MousePos) && */movingEntry >= 0)
          {
-            ImGui::CaptureMouseFromApp();
+            ImGui::SetNextFrameWantCaptureMouse(true);
             int diffFrame = int((cx - movingPos) / framePixelWidth);
             if (std::abs(diffFrame) > 0)
             {
@@ -507,7 +507,7 @@ namespace ImSequencer
          }
          //
 
-         ImGui::EndChildFrame();
+         ImGui::EndChild();
          ImGui::PopStyleColor();
          if (hasScrollBar)
          {
