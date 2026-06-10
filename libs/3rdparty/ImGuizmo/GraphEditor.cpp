@@ -853,7 +853,7 @@ bool DrawMiniMap(ImDrawList* drawList, Delegate& delegate, ViewState& viewState,
         drawList->AddRectFilled(rect.Min, rect.Max, nodeTemplate.mBackgroundColor, 1, ImDrawFlags_RoundCornersAll);
         if (node.mSelected)
         {
-            drawList->AddRect(rect.Min, rect.Max, options.mSelectedNodeBorderColor, 1, ImDrawFlags_RoundCornersAll);
+            drawList->AddRect(rect.Min, rect.Max, options.mSelectedNodeBorderColor, 1.f, 1.f, ImDrawFlags_RoundCornersAll);
         }
     }
 
@@ -861,7 +861,7 @@ bool DrawMiniMap(ImDrawList* drawList, Delegate& delegate, ViewState& viewState,
     ImVec2 viewMinScreen = (viewMin - middleWorld) * factor + middleScreen;
     ImVec2 viewMaxScreen = (viewMax - middleWorld) * factor + middleScreen;
     drawList->AddRectFilled(viewMinScreen, viewMaxScreen, IM_COL32(255, 255, 255, 32), 1, ImDrawFlags_RoundCornersAll);
-    drawList->AddRect(viewMinScreen, viewMaxScreen, IM_COL32(255, 255, 255, 128), 1, ImDrawFlags_RoundCornersAll);
+    drawList->AddRect(viewMinScreen, viewMaxScreen, IM_COL32(255, 255, 255, 128), 1.f, 1.f, ImDrawFlags_RoundCornersAll);
     
     ImGuiIO& io = ImGui::GetIO();
     const bool mouseInMinimap = ImRect(minScreen, maxScreen).Contains(io.MousePos);
