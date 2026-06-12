@@ -114,3 +114,6 @@ Desktop.ini
 #########################
 
 .mailmap
+
+# ImGui runtime settings
+imgui.ini
