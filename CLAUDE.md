@@ -17,6 +17,28 @@ if (condition)
 ```
 Never use K&R style (`function() {`).
 
+### Switch Statement Style
+Each `case` block uses braces, with `break` outside the closing brace:
+```cpp
+switch (x)
+{
+    case A:
+    {
+        ...
+    }
+    break;
+
+    case B:
+    {
+        ...
+    }
+    break;
+}
+```
+
+### Indentation
+Use **4 spaces** per indent level. Never use tabs.
+
 ### Communication
 - User communicates in Traditional Chinese (繁體中文). Respond in the same language.
 - Keep responses concise.
