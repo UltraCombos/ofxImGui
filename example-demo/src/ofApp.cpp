@@ -99,9 +99,9 @@ void ofApp::draw()
     }
 
 
-    bool pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)imageButtonID, ImVec2(200, 200));
-    pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)pixelsButtonID, ImVec2(200, 200));
-    pressed = ImGui::ImageButton((ImTextureID)(uintptr_t)textureSourceID, ImVec2(200, 200));
+    bool pressed = ImGui::ImageButton("##imgbtn0", (ImTextureID)(uintptr_t)imageButtonID, ImVec2(200, 200));
+    pressed = ImGui::ImageButton("##imgbtn1", (ImTextureID)(uintptr_t)pixelsButtonID, ImVec2(200, 200));
+    pressed = ImGui::ImageButton("##imgbtn2", (ImTextureID)(uintptr_t)textureSourceID, ImVec2(200, 200));
 
 
     if (doThemeColorsWindow)
