@@ -3,13 +3,14 @@
 #include "ofMain.h"
 #include <ofxImGuiParameter.h>
 
-class ofApp : public ofBaseApp{
+class ofApp : public ofBaseApp
+{
 public:
     void setup();
     void update();
     void draw();
-	void exit();
-    
+    void exit();
+
     void keyPressed(int key);
     void keyReleased(int key);
     void mouseMoved(int x, int y);
@@ -20,15 +21,15 @@ public:
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
     void mouseScrolled(float x, float y);
-    
+
 private:
-	void mf_on_parameter_changed(ofAbstractParameter& e);
-	void mf_on_ImGui_draw();
+    void mf_on_parameter_changed(ofAbstractParameter& e);
+    void mf_on_ImGui_draw();
 
-	ofParameter< ofColor >	m_background_color;
-	ofxImGuiParameter		m_imgui_parameter;
-	ofParameterGroup		m_param_group; 
+    ofParameter< ofColor >  m_background_color;
+    ofxImGuiParameter       m_imgui_parameter;
+    ofParameterGroup        m_param_group;
 
-	void mf_triger();
-	void mf_test(int &);
+    void mf_triger();
+    void mf_test(int &);
 };

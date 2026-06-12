@@ -1,4 +1,4 @@
-﻿/*
+/*
 The78ester
 */
 
@@ -13,267 +13,267 @@ typedef class ofxXmlSettings2ofXml
 {
 public:
 #if OF_VERSION_MINOR >= 10
-	ofxXmlSettings2ofXml()
-	{
-		m_stack.push_back(m_xml);
-	}
+    ofxXmlSettings2ofXml()
+    {
+        m_stack.push_back(m_xml);
+    }
 
 #endif
 
-	bool load(std::string const& p)
-	{
-		bool yes = m_xml.load(p);
+    bool load(std::string const& p)
+    {
+        bool yes = m_xml.load(p);
 #if OF_VERSION_MINOR < 10
-		if (yes)
-		{
-			m_xml.setToParent();
-		}
-		else
-		{
-			m_xml.clear();
-		}
+        if (yes)
+        {
+            m_xml.setToParent();
+        }
+        else
+        {
+            m_xml.clear();
+        }
 #else
-		m_stack.clear();
-		m_stack.push_back(m_xml);
+        m_stack.clear();
+        m_stack.push_back(m_xml);
 
 #endif
-		return yes;
-	}
+        return yes;
+    }
 
-	bool save(std::string const& p)
-	{
-		return m_xml.save(p);
-	}
+    bool save(std::string const& p)
+    {
+        return m_xml.save(p);
+    }
 
-	bool tagExists(std::string const& tag)
-	{
+    bool tagExists(std::string const& tag)
+    {
 #if OF_VERSION_MINOR < 10
-		return m_xml.exists(tag);
-
-#else
-		return m_stack.back().getChild(tag);
-
-#endif
-	}
-
-	int addTag(std::string const& tag)
-	{
-#if OF_VERSION_MINOR < 10
-		bool yes = m_xml.addChild(tag);
-		if (!yes)
-		{
-			return -1;
-		}
-		return m_xml.getNumChildren(tag) - 1;
+        return m_xml.exists(tag);
 
 #else
-		ofXml xml = m_stack.back().appendChild(tag);
-		if (!xml)
-		{
-			return -1;
-		}
+        return m_stack.back().getChild(tag);
 
-		return 0;
 #endif
-	}
+    }
 
-	bool pushTag(const std::string& tag, int which = 0)
-	{
+    int addTag(std::string const& tag)
+    {
 #if OF_VERSION_MINOR < 10
-		if (!m_xml.exists(tag))
-		{
-			return false;
-		}
-
-		return m_xml.setTo(tag);
-#else
-		ofXml xml = m_stack.back().getChild(tag);
-		if (!xml)
-		{
-			return false;
-		}
-
-		m_stack.push_back(xml);
-		return true;
-#endif
-	}
-
-	int	popTag()
-	{
-#if OF_VERSION_MINOR < 10
-		m_xml.setToParent();
+        bool yes = m_xml.addChild(tag);
+        if (!yes)
+        {
+            return -1;
+        }
+        return m_xml.getNumChildren(tag) - 1;
 
 #else
-		m_stack.pop_back();
+        ofXml xml = m_stack.back().appendChild(tag);
+        if (!xml)
+        {
+            return -1;
+        }
 
+        return 0;
 #endif
-		return 0;
-	}
+    }
 
-	template < typename T >
-	T getValue(const std::string& tag, T const& defaultValue)
-	{
+    bool pushTag(const std::string& tag, int which = 0)
+    {
 #if OF_VERSION_MINOR < 10
-		if (!m_xml.exists(tag))
-		{
-			return defaultValue;
-		}
+        if (!m_xml.exists(tag))
+        {
+            return false;
+        }
 
-		return m_xml.getValue< T >(tag, T());
+        return m_xml.setTo(tag);
 #else
-		ofXml xml = m_stack.back().getChild(tag);
-		if (!xml)
-		{
-			return defaultValue;
-		}
+        ofXml xml = m_stack.back().getChild(tag);
+        if (!xml)
+        {
+            return false;
+        }
 
-		return xml.getValue< T >();
+        m_stack.push_back(xml);
+        return true;
 #endif
+    }
 
-	}
-
-	std::string getValue(const std::string& tag, char const* defaultValue)
-	{
-		return getValue<std::string>(tag, defaultValue);
-	}
-
-	template< typename T>
-	T getAttribute(const std::string& tag, const std::string& attribute, T const& defaultValue, int n = 0)
-	{
+    int popTag()
+    {
 #if OF_VERSION_MINOR < 10
-		if (!m_xml.exists(tag))
-		{
-			return defaultValue;
-		}
-
-		bool yes = m_xml.setTo(tag);
-		if (!yes)
-		{
-			m_xml.setToParent();
-			return defaultValue;
-		}
-
-		std::string val = m_xml.getAttribute(attribute);
-		m_xml.setToParent();
-		if (val == "")
-		{
-			return defaultValue;
-		}
-
-		return ofFromString<T>(val);
+        m_xml.setToParent();
 
 #else
-		ofXml xml = m_stack.back().getChild(tag);
-		if (!xml)
-		{ 
-			return defaultValue;
-		}
-
-		ofXml::Attribute attr = xml.getAttribute(attribute);
-		if (!attr)
-		{
-			return defaultValue;
-		}
-
-		return ofFromString< T >(attr.getValue());
+        m_stack.pop_back();
 
 #endif
-	}
+        return 0;
+    }
 
-	std::string getAttribute(const std::string& tag, const std::string& attribute, char const* defaultValue, int n = 0)
-	{
-		return getAttribute<std::string>(tag, attribute, defaultValue, n);
-	}
-
-	template< typename T >
-	int	setAttribute(const std::string& tag, const std::string& attribute, T const& value, int which = 0)
-	{
+    template < typename T >
+    T getValue(const std::string& tag, T const& defaultValue)
+    {
 #if OF_VERSION_MINOR < 10
-		if (!m_xml.exists(tag))
-		{
-			return -1;
-		}
+        if (!m_xml.exists(tag))
+        {
+            return defaultValue;
+        }
 
-		bool yes = m_xml.setTo(tag);
-		if (!yes)
-		{
-			m_xml.setToParent();
-			return -1;
-		}
-
-		yes = m_xml.setAttribute(attribute, ofToString(value));
-		m_xml.setToParent();
-		if (!yes)
-		{
-			return -1;
-		}
-
-		return 0;
+        return m_xml.getValue< T >(tag, T());
 #else
-		ofXml xml = m_stack.back().getChild(tag);
-		if (!xml)
-		{
-			return -1;
-		}
+        ofXml xml = m_stack.back().getChild(tag);
+        if (!xml)
+        {
+            return defaultValue;
+        }
 
-		ofXml::Attribute attr = xml.setAttribute(attribute, ofToString(value));
-		if (!attr)
-		{
-			return -1;
-		}
-
-		return 0;
-
+        return xml.getValue< T >();
 #endif
 
-	}
+    }
 
-	int setAttribute(const std::string& tag, const std::string& attribute, char const* value, int which = 0)
-	{
-		return setAttribute< std::string >(tag, attribute, value, which);
-	}
+    std::string getValue(const std::string& tag, char const* defaultValue)
+    {
+        return getValue<std::string>(tag, defaultValue);
+    }
 
-	template < typename T >
-	int setValue(const std::string&  tag, T const& value, int which = 0)
-	{
+    template< typename T>
+    T getAttribute(const std::string& tag, const std::string& attribute, T const& defaultValue, int n = 0)
+    {
 #if OF_VERSION_MINOR < 10
-		if (!m_xml.exists(tag))
-		{
-			bool yes = m_xml.addChild(tag);
-			if (!yes)
-			{
-				return -1;
-			}
-		}
+        if (!m_xml.exists(tag))
+        {
+            return defaultValue;
+        }
 
-		return m_xml.setValue(tag, ofToString(value));
+        bool yes = m_xml.setTo(tag);
+        if (!yes)
+        {
+            m_xml.setToParent();
+            return defaultValue;
+        }
+
+        std::string val = m_xml.getAttribute(attribute);
+        m_xml.setToParent();
+        if (val == "")
+        {
+            return defaultValue;
+        }
+
+        return ofFromString<T>(val);
+
 #else
-		ofXml xml = m_stack.back().getChild(tag);
-		if (!xml)
-		{
-			xml = m_stack.back().appendChild(tag);
-			if (!xml)
-			{
-				return -1;
-			}
-		}
+        ofXml xml = m_stack.back().getChild(tag);
+        if (!xml)
+        {
+            return defaultValue;
+        }
 
-		xml.set(value);
-		return 0;
+        ofXml::Attribute attr = xml.getAttribute(attribute);
+        if (!attr)
+        {
+            return defaultValue;
+        }
+
+        return ofFromString< T >(attr.getValue());
+
+#endif
+    }
+
+    std::string getAttribute(const std::string& tag, const std::string& attribute, char const* defaultValue, int n = 0)
+    {
+        return getAttribute<std::string>(tag, attribute, defaultValue, n);
+    }
+
+    template< typename T >
+    int setAttribute(const std::string& tag, const std::string& attribute, T const& value, int which = 0)
+    {
+#if OF_VERSION_MINOR < 10
+        if (!m_xml.exists(tag))
+        {
+            return -1;
+        }
+
+        bool yes = m_xml.setTo(tag);
+        if (!yes)
+        {
+            m_xml.setToParent();
+            return -1;
+        }
+
+        yes = m_xml.setAttribute(attribute, ofToString(value));
+        m_xml.setToParent();
+        if (!yes)
+        {
+            return -1;
+        }
+
+        return 0;
+#else
+        ofXml xml = m_stack.back().getChild(tag);
+        if (!xml)
+        {
+            return -1;
+        }
+
+        ofXml::Attribute attr = xml.setAttribute(attribute, ofToString(value));
+        if (!attr)
+        {
+            return -1;
+        }
+
+        return 0;
 
 #endif
 
-	}
+    }
 
-	int setValue(const std::string&  tag, char const* value, int which = 0)
-	{
-		return setValue<std::string>(tag, value, which);
-	}
+    int setAttribute(const std::string& tag, const std::string& attribute, char const* value, int which = 0)
+    {
+        return setAttribute< std::string >(tag, attribute, value, which);
+    }
+
+    template < typename T >
+    int setValue(const std::string&  tag, T const& value, int which = 0)
+    {
+#if OF_VERSION_MINOR < 10
+        if (!m_xml.exists(tag))
+        {
+            bool yes = m_xml.addChild(tag);
+            if (!yes)
+            {
+                return -1;
+            }
+        }
+
+        return m_xml.setValue(tag, ofToString(value));
+#else
+        ofXml xml = m_stack.back().getChild(tag);
+        if (!xml)
+        {
+            xml = m_stack.back().appendChild(tag);
+            if (!xml)
+            {
+                return -1;
+            }
+        }
+
+        xml.set(value);
+        return 0;
+
+#endif
+
+    }
+
+    int setValue(const std::string&  tag, char const* value, int which = 0)
+    {
+        return setValue<std::string>(tag, value, which);
+    }
 
 private:
-	ofXml m_xml;
+    ofXml m_xml;
 #if OF_VERSION_MINOR >= 10
-	std::vector < ofXml > m_stack;
+    std::vector < ofXml > m_stack;
 
 #endif
 
@@ -283,724 +283,790 @@ private:
 
 namespace
 {
-	typedef std::shared_ptr< ofBaseVideoPlayer > sptr_vid_player;
-	typedef std::shared_ptr< ofBaseSoundPlayer > sptr_snd_player;
-	typedef std::shared_ptr< ofParameter< ofTexture > > sp_param_tex;
-	typedef std::shared_ptr< ofAppBaseWindow > sptr_window;
+    typedef std::shared_ptr< ofBaseVideoPlayer > sptr_vid_player;
+    typedef std::shared_ptr< ofBaseSoundPlayer > sptr_snd_player;
+    typedef std::shared_ptr< ofParameter< ofTexture > > sp_param_tex;
+    typedef std::shared_ptr< ofAppBaseWindow > sptr_window;
 
-	struct MyTex  
-	{
-		sp_param_tex	sp_param_texture;
-		bool			is_fit_windows;
-		bool			is_open;
-		bool			is_show_detail;
-		uint32_t		id;
-	};
+    struct MyTex
+    {
+        sp_param_tex    sp_param_texture;
+        bool            is_fit_windows;
+        bool            is_open;
+        bool            is_show_detail;
+        uint32_t        id;
+    };
 
-	typedef std::shared_ptr< ofParameter< MyTex > > sp_parm_my_tex;
+    typedef std::shared_ptr< ofParameter< MyTex > > sp_parm_my_tex;
 
-	void gf_draw_bool(ofParameter< bool >* p_param, void*)
-	{
-		bool b_value = p_param->get();
-		bool yes = ImGui::Checkbox(p_param->getName().c_str(), &b_value);
-		if (yes)
-		{
-			p_param->set(b_value);
-		}
-	}
+    void gf_draw_bool(ofParameter< bool >* p_param, void*)
+    {
+        bool b_value = p_param->get();
+        bool yes = ImGui::Checkbox(p_param->getName().c_str(), &b_value);
+        if (yes)
+        {
+            p_param->set(b_value);
+        }
+    }
 
-	void gf_draw_float_slider_default(ofParameter< float >* p_param, char const* fmt)
-	{
-		float f_value = p_param->get();
-		bool yes = ImGui::SliderFloat(p_param->getName().c_str(), &f_value, p_param->getMin(), p_param->getMax(), fmt);
-		if (yes)
-		{
-			p_param->set(f_value);
-		}
-	}
+    void gf_draw_float_slider_default(ofParameter< float >* p_param, char const* fmt)
+    {
+        float f_value = p_param->get();
+        bool yes = ImGui::SliderFloat(p_param->getName().c_str(), &f_value, p_param->getMin(), p_param->getMax(), fmt);
+        if (yes)
+        {
+            p_param->set(f_value);
+        }
+    }
 
-	void gf_draw_int_slider_default(ofParameter< int >* p_param, void*)
-	{
-		int i_value = p_param->get();
-		bool yes = ImGui::SliderInt(p_param->getName().c_str(), &i_value, p_param->getMin(), p_param->getMax());
-		if (yes)
-		{
-			p_param->set(i_value);
-		}
-	}
+    void gf_draw_int_slider_default(ofParameter< int >* p_param, void*)
+    {
+        int i_value = p_param->get();
+        bool yes = ImGui::SliderInt(p_param->getName().c_str(), &i_value, p_param->getMin(), p_param->getMax());
+        if (yes)
+        {
+            p_param->set(i_value);
+        }
+    }
 
-	void gf_draw_float_drag_default(ofParameter< float >* p_param, char const* fmt)
-	{
-		float f_value = p_param->get();
-		float delta = p_param->getMax() - p_param->getMin();
-		bool yes = ImGui::DragFloat(p_param->getName().c_str(), &f_value, delta * 0.005f ,p_param->getMin(), p_param->getMax(), fmt);
-		if (yes)
-		{
-			p_param->set(f_value);
-		}
-	}
+    void gf_draw_float_drag_default(ofParameter< float >* p_param, char const* fmt)
+    {
+        float f_value = p_param->get();
+        float delta = p_param->getMax() - p_param->getMin();
+        bool yes = ImGui::DragFloat(p_param->getName().c_str(), &f_value, delta * 0.005f ,p_param->getMin(), p_param->getMax(), fmt);
+        if (yes)
+        {
+            p_param->set(f_value);
+        }
+    }
 
-	void gf_draw_int_drag_default(ofParameter< int >* p_param, void*)
-	{
-		int i_value = p_param->get();
-		float delta = p_param->getMax() - p_param->getMin();
-		bool yes = ImGui::DragInt(p_param->getName().c_str(), &i_value, delta * 0.005f, p_param->getMin(), p_param->getMax());
-		if (yes)
-		{
-			p_param->set(i_value);
-		}
-	}
+    void gf_draw_int_drag_default(ofParameter< int >* p_param, void*)
+    {
+        int i_value = p_param->get();
+        float delta = p_param->getMax() - p_param->getMin();
+        bool yes = ImGui::DragInt(p_param->getName().c_str(), &i_value, delta * 0.005f, p_param->getMin(), p_param->getMax());
+        if (yes)
+        {
+            p_param->set(i_value);
+        }
+    }
 
-	void gf_draw_float_input_default(ofParameter< float >* p_param, char const* fmt)
-	{
-		float f_value = p_param->get();
-		float delta = p_param->getMax() - p_param->getMin();
-		bool yes = ImGui::InputFloat(p_param->getName().c_str(), &f_value, delta * 0.01f , delta * 0.1f, fmt);
-		if (yes)
-		{
-			f_value = ofClamp(f_value, p_param->getMin(), p_param->getMax());
-			p_param->set(f_value);
-		}
-	}
+    void gf_draw_float_input_default(ofParameter< float >* p_param, char const* fmt)
+    {
+        float f_value = p_param->get();
+        float delta = p_param->getMax() - p_param->getMin();
+        bool yes = ImGui::InputFloat(p_param->getName().c_str(), &f_value, delta * 0.01f , delta * 0.1f, fmt);
+        if (yes)
+        {
+            f_value = ofClamp(f_value, p_param->getMin(), p_param->getMax());
+            p_param->set(f_value);
+        }
+    }
 
-	void gf_draw_int_input_default(ofParameter< int >* p_param, void*)
-	{
-		int i_value = p_param->get();
-		int delta = p_param->getMax() - p_param->getMin();
-		int step = delta / 100;
-		int step_fast = delta / 10;
-		bool yes = ImGui::InputInt(p_param->getName().c_str(), &i_value, step ? step : 1, step_fast ? step_fast : 1);
-		if (yes)
-		{
-			i_value = static_cast<int>(ofClamp(i_value, p_param->getMin(), p_param->getMax()));
-			p_param->set(i_value);
-		}
-	}
+    void gf_draw_int_input_default(ofParameter< int >* p_param, void*)
+    {
+        int i_value = p_param->get();
+        int delta = p_param->getMax() - p_param->getMin();
+        int step = delta / 100;
+        int step_fast = delta / 10;
+        bool yes = ImGui::InputInt(p_param->getName().c_str(), &i_value, step ? step : 1, step_fast ? step_fast : 1);
+        if (yes)
+        {
+            i_value = static_cast<int>(ofClamp(i_value, p_param->getMin(), p_param->getMax()));
+            p_param->set(i_value);
+        }
+    }
 
-	void gf_draw_float_slider_spec(ofParameter< ofxImGuiFloat >* p_param, char const* fmt)
-	{
-		ofxImGuiFloat value_obj = p_param->get();
-		bool yes = ImGui::SliderFloat(p_param->getName().c_str(), &value_obj.value, value_obj.arg0, value_obj.arg1, fmt);
-		if (yes)
-		{
-			p_param->set(value_obj);
-		}
-	}
+    void gf_draw_float_slider_spec(ofParameter< ofxImGuiFloat >* p_param, char const* fmt)
+    {
+        ofxImGuiFloat value_obj = p_param->get();
+        bool yes = ImGui::SliderFloat(p_param->getName().c_str(), &value_obj.value, value_obj.arg0, value_obj.arg1, fmt);
+        if (yes)
+        {
+            p_param->set(value_obj);
+        }
+    }
 
-	void gf_draw_float_drag_spec(ofParameter< ofxImGuiFloat >* p_param, char const* fmt)
-	{
-		ofxImGuiFloat value_obj = p_param->get();
-		bool yes = ImGui::DragFloat(p_param->getName().c_str(), &value_obj.value, value_obj.arg0, value_obj.arg1);
-		if (yes)
-		{
-			p_param->set(value_obj);
-		}
-	}
+    void gf_draw_float_drag_spec(ofParameter< ofxImGuiFloat >* p_param, char const* fmt)
+    {
+        ofxImGuiFloat value_obj = p_param->get();
+        bool yes = ImGui::DragFloat(p_param->getName().c_str(), &value_obj.value, value_obj.arg0, value_obj.arg1);
+        if (yes)
+        {
+            p_param->set(value_obj);
+        }
+    }
 
-	void gf_draw_float_input_spec(ofParameter< ofxImGuiFloat >* p_param, char const* fmt)
-	{
-		ofxImGuiFloat value_obj = p_param->get();
-		bool yes = ImGui::InputFloat(p_param->getName().c_str(), &value_obj.value, value_obj.arg0, value_obj.arg1, fmt);
-		if (yes)
-		{
-			p_param->set(value_obj);
-		}
-	}
+    void gf_draw_float_input_spec(ofParameter< ofxImGuiFloat >* p_param, char const* fmt)
+    {
+        ofxImGuiFloat value_obj = p_param->get();
+        bool yes = ImGui::InputFloat(p_param->getName().c_str(), &value_obj.value, value_obj.arg0, value_obj.arg1, fmt);
+        if (yes)
+        {
+            p_param->set(value_obj);
+        }
+    }
 
-	void gf_draw_int_slider_spec(ofParameter< ofxImGuiInt >* p_param, void*)
-	{
-		ofxImGuiInt value_obj = p_param->get();
-		bool yes = ImGui::SliderInt(p_param->getName().c_str(), &value_obj.value, value_obj.arg0, value_obj.arg1);
-		if (yes)
-		{
-			p_param->set(value_obj);
-		}
-	}
+    void gf_draw_int_slider_spec(ofParameter< ofxImGuiInt >* p_param, void*)
+    {
+        ofxImGuiInt value_obj = p_param->get();
+        bool yes = ImGui::SliderInt(p_param->getName().c_str(), &value_obj.value, value_obj.arg0, value_obj.arg1);
+        if (yes)
+        {
+            p_param->set(value_obj);
+        }
+    }
 
-	void gf_draw_int_drag_spec(ofParameter< ofxImGuiInt >* p_param, void*)
-	{
-		ofxImGuiInt value_obj = p_param->get();
-		bool yes = ImGui::DragInt(p_param->getName().c_str(), &value_obj.value, value_obj.arg0, value_obj.arg1);
-		if (yes)
-		{
-			p_param->set(value_obj);
-		}
-	}
+    void gf_draw_int_drag_spec(ofParameter< ofxImGuiInt >* p_param, void*)
+    {
+        ofxImGuiInt value_obj = p_param->get();
+        bool yes = ImGui::DragInt(p_param->getName().c_str(), &value_obj.value, value_obj.arg0, value_obj.arg1);
+        if (yes)
+        {
+            p_param->set(value_obj);
+        }
+    }
 
-	void gf_draw_int_input_spec(ofParameter< ofxImGuiInt >* p_param, void*)
-	{
-		ofxImGuiInt value_obj = p_param->get();
-		bool yes = ImGui::InputInt(p_param->getName().c_str(), &value_obj.value, value_obj.arg0, value_obj.arg1);
-		if (yes)
-		{
-			p_param->set(value_obj);
-		}
-	}
+    void gf_draw_int_input_spec(ofParameter< ofxImGuiInt >* p_param, void*)
+    {
+        ofxImGuiInt value_obj = p_param->get();
+        bool yes = ImGui::InputInt(p_param->getName().c_str(), &value_obj.value, value_obj.arg0, value_obj.arg1);
+        if (yes)
+        {
+            p_param->set(value_obj);
+        }
+    }
 
-	void gf_draw_enum(ofParameter< ofxImGuiEnum >* p_param, void*)
-	{
-		enum { MaxComboNum = 5, };
+    void gf_draw_enum(ofParameter< ofxImGuiEnum >* p_param, void*)
+    {
+        enum { MaxComboNum = 5, };
 
-		ofxImGuiEnum e_value = p_param->get();
-		size_t size_of_enum = e_value.content.size();
+        ofxImGuiEnum e_value = p_param->get();
+        size_t size_of_enum = e_value.content.size();
 
-		char const** items = new const char*[size_of_enum];
-		for (size_t i = 0; i < size_of_enum; ++i)
-		{
-			items[i] = e_value.content[i].c_str();
-		}
+        char const** items = new const char*[size_of_enum];
+        for (size_t i = 0; i < size_of_enum; ++i)
+        {
+            items[i] = e_value.content[i].c_str();
+        }
 
-		int item2 = (int)e_value.select;
-		if (ImGui::Combo(p_param->getName().c_str(), &item2, items, (int)size_of_enum, (int)std::min<size_t>(MaxComboNum, size_of_enum)))
-		{
-			e_value.select = item2;
-			p_param->set(e_value);
-		}
+        int item2 = (int)e_value.select;
+        if (ImGui::Combo(p_param->getName().c_str(), &item2, items, (int)size_of_enum, (int)std::min<size_t>(MaxComboNum, size_of_enum)))
+        {
+            e_value.select = item2;
+            p_param->set(e_value);
+        }
 
-		delete[] items;
-	}
+        delete[] items;
+    }
 
-	void gf_draw_color_u8(ofParameter< ofColor >* p_param, void*)
-	{
-		ImVec4 color = p_param->get();
-		if (ImGui::ColorEdit4(p_param->getName().c_str(), (float*)&color))
-		{
-			p_param->set(color);
-		}
-	}
+    void gf_draw_color_u8(ofParameter< ofColor >* p_param, void*)
+    {
+        ImVec4 color = p_param->get();
+        if (ImGui::ColorEdit4(p_param->getName().c_str(), (float*)&color))
+        {
+            p_param->set(color);
+        }
+    }
 
-	void gf_draw_color_f32(ofParameter< ofFloatColor >* p_param, void*)
-	{
-		ImVec4 color = p_param->get();
-		if (ImGui::ColorEdit4(p_param->getName().c_str(), (float*)&color))
-		{
-			p_param->set(color);
-		}
-	}
+    void gf_draw_color_f32(ofParameter< ofFloatColor >* p_param, void*)
+    {
+        ImVec4 color = p_param->get();
+        if (ImGui::ColorEdit4(p_param->getName().c_str(), (float*)&color))
+        {
+            p_param->set(color);
+        }
+    }
 
-	void gf_draw_vec2f(ofParameter< ofVec2f >* p_param, char const* fmt)
-	{
-		ofVec2f vec2f = p_param->get();
-		ofVec2f v2fmin = p_param->getMin();
-		ofVec2f v2fmax = p_param->getMax();
-		if (ImGui::DragFloat2(p_param->getName().c_str(), vec2f.getPtr(), 0.01f, v2fmin.x, v2fmax.x, fmt))
-		{
-			p_param->set(vec2f);
-		}
-	}
+    void gf_draw_vec2f(ofParameter< ofVec2f >* p_param, char const* fmt)
+    {
+        ofVec2f vec2f = p_param->get();
+        ofVec2f v2fmin = p_param->getMin();
+        ofVec2f v2fmax = p_param->getMax();
+        if (ImGui::DragFloat2(p_param->getName().c_str(), vec2f.getPtr(), 0.01f, v2fmin.x, v2fmax.x, fmt))
+        {
+            p_param->set(vec2f);
+        }
+    }
 
-	void gf_draw_vec3f(ofParameter< ofVec3f >* p_param, char const* fmt)
-	{
-		ofVec3f vec3f = p_param->get();
-		ofVec3f v3fmin = p_param->getMin();
-		ofVec3f v3fmax = p_param->getMax();
-		if (ImGui::DragFloat3(p_param->getName().c_str(), vec3f.getPtr(), 0.01f, v3fmin.x, v3fmax.x, fmt))
-		{
-			p_param->set(vec3f);
-		}
-	}
+    void gf_draw_vec3f(ofParameter< ofVec3f >* p_param, char const* fmt)
+    {
+        ofVec3f vec3f = p_param->get();
+        ofVec3f v3fmin = p_param->getMin();
+        ofVec3f v3fmax = p_param->getMax();
+        if (ImGui::DragFloat3(p_param->getName().c_str(), vec3f.getPtr(), 0.01f, v3fmin.x, v3fmax.x, fmt))
+        {
+            p_param->set(vec3f);
+        }
+    }
 
-	void gf_draw_vec4f(ofParameter< ofVec4f >* p_param, char const* fmt)
-	{
-		ofVec4f vec4f = p_param->get();
-		ofVec4f v4fmin = p_param->getMin();
-		ofVec4f v4fmax = p_param->getMax();
-		if (ImGui::DragFloat4(p_param->getName().c_str(), vec4f.getPtr(), 0.01f, v4fmin.x, v4fmax.x, fmt))
-		{
-			p_param->set(vec4f);
-		}
-	}
+    void gf_draw_vec4f(ofParameter< ofVec4f >* p_param, char const* fmt)
+    {
+        ofVec4f vec4f = p_param->get();
+        ofVec4f v4fmin = p_param->getMin();
+        ofVec4f v4fmax = p_param->getMax();
+        if (ImGui::DragFloat4(p_param->getName().c_str(), vec4f.getPtr(), 0.01f, v4fmin.x, v4fmax.x, fmt))
+        {
+            p_param->set(vec4f);
+        }
+    }
 
-	void gf_draw_rect(ofParameter< ofRectangle >*p_param, char const* fmt)
-	{
-		ofRectangle const& rect = p_param->get();
-		ofRectangle max_rect = p_param->getMax();
-		ofRectangle min_rect = p_param->getMin();
-		float len = std::max<float>(max_rect.width - min_rect.width, max_rect.height - min_rect.height);
-		if (len <= 0.f)
-		{
-			len = 1.f;
-		}
+    void gf_draw_rect(ofParameter< ofRectangle >*p_param, char const* fmt)
+    {
+        ofRectangle const& rect = p_param->get();
+        ofRectangle max_rect = p_param->getMax();
+        ofRectangle min_rect = p_param->getMin();
+        float len = std::max<float>(max_rect.width - min_rect.width, max_rect.height - min_rect.height);
+        if (len <= 0.f)
+        {
+            len = 1.f;
+        }
 
-		float v4[4]{ rect.x, rect.y, rect.width, rect.height };
-		if (ImGui::DragFloat4(p_param->getName().c_str(), v4, len * 0.01f, 0.f, 0.f, fmt))
-		{
-			p_param->set(ofRectangle(v4[0], v4[1], v4[2], v4[3]));
-		}
-	}
+        float v4[4]{ rect.x, rect.y, rect.width, rect.height };
+        if (ImGui::DragFloat4(p_param->getName().c_str(), v4, len * 0.01f, 0.f, 0.f, fmt))
+        {
+            p_param->set(ofRectangle(v4[0], v4[1], v4[2], v4[3]));
+        }
+    }
 
-	void gf_draw_text_input(ofParameter < std::string >* p_param, void*)
-	{
-		enum { MaxSizeBuf = 256 + 128 };
+    void gf_draw_text_input(ofParameter < std::string >* p_param, void*)
+    {
+        enum { MaxSizeBuf = 256 + 128 };
 
-		char buf[MaxSizeBuf];
-		strncpy(buf, p_param->get().c_str(), MaxSizeBuf);
-		buf[MaxSizeBuf - 1] = '\0';
-		if (ImGui::InputText(p_param->getName().c_str(), buf, MaxSizeBuf))
-		{
-			p_param->set(buf);
-		}
-	}
+        char buf[MaxSizeBuf];
+        strncpy(buf, p_param->get().c_str(), MaxSizeBuf);
+        buf[MaxSizeBuf - 1] = '\0';
+        if (ImGui::InputText(p_param->getName().c_str(), buf, MaxSizeBuf))
+        {
+            p_param->set(buf);
+        }
+    }
 
-	char const* gf_get_gl_internal_fmt_name(int glInternalFormat) 
-	{
-		switch (glInternalFormat) 
-		{
-		case GL_RGBA:				return "GL_RGBA";
+    char const* gf_get_gl_internal_fmt_name(int glInternalFormat)
+    {
+        switch (glInternalFormat)
+        {
+        case GL_RGBA:
+            {
+                return "GL_RGBA";
+            }
 #ifndef TARGET_OPENGLES
-		case GL_RGBA8:				return "GL_RGBA8";
+        case GL_RGBA8:
+            {
+                return "GL_RGBA8";
+            }
 #endif
-		case GL_RGB:				return "GL_RGB";
+        case GL_RGB:
+            {
+                return "GL_RGB";
+            }
 #ifndef TARGET_OPENGLES
-		case GL_RGB8:				return "GL_RGB8";
+        case GL_RGB8:
+            {
+                return "GL_RGB8";
+            }
 #endif
-		case GL_LUMINANCE:			return "GL_LUMINANCE";
+        case GL_LUMINANCE:
+            {
+                return "GL_LUMINANCE";
+            }
 #ifndef TARGET_OPENGLES
-		case GL_LUMINANCE8:			return "GL_LUMINANCE8";
-		case GL_RGBA16:				return "GL_RGBA16";
-		case GL_RGB16:				return "GL_RGB16";
-		case GL_LUMINANCE16:		return "GL_LUMINANCE16";
-		case GL_RGBA32F_ARB:		return "GL_RGBA32F_ARB";
-		case GL_RGB32F_ARB:			return "GL_RGB32F_ARB";
-		//added ===================================================
-		//case GL_RGB32F:				return "GL_RGB32F";
-		//case GL_RGBA32F:			return "GL_RGBA32F";
-		//=========================================================
-		case GL_LUMINANCE32F_ARB:	return "GL_LUMINANCE32F_ARB";
+        case GL_LUMINANCE8:
+            {
+                return "GL_LUMINANCE8";
+            }
+        case GL_RGBA16:
+            {
+                return "GL_RGBA16";
+            }
+        case GL_RGB16:
+            {
+                return "GL_RGB16";
+            }
+        case GL_LUMINANCE16:
+            {
+                return "GL_LUMINANCE16";
+            }
+        case GL_RGBA32F_ARB:
+            {
+                return "GL_RGBA32F_ARB";
+            }
+        case GL_RGB32F_ARB:
+            {
+                return "GL_RGB32F_ARB";
+            }
+        //added ===================================================
+        //case GL_RGB32F:             return "GL_RGB32F";
+        //case GL_RGBA32F:            return "GL_RGBA32F";
+        //=========================================================
+        case GL_LUMINANCE32F_ARB:
+            {
+                return "GL_LUMINANCE32F_ARB";
+            }
 #endif
-		case GL_LUMINANCE_ALPHA:	return "GL_LUMINANCE_ALPHA";
+        case GL_LUMINANCE_ALPHA:
+            {
+                return "GL_LUMINANCE_ALPHA";
+            }
 #ifndef TARGET_OPENGLES
-		case GL_LUMINANCE8_ALPHA8:	return "GL_LUMINANCE8_ALPHA8";
-		//added ===================================================
-		case GL_R8:					return "GL_R8";
-		case GL_R16:				return "GL_R16";
-		case GL_R32F:				return "GL_R32F";
-		//=========================================================
+        case GL_LUMINANCE8_ALPHA8:
+            {
+                return "GL_LUMINANCE8_ALPHA8";
+            }
+        //added ===================================================
+        case GL_R8:
+            {
+                return "GL_R8";
+            }
+        case GL_R16:
+            {
+                return "GL_R16";
+            }
+        case GL_R32F:
+            {
+                return "GL_R32F";
+            }
+        //=========================================================
 #endif
-		case GL_COMPRESSED_RGB_S3TC_DXT1_EXT:	return "GL_COMPRESSED_RGB_S3TC_DXT1";
-		case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:	return "GL_COMPRESSED_RGBA_S3TC_DXT1";
+        case GL_COMPRESSED_RGB_S3TC_DXT1_EXT:
+            {
+                return "GL_COMPRESSED_RGB_S3TC_DXT1";
+            }
+        case GL_COMPRESSED_RGBA_S3TC_DXT1_EXT:
+            {
+                return "GL_COMPRESSED_RGBA_S3TC_DXT1";
+            }
 #ifndef TARGET_OPENGLES
-		case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:	return "GL_COMPRESSED_RGBA_S3TC_DXT3";
-		case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:	return "GL_COMPRESSED_RGBA_S3TC_DXT5";
+        case GL_COMPRESSED_RGBA_S3TC_DXT3_EXT:
+            {
+                return "GL_COMPRESSED_RGBA_S3TC_DXT3";
+            }
+        case GL_COMPRESSED_RGBA_S3TC_DXT5_EXT:
+            {
+                return "GL_COMPRESSED_RGBA_S3TC_DXT5";
+            }
 #endif
-		default:					return "unknown glInternalFormat";
-		}
+        default:
+            {
+                return "unknown glInternalFormat";
+            }
+        }
 
 
-	}
+    }
 
-	void gf_draw_video_player(ofParameter < sptr_vid_player >* p_param, void*)
-	{
-		ofParameter< sptr_vid_player >& param = *p_param;
-		sptr_vid_player sp_player = param.get();
-		if (sp_player == nullptr)
-		{
-			return;
-		}
+    void gf_draw_video_player(ofParameter < sptr_vid_player >* p_param, void*)
+    {
+        ofParameter< sptr_vid_player >& param = *p_param;
+        sptr_vid_player sp_player = param.get();
+        if (sp_player == nullptr)
+        {
+            return;
+        }
 
-		ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-		if (ImGui::CollapsingHeader(p_param->getName().c_str()))
-		{
-			if (sp_player->isLoaded())
-			{
-				ofTexture* p_tex = sp_player->getTexturePtr();
-				if (p_tex)
-				{
-					ImGui::TextDisabled("w: %.2f, h: %.2f, fmt: %s", p_tex->getWidth(), p_tex->getHeight(), gf_get_gl_internal_fmt_name(p_tex->getTextureData().glInternalFormat));
-				}
-				else
-				{
-					ofVideoPlayer* p_vid_player = dynamic_cast<ofVideoPlayer*>(sp_player.get());
-					if (p_vid_player)
-					{
-						ofTexture& tex = p_vid_player->getTexture();
-						ImGui::TextDisabled("w: %.2f, h: %.2f, fmt: %s", tex.getWidth(), tex.getHeight(), gf_get_gl_internal_fmt_name(tex.getTextureData().glInternalFormat));
-					}
-				}
+        ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
+        if (ImGui::CollapsingHeader(p_param->getName().c_str()))
+        {
+            if (sp_player->isLoaded())
+            {
+                ofTexture* p_tex = sp_player->getTexturePtr();
+                if (p_tex)
+                {
+                    ImGui::TextDisabled("w: %.2f, h: %.2f, fmt: %s", p_tex->getWidth(), p_tex->getHeight(), gf_get_gl_internal_fmt_name(p_tex->getTextureData().glInternalFormat));
+                }
+                else
+                {
+                    ofVideoPlayer* p_vid_player = dynamic_cast<ofVideoPlayer*>(sp_player.get());
+                    if (p_vid_player)
+                    {
+                        ofTexture& tex = p_vid_player->getTexture();
+                        ImGui::TextDisabled("w: %.2f, h: %.2f, fmt: %s", tex.getWidth(), tex.getHeight(), gf_get_gl_internal_fmt_name(tex.getTextureData().glInternalFormat));
+                    }
+                }
 
-				float duration = sp_player->getDuration();
-				float time = sp_player->getPosition() * duration;
-				if (ImGui::SliderFloat("time", &time, 0.f, duration))
-				{
-					sp_player->setPosition(time / duration);
-				}
+                float duration = sp_player->getDuration();
+                float time = sp_player->getPosition() * duration;
+                if (ImGui::SliderFloat("time", &time, 0.f, duration))
+                {
+                    sp_player->setPosition(time / duration);
+                }
 
-				if (ImGui::Button("play"))
-				{
-					sp_player->play();
-				}
+                if (ImGui::Button("play"))
+                {
+                    sp_player->play();
+                }
 
-				ImGui::SameLine();
-				if (ImGui::Button("stop"))
-				{
-					sp_player->stop();
-				}
+                ImGui::SameLine();
+                if (ImGui::Button("stop"))
+                {
+                    sp_player->stop();
+                }
 
-				ImGui::SameLine();
-				if (ImGui::Button("pause/resume"))
-				{
-					sp_player->setPaused(!sp_player->isPaused());
-				}
+                ImGui::SameLine();
+                if (ImGui::Button("pause/resume"))
+                {
+                    sp_player->setPaused(!sp_player->isPaused());
+                }
 
-				bool yes = sp_player->getLoopState() == OF_LOOP_NORMAL ? true : false;
-				ImGui::Checkbox("is loop", &yes);
-				yes = sp_player->isPlaying();
-				ImGui::SameLine();
-				ImGui::Checkbox("is playing", &yes);
-				yes = sp_player->isPaused();
-				ImGui::SameLine();
-				ImGui::Checkbox("is paused", &yes);
-			}
-		}
-	}
+                bool yes = sp_player->getLoopState() == OF_LOOP_NORMAL ? true : false;
+                ImGui::Checkbox("is loop", &yes);
+                yes = sp_player->isPlaying();
+                ImGui::SameLine();
+                ImGui::Checkbox("is playing", &yes);
+                yes = sp_player->isPaused();
+                ImGui::SameLine();
+                ImGui::Checkbox("is paused", &yes);
+            }
+        }
+    }
 
-	void gf_draw_sound_player(ofParameter < sptr_snd_player >* p_param, void*)
-	{
-		ofParameter< sptr_snd_player >& param = *p_param;
-		sptr_snd_player sp_player = param.get();
-		if (sp_player == nullptr)
-		{
-			return;
-		}
+    void gf_draw_sound_player(ofParameter < sptr_snd_player >* p_param, void*)
+    {
+        ofParameter< sptr_snd_player >& param = *p_param;
+        sptr_snd_player sp_player = param.get();
+        if (sp_player == nullptr)
+        {
+            return;
+        }
 
-		ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
-		if (ImGui::CollapsingHeader(p_param->getName().c_str()))
-		{
-			if (sp_player->isLoaded())
-			{
-				float pos = sp_player->getPosition();
-				if (ImGui::SliderFloat("position", &pos, 0.f, 1.f))
-				{
-					sp_player->setPosition(pos);
-				}
+        ImGui::SetNextItemOpen(true, ImGuiCond_Appearing);
+        if (ImGui::CollapsingHeader(p_param->getName().c_str()))
+        {
+            if (sp_player->isLoaded())
+            {
+                float pos = sp_player->getPosition();
+                if (ImGui::SliderFloat("position", &pos, 0.f, 1.f))
+                {
+                    sp_player->setPosition(pos);
+                }
 
-				if (ImGui::Button("play"))
-				{
-					sp_player->play();
-				}
+                if (ImGui::Button("play"))
+                {
+                    sp_player->play();
+                }
 
-				ImGui::SameLine();
-				if (ImGui::Button("stop"))
-				{
-					sp_player->stop();
-				}
+                ImGui::SameLine();
+                if (ImGui::Button("stop"))
+                {
+                    sp_player->stop();
+                }
 
-				//ImGui::SameLine();
-				//if (ImGui::Button("pause/resume"))
-				//{
-				//	if (sp_player->isPlaying())
-				//	{
-				//		sp_player->setPaused(true);
-				//	}
-				//	else
-				//	{
-				//		sp_player->setPaused(false);
-				//	}
-				//}
+                //ImGui::SameLine();
+                //if (ImGui::Button("pause/resume"))
+                //{
+                //	if (sp_player->isPlaying())
+                //	{
+                //		sp_player->setPaused(true);
+                //	}
+                //	else
+                //	{
+                //		sp_player->setPaused(false);
+                //	}
+                //}
 
-				bool yes = sp_player->isPlaying();
-				ImGui::Checkbox("is playing", &yes);
-			}
-		}
-	}
+                bool yes = sp_player->isPlaying();
+                ImGui::Checkbox("is playing", &yes);
+            }
+        }
+    }
 
-	void gf_draw_texture(ofParameter< MyTex >* p_param, void*)
-	{
-		ofParameter< MyTex >& param = *p_param;
-		MyTex my_tex = param.get();
-		bool is_changed = false;
+    void gf_draw_texture(ofParameter< MyTex >* p_param, void*)
+    {
+        ofParameter< MyTex >& param = *p_param;
+        MyTex my_tex = param.get();
+        bool is_changed = false;
 
-		ImGui::SetNextItemOpen(my_tex.is_open, ImGuiCond_Appearing);
-		if (ImGui::CollapsingHeader(p_param->getName().c_str()))
-		{
-			ofParameter< ofTexture>& param_tex = *my_tex.sp_param_texture;
-			ofTexture const& tex = param_tex.get();
+        ImGui::SetNextItemOpen(my_tex.is_open, ImGuiCond_Appearing);
+        if (ImGui::CollapsingHeader(p_param->getName().c_str()))
+        {
+            ofParameter< ofTexture>& param_tex = *my_tex.sp_param_texture;
+            ofTexture const& tex = param_tex.get();
 
-			if (!tex.isAllocated())
-			{
-				return;
-			}
+            if (!tex.isAllocated())
+            {
+                return;
+            }
 
-			ImGui::PushID(my_tex.id);
-			{
-				bool yes;
-				yes = !my_tex.is_fit_windows;
-				if (ImGui::Checkbox("origin size", &yes))
-				{
-					my_tex.is_fit_windows = !yes;
-					is_changed = true;
-				}
+            ImGui::PushID(my_tex.id);
+            {
+                bool yes;
+                yes = !my_tex.is_fit_windows;
+                if (ImGui::Checkbox("origin size", &yes))
+                {
+                    my_tex.is_fit_windows = !yes;
+                    is_changed = true;
+                }
 
-				ImGui::SameLine();
-				yes = my_tex.is_show_detail;
-				if (ImGui::Checkbox("show detail", &yes))
-				{
-					my_tex.is_show_detail = yes;
-					is_changed = true;
-				}
+                ImGui::SameLine();
+                yes = my_tex.is_show_detail;
+                if (ImGui::Checkbox("show detail", &yes))
+                {
+                    my_tex.is_show_detail = yes;
+                    is_changed = true;
+                }
 
-				if (my_tex.is_show_detail)
-				{
-					ImGui::TextDisabled("w: %.2f, h: %.2f, fmt: %s", tex.getWidth(), tex.getHeight(), gf_get_gl_internal_fmt_name(tex.getTextureData().glInternalFormat));
-				}
-			}
-			ImGui::PopID();
+                if (my_tex.is_show_detail)
+                {
+                    ImGui::TextDisabled("w: %.2f, h: %.2f, fmt: %s", tex.getWidth(), tex.getHeight(), gf_get_gl_internal_fmt_name(tex.getTextureData().glInternalFormat));
+                }
+            }
+            ImGui::PopID();
 
-			float w, h;
-			if (my_tex.is_fit_windows)
-			{
-				ImVec2 vec2win = ImGui::GetContentRegionAvail();
-				float rwin = vec2win.x / vec2win.y;
-				ofVec2f vec2tex(tex.getWidth(), tex.getHeight());
-				float rtex = vec2tex.x / vec2tex.y;
-				if (rwin < rtex)
-				{
-					float tmp = vec2win.x;
-					w = tmp;
-					tmp = tmp / tex.getWidth();
-					h = tex.getHeight() * tmp;
-				}
-				else
-				{
-					float tmp = vec2win.y;
-					h = tmp;
-					tmp = tmp / tex.getHeight();
-					w = tex.getWidth() * tmp;
-				}
-			}
-			else
-			{
-				w = tex.getWidth();
-				h = tex.getHeight();
-			}
+            float w, h;
+            if (my_tex.is_fit_windows)
+            {
+                ImVec2 vec2win = ImGui::GetContentRegionAvail();
+                float rwin = vec2win.x / vec2win.y;
+                ofVec2f vec2tex(tex.getWidth(), tex.getHeight());
+                float rtex = vec2tex.x / vec2tex.y;
+                if (rwin < rtex)
+                {
+                    float tmp = vec2win.x;
+                    w = tmp;
+                    tmp = tmp / tex.getWidth();
+                    h = tex.getHeight() * tmp;
+                }
+                else
+                {
+                    float tmp = vec2win.y;
+                    h = tmp;
+                    tmp = tmp / tex.getHeight();
+                    w = tex.getWidth() * tmp;
+                }
+            }
+            else
+            {
+                w = tex.getWidth();
+                h = tex.getHeight();
+            }
 
-			ImGui::Image((ImTextureID)(uintptr_t)tex.getTextureData().textureID, ImVec2(w, h));
-			if (!my_tex.is_open)
-			{
-				is_changed = true;
-				my_tex.is_open = true;
-			}
-		}
-		else
-		{
-			if (my_tex.is_open)
-			{
-				is_changed = true;
-				my_tex.is_open = false;
-			}
-		}
+            ImGui::Image((ImTextureID)(uintptr_t)tex.getTextureData().textureID, ImVec2(w, h));
+            if (!my_tex.is_open)
+            {
+                is_changed = true;
+                my_tex.is_open = true;
+            }
+        }
+        else
+        {
+            if (my_tex.is_open)
+            {
+                is_changed = true;
+                my_tex.is_open = false;
+            }
+        }
 
-		if (is_changed)
-		{
-			p_param->set(my_tex);
-		}
-	}
+        if (is_changed)
+        {
+            p_param->set(my_tex);
+        }
+    }
 
-	void gf_draw_button(ofParameter < ofxImGuiButton >* p_param, void*)
-	{
-		ofParameter< ofxImGuiButton >& param = *p_param;
-		ofxImGuiButton value_obj = p_param->get();
+    void gf_draw_button(ofParameter < ofxImGuiButton >* p_param, void*)
+    {
+        ofParameter< ofxImGuiButton >& param = *p_param;
+        ofxImGuiButton value_obj = p_param->get();
 
-		if (ImGui::Button(p_param->getName().c_str()))
-		{
-			p_param->set(value_obj);
-		}
-	}
+        if (ImGui::Button(p_param->getName().c_str()))
+        {
+            p_param->set(value_obj);
+        }
+    }
 
-	void gf_draw_button_sl(ofParameter < ofxImGuiButtonSL >* p_param, void*)
-	{
-		ofParameter< ofxImGuiButtonSL >& param = *p_param;
-		ofxImGuiButtonSL value_obj = p_param->get();
+    void gf_draw_button_sl(ofParameter < ofxImGuiButtonSL >* p_param, void*)
+    {
+        ofParameter< ofxImGuiButtonSL >& param = *p_param;
+        ofxImGuiButtonSL value_obj = p_param->get();
 
-		ImGui::SameLine();
-		if (ImGui::Button(p_param->getName().c_str()))
-		{
-			p_param->set(value_obj);
-		}
-	}
+        ImGui::SameLine();
+        if (ImGui::Button(p_param->getName().c_str()))
+        {
+            p_param->set(value_obj);
+        }
+    }
 
-	void gf_draw_label_int(ofxROParamInt* p_param, void*)
-	{
-		ImGui::LabelText(p_param->getName().c_str(), "%d", p_param->get());
-	}
+    void gf_draw_label_int(ofxROParamInt* p_param, void*)
+    {
+        ImGui::LabelText(p_param->getName().c_str(), "%d", p_param->get());
+    }
 #if OF_VERSION_MINOR >= 10
-	void gf_draw_label_int_ro(ofAbstractParameter* p_param, void*)
-	{
-		int val = p_param->castReadOnly<int, void>();
-		ImGui::LabelText(p_param->getName().c_str(), "%d", val);
-	}
+    void gf_draw_label_int_ro(ofAbstractParameter* p_param, void*)
+    {
+        int val = p_param->castReadOnly<int, void>();
+        ImGui::LabelText(p_param->getName().c_str(), "%d", val);
+    }
 
-	void gf_draw_label_float_ro(ofAbstractParameter* p_param, char const* fmt)
-	{
-		float val = p_param->castReadOnly<float, void>();
-		ImGui::LabelText(p_param->getName().c_str(), fmt, val);
-	}
+    void gf_draw_label_float_ro(ofAbstractParameter* p_param, char const* fmt)
+    {
+        float val = p_param->castReadOnly<float, void>();
+        ImGui::LabelText(p_param->getName().c_str(), fmt, val);
+    }
 
-	void gf_draw_label_string_ro(ofAbstractParameter* p_param, void*)
-	{
-		std::string val = p_param->castReadOnly<std::string, void>();
-		ImGui::LabelText(p_param->getName().c_str(), "%s", val.c_str());
-	}
-	void gf_draw_label_color_ro(ofAbstractParameter* p_param)
-	{		
-		ofColor val = p_param->castReadOnly<ofColor, void>();
-		
-		ImGui::ColorButton(p_param->getName().c_str(), ImVec4(val.r, val.g, val.b, val.a), ImGuiColorEditFlags_NoTooltip);
-		ImGui::SameLine();
-		ImGui::SetNextItemWidth(0);
-		ImGui::LabelText(p_param->getName().c_str(), "%s", "");
-	}
-	void gf_draw_label_rect_ro(ofAbstractParameter* p_param)
-	{
-		ofRectangle val = p_param->castReadOnly<ofRectangle, void>();
-		ImGui::LabelText(p_param->getName().c_str(), "[%.3f, %.3f, %.3f, %.3f]", val.x, val.y, val.width, val.height);
-	}
+    void gf_draw_label_string_ro(ofAbstractParameter* p_param, void*)
+    {
+        std::string val = p_param->castReadOnly<std::string, void>();
+        ImGui::LabelText(p_param->getName().c_str(), "%s", val.c_str());
+    }
+    void gf_draw_label_color_ro(ofAbstractParameter* p_param)
+    {
+        ofColor val = p_param->castReadOnly<ofColor, void>();
+
+        ImGui::ColorButton(p_param->getName().c_str(), ImVec4(val.r, val.g, val.b, val.a), ImGuiColorEditFlags_NoTooltip);
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(0);
+        ImGui::LabelText(p_param->getName().c_str(), "%s", "");
+    }
+    void gf_draw_label_rect_ro(ofAbstractParameter* p_param)
+    {
+        ofRectangle val = p_param->castReadOnly<ofRectangle, void>();
+        ImGui::LabelText(p_param->getName().c_str(), "[%.3f, %.3f, %.3f, %.3f]", val.x, val.y, val.width, val.height);
+    }
 #endif
-	void gf_draw_label_bool_ro(ofAbstractParameter* p_param, void*)
-	{
-		bool val = p_param->castReadOnly<bool, void>();
-		ImGui::Checkbox(p_param->getName().c_str(), &val);
-		//ImGui::ColorButton(p_param->getName().c_str(), val ? ofFloatColor::green : ofFloatColor::red, ImGuiColorEditFlags_NoTooltip);
-		//ImGui::LabelText(p_param->getName().c_str(), "%s", val.c_str());
-	}
+    void gf_draw_label_bool_ro(ofAbstractParameter* p_param, void*)
+    {
+        bool val = p_param->castReadOnly<bool, void>();
+        ImGui::Checkbox(p_param->getName().c_str(), &val);
+        //ImGui::ColorButton(p_param->getName().c_str(), val ? ofFloatColor::green : ofFloatColor::red, ImGuiColorEditFlags_NoTooltip);
+        //ImGui::LabelText(p_param->getName().c_str(), "%s", val.c_str());
+    }
 
-	bool gf_force_push_tag(ofxXmlSettings& xml_settings, std::string const& tag, std::string const& attri = "", std::string const& attri_val = "")
-	{
-		if (!xml_settings.tagExists(tag))
-		{
-			xml_settings.addTag(tag);
-		}
+    bool gf_force_push_tag(ofxXmlSettings& xml_settings, std::string const& tag, std::string const& attri = "", std::string const& attri_val = "")
+    {
+        if (!xml_settings.tagExists(tag))
+        {
+            xml_settings.addTag(tag);
+        }
 
-		if (attri != "")
-		{
-			xml_settings.setAttribute(tag, attri, attri_val, 0);
-		}
+        if (attri != "")
+        {
+            xml_settings.setAttribute(tag, attri, attri_val, 0);
+        }
 
-		return xml_settings.pushTag(tag);
-	}
+        return xml_settings.pushTag(tag);
+    }
 
-	template < typename PARAM_VALUE_TYPE, typename XML_VALUE_TYPE >
-	void gf_save_xml_value_type(ofxXmlSettings& xml_settings, ofxImGuiParameter::ParamInfo* p_info, std::string const& tag_name)
-	{
-		ofParameter< ofxImGuiParameter::ValueType <PARAM_VALUE_TYPE> >& param = p_info->sp_param->cast< ofxImGuiParameter::ValueType <PARAM_VALUE_TYPE> >();
-		ofxImGuiParameter::ValueType <PARAM_VALUE_TYPE> const& value_obj = param.get();
-		std::string style_name;
-		if (value_obj.style == ofxImGuiParameter::StyleInputField)
-		{
-			style_name = "InputField";
-		}
-		else if (value_obj.style == ofxImGuiParameter::StyleSlider)
-		{
-			style_name = "Slider";
-		}
-		else
-		{
-			return;
-		}
+    template < typename PARAM_VALUE_TYPE, typename XML_VALUE_TYPE >
+    void gf_save_xml_value_type(ofxXmlSettings& xml_settings, ofxImGuiParameter::ParamInfo* p_info, std::string const& tag_name)
+    {
+        ofParameter< ofxImGuiParameter::ValueType <PARAM_VALUE_TYPE> >& param = p_info->sp_param->cast< ofxImGuiParameter::ValueType <PARAM_VALUE_TYPE> >();
+        ofxImGuiParameter::ValueType <PARAM_VALUE_TYPE> const& value_obj = param.get();
+        std::string style_name;
+        if (value_obj.style == ofxImGuiParameter::StyleInputField)
+        {
+            style_name = "InputField";
+        }
+        else if (value_obj.style == ofxImGuiParameter::StyleSlider)
+        {
+            style_name = "Slider";
+        }
+        else
+        {
+            return;
+        }
 
-		if (gf_force_push_tag(xml_settings, tag_name, "Style", style_name))
-		{
-			xml_settings.setValue("Value", (XML_VALUE_TYPE)value_obj.value);
-			xml_settings.setValue("MinOrStep", (XML_VALUE_TYPE)value_obj.arg0);
-			xml_settings.setValue("MaxOrStepFast", (XML_VALUE_TYPE)value_obj.arg1);
-			xml_settings.popTag();
-		}
-	}
+        if (gf_force_push_tag(xml_settings, tag_name, "Style", style_name))
+        {
+            xml_settings.setValue("Value", (XML_VALUE_TYPE)value_obj.value);
+            xml_settings.setValue("MinOrStep", (XML_VALUE_TYPE)value_obj.arg0);
+            xml_settings.setValue("MaxOrStepFast", (XML_VALUE_TYPE)value_obj.arg1);
+            xml_settings.popTag();
+        }
+    }
 
-	template < typename PARAM_VALUE_TYPE, typename XML_VALUE_TYPE >
-	void gf_load_xml_value_type(ofxXmlSettings& xml_settings, ofxImGuiParameter::ParamInfo* p_info, std::string const& tag_name)
-	{
-		ofParameter< ofxImGuiParameter::ValueType <PARAM_VALUE_TYPE> >& param = p_info->sp_param->cast< ofxImGuiParameter::ValueType <PARAM_VALUE_TYPE> >();
-		ofxImGuiParameter::ValueType <PARAM_VALUE_TYPE> value_obj = param.get();
-		std::string style_name;
-		if (value_obj.style == ofxImGuiParameter::StyleInputField)
-		{
-			style_name = "InputField";
-		}
-		else if (value_obj.style == ofxImGuiParameter::StyleSlider)
-		{
-			style_name = "Slider";
-		}
-		else
-		{
-			return;
-		}
+    template < typename PARAM_VALUE_TYPE, typename XML_VALUE_TYPE >
+    void gf_load_xml_value_type(ofxXmlSettings& xml_settings, ofxImGuiParameter::ParamInfo* p_info, std::string const& tag_name)
+    {
+        ofParameter< ofxImGuiParameter::ValueType <PARAM_VALUE_TYPE> >& param = p_info->sp_param->cast< ofxImGuiParameter::ValueType <PARAM_VALUE_TYPE> >();
+        ofxImGuiParameter::ValueType <PARAM_VALUE_TYPE> value_obj = param.get();
+        std::string style_name;
+        if (value_obj.style == ofxImGuiParameter::StyleInputField)
+        {
+            style_name = "InputField";
+        }
+        else if (value_obj.style == ofxImGuiParameter::StyleSlider)
+        {
+            style_name = "Slider";
+        }
+        else
+        {
+            return;
+        }
 
-		style_name = xml_settings.getAttribute(tag_name, "Style", style_name, 0);
-		if (xml_settings.pushTag(tag_name))
-		{
-			value_obj.value = xml_settings.getValue("Value", (XML_VALUE_TYPE)value_obj.value);
-			value_obj.arg0 = xml_settings.getValue("MinOrStep", (XML_VALUE_TYPE)value_obj.arg0);
-			value_obj.arg1 = xml_settings.getValue("MaxOrStepFast", (XML_VALUE_TYPE)value_obj.arg1);
-			xml_settings.popTag();
-		}
-		else
-		{
-			return;
-		}
+        style_name = xml_settings.getAttribute(tag_name, "Style", style_name, 0);
+        if (xml_settings.pushTag(tag_name))
+        {
+            value_obj.value = xml_settings.getValue("Value", (XML_VALUE_TYPE)value_obj.value);
+            value_obj.arg0 = xml_settings.getValue("MinOrStep", (XML_VALUE_TYPE)value_obj.arg0);
+            value_obj.arg1 = xml_settings.getValue("MaxOrStepFast", (XML_VALUE_TYPE)value_obj.arg1);
+            xml_settings.popTag();
+        }
+        else
+        {
+            return;
+        }
 
-		std::string type_name = typeid(PARAM_VALUE_TYPE).name();
+        std::string type_name = typeid(PARAM_VALUE_TYPE).name();
 
-		if (style_name == "InputField")
-		{
-			value_obj.style = ofxImGuiParameter::StyleInputField;
-			if (type_name == typeid(float).name())
-			{
-				p_info->func = (gf_draw_func)&gf_draw_float_input_spec;
-			}
-			else if (type_name == typeid(int).name())
-			{
-				p_info->func = (gf_draw_func)&gf_draw_int_input_spec;
-			}
-			else
-			{
-				return;
-			}
-		}
-		else if (style_name == "Slider")
-		{
-			value_obj.style = ofxImGuiParameter::StyleSlider;
-			if (type_name == typeid(float).name())
-			{
-				p_info->func = (gf_draw_func)&gf_draw_float_slider_spec;
-			}
-			else if (type_name == typeid(int).name())
-			{
-				p_info->func = (gf_draw_func)&gf_draw_int_slider_spec;
-			}
-			else
-			{
-				return;
-			}
-		}
-		else
-		{
-			return;
-		}
+        if (style_name == "InputField")
+        {
+            value_obj.style = ofxImGuiParameter::StyleInputField;
+            if (type_name == typeid(float).name())
+            {
+                p_info->func = (gf_draw_func)&gf_draw_float_input_spec;
+            }
+            else if (type_name == typeid(int).name())
+            {
+                p_info->func = (gf_draw_func)&gf_draw_int_input_spec;
+            }
+            else
+            {
+                return;
+            }
+        }
+        else if (style_name == "Slider")
+        {
+            value_obj.style = ofxImGuiParameter::StyleSlider;
+            if (type_name == typeid(float).name())
+            {
+                p_info->func = (gf_draw_func)&gf_draw_float_slider_spec;
+            }
+            else if (type_name == typeid(int).name())
+            {
+                p_info->func = (gf_draw_func)&gf_draw_int_slider_spec;
+            }
+            else
+            {
+                return;
+            }
+        }
+        else
+        {
+            return;
+        }
 
-		param.set(value_obj);
-	}
+        param.set(value_obj);
+    }
 
-	//ofxImGui::Gui* g_p_gui_ins = NULL;
+    //ofxImGui::Gui* g_p_gui_ins = NULL;
 }
 
 class ofxImGuiParameter::Context
 {
 public:
-	ofxImGui::Gui*						p_gui;
-	std::vector< ofxImGuiParameter* >	box;
-	ofEvent< void >						event;
+    ofxImGui::Gui*                      p_gui;
+    std::vector< ofxImGuiParameter* >   box;
+    ofEvent< void >                     event;
 
-	Context()
-	: p_gui(new ofxImGui::Gui())
-	{}
+    Context()
+    : p_gui(new ofxImGui::Gui())
+    {}
 };
 
-//std::vector< ofxImGuiParameter* >	ofxImGuiParameter::s_box;
-//ofEvent< void >						ofxImGuiParameter::s_event;
-ofMutex								ofxImGuiParameter::s_mutex;
-ofxImGuiParameter::BindedID const	ofxImGuiParameter::InvalidBindedID = 0;
-ofRectangle const					ofxImGuiParameter::DefaultPosAndSize = ofRectangle(10.f, 10.f, 320.f, 640.f);
+//std::vector< ofxImGuiParameter* >    ofxImGuiParameter::s_box;
+//ofEvent< void >                      ofxImGuiParameter::s_event;
+ofMutex                             ofxImGuiParameter::s_mutex;
+ofxImGuiParameter::BindedID const   ofxImGuiParameter::InvalidBindedID = 0;
+ofRectangle const                   ofxImGuiParameter::DefaultPosAndSize = ofRectangle(10.f, 10.f, 320.f, 640.f);
 
 typedef ofxImGuiParameter::ParamInfo ParamInfo;
 typedef ofxImGuiParameter::EnumType EnumType;
@@ -1010,195 +1076,195 @@ void gf_load_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& contai
 
 namespace
 {
-	ofxImGuiParameter::Context* g_p_context = NULL;
-	bool gf_check_ext(std::string const& ext, std::vector<std::string> const& box_ext)
-	{
-		if (box_ext.empty())
-		{
-			return true;
-		}
+    ofxImGuiParameter::Context* g_p_context = NULL;
+    bool gf_check_ext(std::string const& ext, std::vector<std::string> const& box_ext)
+    {
+        if (box_ext.empty())
+        {
+            return true;
+        }
 
-		for (size_t i = 0; i < box_ext.size(); ++i)
-		{
-			if (ext == box_ext[i])
-			{
-				return true;
-			}
-		}
+        for (size_t i = 0; i < box_ext.size(); ++i)
+        {
+            if (ext == box_ext[i])
+            {
+                return true;
+            }
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	void gf_split(std::vector<std::string>* p_out, std::string const& str, std::string const& token)
-	{
-		const char *sep = token.c_str();
-		char* s = new char[str.length() + 1];
-		strncpy(s, str.c_str(), str.length());
-		s[str.length()] = '\0';
+    void gf_split(std::vector<std::string>* p_out, std::string const& str, std::string const& token)
+    {
+        const char *sep = token.c_str();
+        char* s = new char[str.length() + 1];
+        strncpy(s, str.c_str(), str.length());
+        s[str.length()] = '\0';
 
-		char* pch = strtok(s, sep);
-		while (pch)
-		{
-			p_out->push_back(pch);
-			pch = strtok(NULL, sep);
-		}
+        char* pch = strtok(s, sep);
+        while (pch)
+        {
+            p_out->push_back(pch);
+            pch = strtok(NULL, sep);
+        }
 
-		delete[] s;
-	}
+        delete[] s;
+    }
 }
 
 //static ===============================================
 bool ofxImGuiParameter::GetEnumTypeFormDirectory(EnumType* p_out, std::string const& in_path, std::string const& ext_filter)
 {
-	if (!p_out)
-	{
-		return false;
-	}
+    if (!p_out)
+    {
+        return false;
+    }
 
-	ofFile file;
-	if (!file.open(in_path))
-	{
-		return false;
-	}
+    ofFile file;
+    if (!file.open(in_path))
+    {
+        return false;
+    }
 
-	if (file.isDirectory())
-	{
-		ofDirectory dir(file);
-		size_t size = dir.listDir();
-		std::vector<std::string> box_ext;
-		gf_split(&box_ext, ext_filter, " ");
+    if (file.isDirectory())
+    {
+        ofDirectory dir(file);
+        size_t size = dir.listDir();
+        std::vector<std::string> box_ext;
+        gf_split(&box_ext, ext_filter, " ");
 
-		for (size_t i = 0; i < size; ++i)
-		{
-			ofFile file_child = dir[i];
+        for (size_t i = 0; i < size; ++i)
+        {
+            ofFile file_child = dir[i];
 
-			if (file_child.isFile())
-			{
-				if (!gf_check_ext(file_child.getExtension(), box_ext))
-				{
-					continue;
-				}
+            if (file_child.isFile())
+            {
+                if (!gf_check_ext(file_child.getExtension(), box_ext))
+                {
+                    continue;
+                }
 
-				p_out->content.push_back(in_path + "/" + file_child.getFileName());
-			}
-		}
+                p_out->content.push_back(in_path + "/" + file_child.getFileName());
+            }
+        }
 
-		dir.close();
-	}
-	file.close();
-	return true;
+        dir.close();
+    }
+    file.close();
+    return true;
 }
 
 bool isInited = false;
 
 ofxImGuiParameter::Context* ofxImGuiParameter::Initialize()
 {
-	ofScopedLock locker_s(s_mutex);
+    ofScopedLock locker_s(s_mutex);
 
-	Context* p_context = new Context();
-	g_p_context = p_context;
-	p_context->p_gui->setup();
-	return p_context;
+    Context* p_context = new Context();
+    g_p_context = p_context;
+    p_context->p_gui->setup();
+    return p_context;
 }
 
 void ofxImGuiParameter::Finalize(Context* pContext)
 {
-	ofScopedLock locker_s(s_mutex);
-	Context* p_context = pContext ? pContext : g_p_context;
-	if (!p_context)
-	{
-		return;
-	}
+    ofScopedLock locker_s(s_mutex);
+    Context* p_context = pContext ? pContext : g_p_context;
+    if (!p_context)
+    {
+        return;
+    }
 
-	for (size_t i = 0; i < p_context->box.size(); ++i)
-	{
-		p_context->box[i]->mf_exit();
-	}
+    for (size_t i = 0; i < p_context->box.size(); ++i)
+    {
+        p_context->box[i]->mf_exit();
+    }
 
-	if (p_context)
-	{
-		if (p_context == g_p_context)
-		{
-			g_p_context = NULL;
-		}
+    if (p_context)
+    {
+        if (p_context == g_p_context)
+        {
+            g_p_context = NULL;
+        }
 
-		delete p_context;
-	}
+        delete p_context;
+    }
 }
 
 ofxImGuiParameter::Context* ofxImGuiParameter::GetCurrentContext()
 {
-	ofScopedLock locker_s(s_mutex);
-	return g_p_context;
+    ofScopedLock locker_s(s_mutex);
+    return g_p_context;
 }
 
 void ofxImGuiParameter::SetCurrentContext(Context* pContext)
 {
-	ofScopedLock locker_s(s_mutex);
-	if (!pContext)
-	{
-		return;
-	}
+    ofScopedLock locker_s(s_mutex);
+    if (!pContext)
+    {
+        return;
+    }
 
-	g_p_context = pContext;
+    g_p_context = pContext;
 }
 
 bool ofxImGuiParameter::IsMouseCaptured(Context* pContext)
 {
-	ofScopedLock locker_s(s_mutex);
-	Context* p_context = pContext ? pContext : g_p_context;
-	if (!p_context)
-	{
-		return false;
-	}
+    ofScopedLock locker_s(s_mutex);
+    Context* p_context = pContext ? pContext : g_p_context;
+    if (!p_context)
+    {
+        return false;
+    }
 
-	return p_context->p_gui->isMouseCaptured();
+    return p_context->p_gui->isMouseCaptured();
 }
 
 bool ofxImGuiParameter::IsKeyboardCaptured(Context* pContext)
 {
-	ofScopedLock locker_s(s_mutex);
-	Context* p_context = pContext ? pContext : g_p_context;
-	if (!p_context)
-	{
-		return false;
-	}
+    ofScopedLock locker_s(s_mutex);
+    Context* p_context = pContext ? pContext : g_p_context;
+    if (!p_context)
+    {
+        return false;
+    }
 
-	return p_context->p_gui->isKeyboardCaptured();
+    return p_context->p_gui->isKeyboardCaptured();
 }
 
 void ofxImGuiParameter::Draw(Context* pContext)
 {
-	ofScopedLock locker_s(s_mutex);
-	Context* p_context = pContext ? pContext : g_p_context;
-	if (!p_context)
-	{
-		return;
-	}
+    ofScopedLock locker_s(s_mutex);
+    Context* p_context = pContext ? pContext : g_p_context;
+    if (!p_context)
+    {
+        return;
+    }
 
-	p_context->p_gui->begin();
+    p_context->p_gui->begin();
 
-	ofNotifyEvent(p_context->event, p_context->p_gui);
-		
-	for (size_t i = 0; i < p_context->box.size(); ++i)
-	{
-		p_context->box[i]->draw();
-	}
+    ofNotifyEvent(p_context->event, p_context->p_gui);
 
-	p_context->p_gui->end();
+    for (size_t i = 0; i < p_context->box.size(); ++i)
+    {
+        p_context->box[i]->draw();
+    }
+
+    p_context->p_gui->end();
 }
 
 ofEvent< void >& ofxImGuiParameter::GetOnDrawEvent(Context* pContext)
 {
-	ofScopedLock locker_s(s_mutex);
-	Context* p_context = pContext ? pContext : g_p_context;
-	if (!p_context)
-	{
-		static ofEvent<void> g_e;
-		return g_e;
-	}
+    ofScopedLock locker_s(s_mutex);
+    Context* p_context = pContext ? pContext : g_p_context;
+    if (!p_context)
+    {
+        static ofEvent<void> g_e;
+        return g_e;
+    }
 
-	return p_context->event;
+    return p_context->event;
 }
 
 /////////////////////////////////////////////////////////////////////////////
@@ -1218,1296 +1284,1352 @@ ofxImGuiParameter::ofxImGuiParameter()
 
 ofxImGuiParameter::~ofxImGuiParameter()
 {
-	exit();
+    exit();
 }
 
 bool ofxImGuiParameter::setup(std::string const& title, ofRectangle const& rect, Style default_style)
 {
-	return mf_setup(NULL, title, rect, default_style);
+    return mf_setup(NULL, title, rect, default_style);
 }
 
 bool ofxImGuiParameter::setup(std::string const& title, Style default_style)
 {
-	return mf_setup(NULL, title, DefaultPosAndSize, default_style);
+    return mf_setup(NULL, title, DefaultPosAndSize, default_style);
 }
 
 bool ofxImGuiParameter::setup(Context* pContext, std::string const& title, ofRectangle const& rect, Style default_style)
 {
-	return mf_setup(pContext, title, rect, default_style);
+    return mf_setup(pContext, title, rect, default_style);
 }
 
 bool ofxImGuiParameter::setup(Context* pContext, std::string const& title, Style default_style)
 {
-	return mf_setup(pContext, title, DefaultPosAndSize, default_style);
+    return mf_setup(pContext, title, DefaultPosAndSize, default_style);
 }
 
 bool ofxImGuiParameter::is_setup()
 {
-	ofScopedLock locker(m_mutex);
-	return m_is_setup;
+    ofScopedLock locker(m_mutex);
+    return m_is_setup;
 }
 
 void ofxImGuiParameter::exit()
 {
-	{
-		ofScopedLock lockerS(s_mutex);
+    {
+        ofScopedLock lockerS(s_mutex);
 
-		{
-			ofScopedLock locker(m_mutex);
-			mf_exit();
-		}
-	}
+        {
+            ofScopedLock locker(m_mutex);
+            mf_exit();
+        }
+    }
 }
 
 bool ofxImGuiParameter::mf_setup(Context* pContext, std::string const& title, ofRectangle const& rect, Style default_style)
 {
-	{
-		ofScopedLock locker_s(s_mutex);
-		Context* p_context = pContext ? pContext : g_p_context;
-		{
-			ofScopedLock locker(m_mutex);
+    {
+        ofScopedLock locker_s(s_mutex);
+        Context* p_context = pContext ? pContext : g_p_context;
+        {
+            ofScopedLock locker(m_mutex);
 
-			m_title = title;
+            m_title = title;
 
-			if (m_xml_filepath == "")
-			{
-				m_xml_filepath = m_title + ".xml";
-			}
+            if (m_xml_filepath == "")
+            {
+                m_xml_filepath = m_title + ".xml";
+            }
 
-			m_pos_and_size = rect;
-			//ImGui::GetIO().MouseDrawCursor = false;
-			if (m_is_setup)
-			{
-				return true;
-			}
+            m_pos_and_size = rect;
+            //ImGui::GetIO().MouseDrawCursor = false;
+            if (m_is_setup)
+            {
+                return true;
+            }
 
-			p_context->box.push_back(this);
+            p_context->box.push_back(this);
 
-			ofAddListener(ofEvents().keyPressed, this, &ofxImGuiParameter::mf_on_key_pressed);
-			//ofAddListener(ofEvents().keyReleased, this, &ofxImGuiParameter::mf_on_key_released);
+            ofAddListener(ofEvents().keyPressed, this, &ofxImGuiParameter::mf_on_key_pressed);
+            //ofAddListener(ofEvents().keyReleased, this, &ofxImGuiParameter::mf_on_key_released);
 
-			switch (default_style)
-			{
-			default:
-			case StyleSlider:
-				m_default_draw_i_func = (gf_draw_func)&gf_draw_int_slider_default;
-				m_default_draw_f_func = (gf_draw_func)&gf_draw_float_slider_default;
-				break;
+            switch (default_style)
+            {
+            default:
+            case StyleSlider:
+                {
+                    m_default_draw_i_func = (gf_draw_func)&gf_draw_int_slider_default;
+                    m_default_draw_f_func = (gf_draw_func)&gf_draw_float_slider_default;
+                }
+                break;
 
-			case StyleDrag:
-				m_default_draw_i_func = (gf_draw_func)&gf_draw_int_drag_default;
-				m_default_draw_f_func = (gf_draw_func)&gf_draw_float_drag_default;
-				break;
+            case StyleDrag:
+                {
+                    m_default_draw_i_func = (gf_draw_func)&gf_draw_int_drag_default;
+                    m_default_draw_f_func = (gf_draw_func)&gf_draw_float_drag_default;
+                }
+                break;
 
-			case StyleInputField:
-				m_default_draw_i_func = (gf_draw_func)&gf_draw_int_input_default;
-				m_default_draw_f_func = (gf_draw_func)&gf_draw_float_input_default;
-				break;
-			}
+            case StyleInputField:
+                {
+                    m_default_draw_i_func = (gf_draw_func)&gf_draw_int_input_default;
+                    m_default_draw_f_func = (gf_draw_func)&gf_draw_float_input_default;
+                }
+                break;
+            }
 
-			m_p_context = p_context;
-			m_is_setup = true;
-			return true;
-		}
-	}
+            m_p_context = p_context;
+            m_is_setup = true;
+            return true;
+        }
+    }
 }
 
 void ofxImGuiParameter::mf_exit()
 {
-	if (!m_is_setup)
-	{
-		return;
-	}
+    if (!m_is_setup)
+    {
+        return;
+    }
 
-	//ofRemoveListener(ofEvents().keyReleased, this, &ofxImGuiParameter::mf_on_key_released);
-	ofRemoveListener(ofEvents().keyPressed, this, &ofxImGuiParameter::mf_on_key_pressed);
+    //ofRemoveListener(ofEvents().keyReleased, this, &ofxImGuiParameter::mf_on_key_released);
+    ofRemoveListener(ofEvents().keyPressed, this, &ofxImGuiParameter::mf_on_key_pressed);
 
-	for (size_t i = 0; i < m_p_context->box.size(); ++i)
-	{
-		if (m_p_context->box[i] == this)
-		{
-			size_t last_index = m_p_context->box.size() - 1;
-			if (i != last_index)
-			{
-				m_p_context->box[i] = m_p_context->box[last_index];
-			}
-			m_p_context->box.pop_back();
-			break;
-		}
-	}
+    for (size_t i = 0; i < m_p_context->box.size(); ++i)
+    {
+        if (m_p_context->box[i] == this)
+        {
+            size_t last_index = m_p_context->box.size() - 1;
+            if (i != last_index)
+            {
+                m_p_context->box[i] = m_p_context->box[last_index];
+            }
+            m_p_context->box.pop_back();
+            break;
+        }
+    }
 
-	mf_unbind(m_parameters);
-	m_is_setup = false;
+    mf_unbind(m_parameters);
+    m_is_setup = false;
 }
 
 ofxImGuiParameter::BindedID ofxImGuiParameter::bind(ofAbstractParameter const& param, Style style, char const* fmt)
 {
-	return mf_bind(param, m_parameters, style, fmt);
+    return mf_bind(param, m_parameters, style, fmt);
 }
 
 void ofxImGuiParameter::unbind(BindedID id)
 {
-	mf_unbind(id ,m_parameters);
+    mf_unbind(id ,m_parameters);
 }
 
 bool ofxImGuiParameter::enable_save_and_load(BindedID bid, bool yes)
 {
-	return mf_enable_save_and_load(bid, m_parameters, yes);
+    return mf_enable_save_and_load(bid, m_parameters, yes);
 }
 
 void ofxImGuiParameter::draw()
 {
-	if (m_show_dialog)
-	{
-		mf_draw_dialog();
-	}
+    if (m_show_dialog)
+    {
+        mf_draw_dialog();
+    }
 
-	if (!m_is_visible)
-	{
-		return;
-	}
+    if (!m_is_visible)
+    {
+        return;
+    }
 
-	do
-	{
-		auto cond = m_is_fitting_window ? ImGuiCond_Always : ImGuiCond_Appearing;
-		ImGui::SetNextWindowPos(ImVec2(m_pos_and_size.getX(), m_pos_and_size.getY()), cond);
-		ImGui::SetNextWindowSize(ImVec2(m_pos_and_size.getWidth(), m_pos_and_size.getHeight()), cond);		
-		ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_HorizontalScrollbar ;
-		if (m_is_fitting_window)window_flags |= ImGuiWindowFlags_NoTitleBar| ImGuiWindowFlags_NoResize;
-		
+    do
+    {
+        auto cond = m_is_fitting_window ? ImGuiCond_Always : ImGuiCond_Appearing;
+        ImGui::SetNextWindowPos(ImVec2(m_pos_and_size.getX(), m_pos_and_size.getY()), cond);
+        ImGui::SetNextWindowSize(ImVec2(m_pos_and_size.getWidth(), m_pos_and_size.getHeight()), cond);
+        ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_HorizontalScrollbar ;
+        if (m_is_fitting_window)window_flags |= ImGuiWindowFlags_NoTitleBar| ImGuiWindowFlags_NoResize;
 
-		if (!ImGui::Begin(m_title.c_str(), NULL, window_flags))
-		{
-			break;
-		}
 
-		if (m_is_fitting_window == false)
-		{
-			ImVec2 pos = ImGui::GetWindowPos();
-			ImVec2 size = ImGui::GetWindowSize();
-			m_pos_and_size.x = pos.x;
-			m_pos_and_size.y = pos.y;
-			m_pos_and_size.width = size.x;
-			m_pos_and_size.height = size.y;
-		}
-		else
-		{
-			m_pos_and_size.x = 0;
-			m_pos_and_size.y = 0;
-			m_pos_and_size.width = ofGetWidth();
-			m_pos_and_size.height = ofGetHeight();
-		}
+        if (!ImGui::Begin(m_title.c_str(), NULL, window_flags))
+        {
+            break;
+        }
 
-		m_is_focused = ImGui::IsWindowFocused();
+        if (m_is_fitting_window == false)
+        {
+            ImVec2 pos = ImGui::GetWindowPos();
+            ImVec2 size = ImGui::GetWindowSize();
+            m_pos_and_size.x = pos.x;
+            m_pos_and_size.y = pos.y;
+            m_pos_and_size.width = size.x;
+            m_pos_and_size.height = size.y;
+        }
+        else
+        {
+            m_pos_and_size.x = 0;
+            m_pos_and_size.y = 0;
+            m_pos_and_size.width = ofGetWidth();
+            m_pos_and_size.height = ofGetHeight();
+        }
 
-		if (ImGui::BeginMenuBar())
-		{
-			if (ImGui::BeginMenu("File"))
-			{
-				if (ImGui::MenuItem("Save", "Ctrl+S"))
-				{
-					mf_internal_save();
-				}
+        m_is_focused = ImGui::IsWindowFocused();
 
-				if (ImGui::MenuItem("Load", "Ctrl+L"))
-				{
-					mf_internal_load();
-				}
+        if (ImGui::BeginMenuBar())
+        {
+            if (ImGui::BeginMenu("File"))
+            {
+                if (ImGui::MenuItem("Save", "Ctrl+S"))
+                {
+                    mf_internal_save();
+                }
 
-				ImGui::EndMenu();
-			}
+                if (ImGui::MenuItem("Load", "Ctrl+L"))
+                {
+                    mf_internal_load();
+                }
 
-			if (ImGui::BeginMenu("Option"))
-			{
-				{
-					bool is_hidden = !m_is_visible;
-					ImGui::MenuItem("Hidden", "Crtl+H", &is_hidden);
-					m_is_visible = !is_hidden;
-				}
-				{
-					ImGui::MenuItem("Fit Window", "", &m_is_fitting_window);
-				}
-				ImGui::MenuItem("Lock Shortcut", "", &m_is_locked_shortcut);
-				ImGui::MenuItem("Enable Message", "", &m_is_enable_dialog);
-				if (m_is_enable_dialog)
-				{
-					ImGui::MenuItem("Message Auto Gone", "", &m_is_dialog_auto_gone);
-				}
+                ImGui::EndMenu();
+            }
 
-				ImGui::EndMenu();
-			}
+            if (ImGui::BeginMenu("Option"))
+            {
+                {
+                    bool is_hidden = !m_is_visible;
+                    ImGui::MenuItem("Hidden", "Crtl+H", &is_hidden);
+                    m_is_visible = !is_hidden;
+                }
+                {
+                    ImGui::MenuItem("Fit Window", "", &m_is_fitting_window);
+                }
+                ImGui::MenuItem("Lock Shortcut", "", &m_is_locked_shortcut);
+                ImGui::MenuItem("Enable Message", "", &m_is_enable_dialog);
+                if (m_is_enable_dialog)
+                {
+                    ImGui::MenuItem("Message Auto Gone", "", &m_is_dialog_auto_gone);
+                }
 
-			if (ImGui::BeginMenu("Help"))
-			{
-				ImGui::MenuItem(m_help.c_str(), "", false, false);
+                ImGui::EndMenu();
+            }
 
-				ImGui::EndMenu();
-			}
+            if (ImGui::BeginMenu("Help"))
+            {
+                ImGui::MenuItem(m_help.c_str(), "", false, false);
 
-			ImGui::EndMenuBar();
-		}
+                ImGui::EndMenu();
+            }
 
-		ofNotifyEvent(m_pre_draw_event, this);
+            ImGui::EndMenuBar();
+        }
 
-		for (size_t i = 0; i < m_parameters.size(); ++i)
-		{
-			ImGui::PushID((int)i);
-			sf_draw(m_parameters[i]);
-			ImGui::PopID();
-		}
+        ofNotifyEvent(m_pre_draw_event, this);
 
-		ofNotifyEvent(m_post_draw_event, this);
+        for (size_t i = 0; i < m_parameters.size(); ++i)
+        {
+            ImGui::PushID((int)i);
+            sf_draw(m_parameters[i]);
+            ImGui::PopID();
+        }
 
-	} while (0);
+        ofNotifyEvent(m_post_draw_event, this);
 
-	ImGui::End();
+    } while (0);
+
+    ImGui::End();
 }
 
 bool ofxImGuiParameter::save(std::string const& filepath)
 {
-	std::string xml_filepath = filepath;
-	if (xml_filepath == "")
-	{
-		xml_filepath = m_xml_filepath;
-	}
+    std::string xml_filepath = filepath;
+    if (xml_filepath == "")
+    {
+        xml_filepath = m_xml_filepath;
+    }
 
-	xml_filepath = ofToDataPath(xml_filepath);
-	ofNotifyEvent(m_on_pre_save_event, xml_filepath);
+    xml_filepath = ofToDataPath(xml_filepath);
+    ofNotifyEvent(m_on_pre_save_event, xml_filepath);
 
-	ofxXmlSettings xml_settings;
-	bool yes = xml_settings.load(xml_filepath);
+    ofxXmlSettings xml_settings;
+    bool yes = xml_settings.load(xml_filepath);
 #if OF_VERSION_MINOR < 10
-	if (!yes)
-	{
-		xml_settings.addTag("ofxImGuiParameter");
-		xml_settings.popTag();
-	}
+    if (!yes)
+    {
+        xml_settings.addTag("ofxImGuiParameter");
+        xml_settings.popTag();
+    }
 #endif
 
-	if (gf_force_push_tag(xml_settings, "ofxImGuiParameter"))
-	{
-		if (gf_force_push_tag(xml_settings, "Settings4ofxImGuiParameter"))
-		{
-			if (gf_force_push_tag(xml_settings, "PosAndSize"))
-			{
-				xml_settings.setValue("X", (int)m_pos_and_size.getX());
-				xml_settings.setValue("Y", (int)m_pos_and_size.getY());
-				xml_settings.setValue("Width", (int)m_pos_and_size.getWidth());
-				xml_settings.setValue("Height", (int)m_pos_and_size.getHeight());
-				xml_settings.popTag();
-			}
+    if (gf_force_push_tag(xml_settings, "ofxImGuiParameter"))
+    {
+        if (gf_force_push_tag(xml_settings, "Settings4ofxImGuiParameter"))
+        {
+            if (gf_force_push_tag(xml_settings, "PosAndSize"))
+            {
+                xml_settings.setValue("X", (int)m_pos_and_size.getX());
+                xml_settings.setValue("Y", (int)m_pos_and_size.getY());
+                xml_settings.setValue("Width", (int)m_pos_and_size.getWidth());
+                xml_settings.setValue("Height", (int)m_pos_and_size.getHeight());
+                xml_settings.popTag();
+            }
 
-			xml_settings.setValue("IsLockedShortcut", m_is_locked_shortcut ? "true" : "false");
-			xml_settings.setValue("IsHidden", m_is_visible ? "false" : "true");
-			xml_settings.setValue("IsEnableMessage", m_is_enable_dialog ? "true" : "false");
-			xml_settings.setValue("IsMessageAutoGone", m_is_dialog_auto_gone ? "true" : "false");
-			xml_settings.setValue("IsFittingWindow", m_is_fitting_window ? "true" : "false");
-			xml_settings.popTag();
-		}
+            xml_settings.setValue("IsLockedShortcut", m_is_locked_shortcut ? "true" : "false");
+            xml_settings.setValue("IsHidden", m_is_visible ? "false" : "true");
+            xml_settings.setValue("IsEnableMessage", m_is_enable_dialog ? "true" : "false");
+            xml_settings.setValue("IsMessageAutoGone", m_is_dialog_auto_gone ? "true" : "false");
+            xml_settings.setValue("IsFittingWindow", m_is_fitting_window ? "true" : "false");
+            xml_settings.popTag();
+        }
 
-		gf_save_xml(xml_settings, m_parameters, m_default_draw_i_func, m_default_draw_f_func);
-		xml_settings.popTag();
-	}
+        gf_save_xml(xml_settings, m_parameters, m_default_draw_i_func, m_default_draw_f_func);
+        xml_settings.popTag();
+    }
 
-	ofLogNotice("ofxImGuiParameter", "Save %s to %s", m_title.c_str(), xml_filepath.c_str());
-	yes = xml_settings.save(xml_filepath);
-	if (yes)
-	{
-		ofNotifyEvent(m_on_save_event, xml_filepath, this);
-	}
+    ofLogNotice("ofxImGuiParameter", "Save %s to %s", m_title.c_str(), xml_filepath.c_str());
+    yes = xml_settings.save(xml_filepath);
+    if (yes)
+    {
+        ofNotifyEvent(m_on_save_event, xml_filepath, this);
+    }
 
-	return yes;
+    return yes;
 }
 
 bool ofxImGuiParameter::load(std::string const& filepath)
 {
-	std::string xml_filepath = filepath;
-	if (xml_filepath == "")
-	{
-		xml_filepath = m_xml_filepath;
-	}
+    std::string xml_filepath = filepath;
+    if (xml_filepath == "")
+    {
+        xml_filepath = m_xml_filepath;
+    }
 
-	xml_filepath = ofToDataPath(xml_filepath);
+    xml_filepath = ofToDataPath(xml_filepath);
 
-	ofNotifyEvent(m_on_pre_load_event, xml_filepath);
+    ofNotifyEvent(m_on_pre_load_event, xml_filepath);
 
-	ofxXmlSettings xml_settings;
-	if (!xml_settings.load(xml_filepath))
-	{
-		return false;
-	}
+    ofxXmlSettings xml_settings;
+    if (!xml_settings.load(xml_filepath))
+    {
+        return false;
+    }
 
-	if (!xml_settings.pushTag("ofxImGuiParameter"))
-	{
-		return false;
-	}
+    if (!xml_settings.pushTag("ofxImGuiParameter"))
+    {
+        return false;
+    }
 
-	if (xml_settings.pushTag("Settings4ofxImGuiParameter"))
-	{
-		if (xml_settings.pushTag("PosAndSize"))
-		{
-			m_pos_and_size.x = xml_settings.getValue("X", (int)m_pos_and_size.getX());
-			m_pos_and_size.y = xml_settings.getValue("Y", (int)m_pos_and_size.getY());
-			m_pos_and_size.width = xml_settings.getValue("Width", (int)m_pos_and_size.getWidth());
-			m_pos_and_size.height = xml_settings.getValue("Height", (int)m_pos_and_size.getHeight());
-			xml_settings.popTag();
-		}
+    if (xml_settings.pushTag("Settings4ofxImGuiParameter"))
+    {
+        if (xml_settings.pushTag("PosAndSize"))
+        {
+            m_pos_and_size.x = xml_settings.getValue("X", (int)m_pos_and_size.getX());
+            m_pos_and_size.y = xml_settings.getValue("Y", (int)m_pos_and_size.getY());
+            m_pos_and_size.width = xml_settings.getValue("Width", (int)m_pos_and_size.getWidth());
+            m_pos_and_size.height = xml_settings.getValue("Height", (int)m_pos_and_size.getHeight());
+            xml_settings.popTag();
+        }
 
-		std::string value;
-		value = xml_settings.getValue("IsLockedShortcut", m_is_locked_shortcut ? "true" : "false");
-		m_is_locked_shortcut = value == "true";
+        std::string value;
+        value = xml_settings.getValue("IsLockedShortcut", m_is_locked_shortcut ? "true" : "false");
+        m_is_locked_shortcut = value == "true";
 
-		value = xml_settings.getValue("IsHidden", m_is_visible ? "false" : "true");
-		m_is_visible = value != "true";
+        value = xml_settings.getValue("IsHidden", m_is_visible ? "false" : "true");
+        m_is_visible = value != "true";
 
-		value = xml_settings.getValue("IsEnableMessage", m_is_enable_dialog ? "true" : "false");
-		m_is_enable_dialog = value == "true";
+        value = xml_settings.getValue("IsEnableMessage", m_is_enable_dialog ? "true" : "false");
+        m_is_enable_dialog = value == "true";
 
-		value = xml_settings.getValue("IsMessageAutoGone", m_is_dialog_auto_gone ? "true" : "false");
-		m_is_dialog_auto_gone = value == "true";
+        value = xml_settings.getValue("IsMessageAutoGone", m_is_dialog_auto_gone ? "true" : "false");
+        m_is_dialog_auto_gone = value == "true";
 
-		value = xml_settings.getValue("IsFittingWindow", m_is_fitting_window ? "true" : "false");
-		m_is_fitting_window = value == "true";
+        value = xml_settings.getValue("IsFittingWindow", m_is_fitting_window ? "true" : "false");
+        m_is_fitting_window = value == "true";
 
-		xml_settings.popTag();
-	}
+        xml_settings.popTag();
+    }
 
-	gf_load_xml(xml_settings, m_parameters, m_default_draw_i_func, m_default_draw_f_func);
+    gf_load_xml(xml_settings, m_parameters, m_default_draw_i_func, m_default_draw_f_func);
 
-	xml_settings.popTag();
+    xml_settings.popTag();
 
-	ofLogNotice("ofxImGuiParameter", "Load %s from %s", m_title.c_str(), xml_filepath.c_str());
-	ofNotifyEvent(m_on_load_event, xml_filepath, this);
-	return true;
+    ofLogNotice("ofxImGuiParameter", "Load %s from %s", m_title.c_str(), xml_filepath.c_str());
+    ofNotifyEvent(m_on_load_event, xml_filepath, this);
+    return true;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void ofxImGuiParameter::sf_draw(ParamInfo* p_param_info)
 {
-	ImGui::Indent(8.f);
-	if (p_param_info->func)
-	{
-		p_param_info->func(p_param_info->sp_param.get(), p_param_info->fmt);
-	}
-	else //Group
-	{
-		bool is_open = p_param_info->arg;
+    ImGui::Indent(8.f);
+    if (p_param_info->func)
+    {
+        p_param_info->func(p_param_info->sp_param.get(), p_param_info->fmt);
+    }
+    else //Group
+    {
+        bool is_open = p_param_info->arg;
 
-		ImGui::SetNextItemOpen(is_open, ImGuiCond_Appearing);
-		if (ImGui::CollapsingHeader(p_param_info->sp_param->getName().c_str()))
-		{
-			for (size_t i = 0; i < p_param_info->children.size(); ++i)
-			{
-				ImGui::PushID((int)i);
-				sf_draw(p_param_info->children[i]);
-				ImGui::PopID();
-			}
-			p_param_info->arg = 1;
-		}
-		else
-		{
-			p_param_info->arg = 0;
-		}
-	}
-	ImGui::Unindent(8.f);
+        ImGui::SetNextItemOpen(is_open, ImGuiCond_Appearing);
+        if (ImGui::CollapsingHeader(p_param_info->sp_param->getName().c_str()))
+        {
+            for (size_t i = 0; i < p_param_info->children.size(); ++i)
+            {
+                ImGui::PushID((int)i);
+                sf_draw(p_param_info->children[i]);
+                ImGui::PopID();
+            }
+            p_param_info->arg = 1;
+        }
+        else
+        {
+            p_param_info->arg = 0;
+        }
+    }
+    ImGui::Unindent(8.f);
 }
 
 void ofxImGuiParameter::mf_draw_dialog()
 {
-	ImGuiWindowFlags window_flags =
-		ImGuiWindowFlags_NoCollapse |
-		ImGuiWindowFlags_NoResize |
-		ImGuiWindowFlags_NoMove |
-		ImGuiWindowFlags_NoScrollWithMouse |
-		ImGuiWindowFlags_NoScrollbar;
+    ImGuiWindowFlags window_flags =
+        ImGuiWindowFlags_NoCollapse |
+        ImGuiWindowFlags_NoResize |
+        ImGuiWindowFlags_NoMove |
+        ImGuiWindowFlags_NoScrollWithMouse |
+        ImGuiWindowFlags_NoScrollbar;
 
-	enum
-	{
-		DefaultWidthOfDialog = 160,
-		DefaultHeightOfDialog = 30,
+    enum
+    {
+        DefaultWidthOfDialog = 160,
+        DefaultHeightOfDialog = 30,
 
-		WGapLeft = 5,
-		HGapRight = 5,
-		HGap0 = 3,
-		HGap1 = 5,
-		HGap2 = 50,
-	};
+        WGapLeft = 5,
+        HGapRight = 5,
+        HGap0 = 3,
+        HGap1 = 5,
+        HGap2 = 50,
+    };
 
-	ImVec2 size_of_title = ImGui::CalcTextSize(m_title_of_dialog.c_str());
-	ImVec2 size_of_message = ImGui::CalcTextSize(m_msg_of_dialog.c_str());
-	ImVec2 size_of_confirm;
-	if (m_is_dialog_auto_gone)
-	{
-		--m_show_dialog;
+    ImVec2 size_of_title = ImGui::CalcTextSize(m_title_of_dialog.c_str());
+    ImVec2 size_of_message = ImGui::CalcTextSize(m_msg_of_dialog.c_str());
+    ImVec2 size_of_confirm;
+    if (m_is_dialog_auto_gone)
+    {
+        --m_show_dialog;
 
-		size_of_confirm.x = 0.f;
-		size_of_confirm.y = 0.f;
-	}
-	else
-	{
-		size_of_confirm = ImGui::CalcTextSize("Confirm");
-		//size_of_confirm.y += 10;
-	}
+        size_of_confirm.x = 0.f;
+        size_of_confirm.y = 0.f;
+    }
+    else
+    {
+        size_of_confirm = ImGui::CalcTextSize("Confirm");
+        //size_of_confirm.y += 10;
+    }
 
-	size_t width_of_dialog = std::max< size_t >(DefaultWidthOfDialog, size_of_message.x + WGapLeft + HGapRight);
-	width_of_dialog = std::max< size_t >(width_of_dialog, size_of_title.x + WGapLeft + HGapRight);
+    size_t width_of_dialog = std::max< size_t >(DefaultWidthOfDialog, size_of_message.x + WGapLeft + HGapRight);
+    width_of_dialog = std::max< size_t >(width_of_dialog, size_of_title.x + WGapLeft + HGapRight);
 
-	size_t height_of_dialog = std::max< size_t >(DefaultHeightOfDialog, size_of_message.y + HGap0 + HGap1 + HGap2 + size_of_confirm.y);
-	size_t wgap_of_message = (width_of_dialog - (size_t)(size_of_message.x)) >> 1;
+    size_t height_of_dialog = std::max< size_t >(DefaultHeightOfDialog, size_of_message.y + HGap0 + HGap1 + HGap2 + size_of_confirm.y);
+    size_t wgap_of_message = (width_of_dialog - (size_t)(size_of_message.x)) >> 1;
 
-	size_t wgap_of_confirm;
-	if (m_is_dialog_auto_gone)
-	{
-		wgap_of_confirm = 0;
-	}
-	else
-	{
-		wgap_of_confirm = (width_of_dialog - (size_t)(size_of_confirm.x)) >> 1;
-	}
+    size_t wgap_of_confirm;
+    if (m_is_dialog_auto_gone)
+    {
+        wgap_of_confirm = 0;
+    }
+    else
+    {
+        wgap_of_confirm = (width_of_dialog - (size_t)(size_of_confirm.x)) >> 1;
+    }
 
-	ImGui::SetNextWindowPos(ImVec2((ofGetWidth() - width_of_dialog) >> 1, (ofGetHeight() - height_of_dialog) >> 1), ImGuiCond_Always);
-	ImGui::SetNextWindowSize(ImVec2(width_of_dialog, height_of_dialog), ImGuiCond_Always);
+    ImGui::SetNextWindowPos(ImVec2((ofGetWidth() - width_of_dialog) >> 1, (ofGetHeight() - height_of_dialog) >> 1), ImGuiCond_Always);
+    ImGui::SetNextWindowSize(ImVec2(width_of_dialog, height_of_dialog), ImGuiCond_Always);
 
-	if (ImGui::Begin(m_title_of_dialog.c_str(), NULL, window_flags))
-	{
-		ImGui::Dummy(ImVec2(HGap0, HGap0));
-		ImGui::NewLine(); ImGui::SameLine(wgap_of_message);
-		ImGui::Text(m_msg_of_dialog.c_str());
+    if (ImGui::Begin(m_title_of_dialog.c_str(), NULL, window_flags))
+    {
+        ImGui::Dummy(ImVec2(HGap0, HGap0));
+        ImGui::NewLine(); ImGui::SameLine(wgap_of_message);
+        ImGui::Text(m_msg_of_dialog.c_str());
 
-		if (!m_is_dialog_auto_gone)
-		{
-			ImGui::Dummy(ImVec2(HGap1, HGap1));
-			ImGui::NewLine(); ImGui::SameLine(wgap_of_confirm);
-			if (ImGui::Button("Confirm"))
-			{
-				m_show_dialog = 0;
-			}
-		}
-	}
-	ImGui::End();	
+        if (!m_is_dialog_auto_gone)
+        {
+            ImGui::Dummy(ImVec2(HGap1, HGap1));
+            ImGui::NewLine(); ImGui::SameLine(wgap_of_confirm);
+            if (ImGui::Button("Confirm"))
+            {
+                m_show_dialog = 0;
+            }
+        }
+    }
+    ImGui::End();
 }
 
 bool gf_is_bad_char(char c)
 {
-	if (c < '0') 
-		return true;
+    if (c < '0')
+        return true;
 
-	if (c > '9')
-	{
-		if (c < 'A') 
-			return true;
+    if (c > '9')
+    {
+        if (c < 'A')
+            return true;
 
-		if (c > 'Z')
-		{
-			if (c < 'a')
-				return true;
+        if (c > 'Z')
+        {
+            if (c < 'a')
+                return true;
 
-			if (c > 'z')
-				return true;
-		}
-	}
-	return false;
+            if (c > 'z')
+                return true;
+        }
+    }
+    return false;
 }
 
 void gf_remove_any_bad_char(std::string& str)
 {
-	std::replace_if(str.begin(), str.end(), std::bind(&gf_is_bad_char, std::placeholders::_1), '_');
+    std::replace_if(str.begin(), str.end(), std::bind(&gf_is_bad_char, std::placeholders::_1), '_');
 }
 
 void gf_save_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& container, gf_draw_func i_func, gf_draw_func f_func)
 {
-	for (size_t i = 0; i < container.size(); ++i)
-	{
-		ParamInfo* p_info = container[i];
-		if (p_info->sp_param->isSerializable() == false)
-		{
-			continue;
-		}
+    for (size_t i = 0; i < container.size(); ++i)
+    {
+        ParamInfo* p_info = container[i];
+        if (p_info->sp_param->isSerializable() == false)
+        {
+            continue;
+        }
 
-		std::string tag_name = p_info->sp_param->getName();
-		gf_remove_any_bad_char(tag_name);
+        std::string tag_name = p_info->sp_param->getName();
+        gf_remove_any_bad_char(tag_name);
 
-		if (p_info->func == NULL)
-		{
-			if (gf_force_push_tag(xml_settings, tag_name, "IsOpen", p_info->arg ? "true" : "false"))
-			{
-				gf_save_xml(xml_settings, p_info->children, i_func, f_func);
-				xml_settings.popTag();
-			}
-		}
-		else
-		{
-			if (!p_info->enable_sl)
-			{
-				continue;
-			}
+        if (p_info->func == NULL)
+        {
+            if (gf_force_push_tag(xml_settings, tag_name, "IsOpen", p_info->arg ? "true" : "false"))
+            {
+                gf_save_xml(xml_settings, p_info->children, i_func, f_func);
+                xml_settings.popTag();
+            }
+        }
+        else
+        {
+            if (!p_info->enable_sl)
+            {
+                continue;
+            }
 
-			if (p_info->func == (gf_draw_func)&gf_draw_bool)
-			{
-				xml_settings.setValue(tag_name, p_info->sp_param->cast<bool>().get() ? "true" : "false");
-			}
-			else if (	
-						p_info->func == (gf_draw_func)&gf_draw_float_slider_default || 
-						p_info->func == (gf_draw_func)&gf_draw_float_drag_default || 
-						p_info->func == (gf_draw_func)&gf_draw_float_input_default
-					)
-			{
-				xml_settings.setValue(tag_name, (double)p_info->sp_param->cast<float>().get());
-			}
-			else if (p_info->func == (gf_draw_func)&gf_draw_float_input_spec || p_info->func == (gf_draw_func)&gf_draw_float_slider_spec)
-			{
-				gf_save_xml_value_type <float, double>(xml_settings, p_info, tag_name);
-			}
-			else if (p_info->func == (gf_draw_func)&gf_draw_int_input_spec || p_info->func == (gf_draw_func)&gf_draw_int_slider_spec)
-			{
-				gf_save_xml_value_type <int, int>(xml_settings, p_info, tag_name);
-			}
-			else if (	
-						p_info->func == (gf_draw_func)&gf_draw_int_slider_default || 
-						p_info->func == (gf_draw_func)&gf_draw_int_drag_default || 
-						p_info->func == (gf_draw_func)&gf_draw_int_input_default
-					)
-			{
-				xml_settings.setValue(tag_name, p_info->sp_param->cast<int>().get());
-			}
-			else if (p_info->func == (gf_draw_func)&gf_draw_label_int)
-			{
-				ofxROParamInt* p_param = (ofxROParamInt*)p_info->sp_param.get();
-				xml_settings.setValue(tag_name, p_param->get());
-			}
-			else if (p_info->func == (gf_draw_func)&gf_draw_color_u8)
-			{
-				ofColor const& color = p_info->sp_param->cast<ofColor>().get();
-				if (gf_force_push_tag(xml_settings, tag_name, "PixelType", "U8"))
-				{	
-					xml_settings.setValue("R", (int)color.r);
-					xml_settings.setValue("G", (int)color.g);
-					xml_settings.setValue("B", (int)color.b);
-					xml_settings.setValue("A", (int)color.a);
-					xml_settings.popTag();
-				}				
-			}
-			else if (p_info->func == (gf_draw_func)&gf_draw_color_f32)
-			{
-				ofFloatColor const& color = p_info->sp_param->cast<ofFloatColor>().get();
-				if (gf_force_push_tag(xml_settings, tag_name, "PixelType", "F32"))
-				{
-					xml_settings.setValue("R", (double)color.r);
-					xml_settings.setValue("G", (double)color.g);
-					xml_settings.setValue("B", (double)color.b);
-					xml_settings.setValue("A", (double)color.a);
-					xml_settings.popTag();
-				}
-			}
-			else if (p_info->func == (gf_draw_func)&gf_draw_enum)
-			{
-				ofParameter< EnumType >& param = p_info->sp_param->cast< EnumType >();
-				EnumType const& e_value = param.get();
+            if (p_info->func == (gf_draw_func)&gf_draw_bool)
+            {
+                xml_settings.setValue(tag_name, p_info->sp_param->cast<bool>().get() ? "true" : "false");
+            }
+            else if (
+                        p_info->func == (gf_draw_func)&gf_draw_float_slider_default ||
+                        p_info->func == (gf_draw_func)&gf_draw_float_drag_default ||
+                        p_info->func == (gf_draw_func)&gf_draw_float_input_default
+                    )
+            {
+                xml_settings.setValue(tag_name, (double)p_info->sp_param->cast<float>().get());
+            }
+            else if (p_info->func == (gf_draw_func)&gf_draw_float_input_spec || p_info->func == (gf_draw_func)&gf_draw_float_slider_spec)
+            {
+                gf_save_xml_value_type <float, double>(xml_settings, p_info, tag_name);
+            }
+            else if (p_info->func == (gf_draw_func)&gf_draw_int_input_spec || p_info->func == (gf_draw_func)&gf_draw_int_slider_spec)
+            {
+                gf_save_xml_value_type <int, int>(xml_settings, p_info, tag_name);
+            }
+            else if (
+                        p_info->func == (gf_draw_func)&gf_draw_int_slider_default ||
+                        p_info->func == (gf_draw_func)&gf_draw_int_drag_default ||
+                        p_info->func == (gf_draw_func)&gf_draw_int_input_default
+                    )
+            {
+                xml_settings.setValue(tag_name, p_info->sp_param->cast<int>().get());
+            }
+            else if (p_info->func == (gf_draw_func)&gf_draw_label_int)
+            {
+                ofxROParamInt* p_param = (ofxROParamInt*)p_info->sp_param.get();
+                xml_settings.setValue(tag_name, p_param->get());
+            }
+            else if (p_info->func == (gf_draw_func)&gf_draw_color_u8)
+            {
+                ofColor const& color = p_info->sp_param->cast<ofColor>().get();
+                if (gf_force_push_tag(xml_settings, tag_name, "PixelType", "U8"))
+                {
+                    xml_settings.setValue("R", (int)color.r);
+                    xml_settings.setValue("G", (int)color.g);
+                    xml_settings.setValue("B", (int)color.b);
+                    xml_settings.setValue("A", (int)color.a);
+                    xml_settings.popTag();
+                }
+            }
+            else if (p_info->func == (gf_draw_func)&gf_draw_color_f32)
+            {
+                ofFloatColor const& color = p_info->sp_param->cast<ofFloatColor>().get();
+                if (gf_force_push_tag(xml_settings, tag_name, "PixelType", "F32"))
+                {
+                    xml_settings.setValue("R", (double)color.r);
+                    xml_settings.setValue("G", (double)color.g);
+                    xml_settings.setValue("B", (double)color.b);
+                    xml_settings.setValue("A", (double)color.a);
+                    xml_settings.popTag();
+                }
+            }
+            else if (p_info->func == (gf_draw_func)&gf_draw_enum)
+            {
+                ofParameter< EnumType >& param = p_info->sp_param->cast< EnumType >();
+                EnumType const& e_value = param.get();
 
-				int select = 0;
-				if (e_value.select < e_value.content.size() && e_value.select > 0)
-				{
-					select = e_value.select;
-				}
-				else  if (e_value.content.empty())
-				{
-					select = -1;
-				}
+                int select = 0;
+                if (e_value.select < e_value.content.size() && e_value.select > 0)
+                {
+                    select = e_value.select;
+                }
+                else  if (e_value.content.empty())
+                {
+                    select = -1;
+                }
 
-				xml_settings.setValue(tag_name, select < 0 ? "" : e_value.content[select]);
-			}
-			else if (p_info->func == (gf_draw_func)&gf_draw_vec2f)
-			{
-				ofVec2f const& vec2f = p_info->sp_param->cast<ofVec2f>().get();
-				if (gf_force_push_tag(xml_settings, tag_name))
-				{
-					xml_settings.setValue("X", (double)vec2f.x);
-					xml_settings.setValue("Y", (double)vec2f.y);
-					xml_settings.popTag();
-				}
-			}
-			else if (p_info->func == (gf_draw_func)&gf_draw_vec3f)
-			{
-				ofVec3f const& vec3f = p_info->sp_param->cast<ofVec3f>().get();
-				if (gf_force_push_tag(xml_settings, tag_name))
-				{
-					xml_settings.setValue("X", (double)vec3f.x);
-					xml_settings.setValue("Y", (double)vec3f.y);
-					xml_settings.setValue("Z", (double)vec3f.z);
-					xml_settings.popTag();
-				}
-			}
-			else if (p_info->func == (gf_draw_func)&gf_draw_vec4f)
-			{
-				ofVec4f const& vec4f = p_info->sp_param->cast<ofVec4f>().get();
-				if (gf_force_push_tag(xml_settings, tag_name))
-				{
-					xml_settings.setValue("X", (double)vec4f.x);
-					xml_settings.setValue("Y", (double)vec4f.y);
-					xml_settings.setValue("Z", (double)vec4f.z);
-					xml_settings.setValue("W", (double)vec4f.w);
-					xml_settings.popTag();
-				}
-			}
-			else if (p_info->func == (gf_draw_func)&gf_draw_rect)
-			{
-				ofRectangle const& rect = p_info->sp_param->cast<ofRectangle>().get();
-				if (gf_force_push_tag(xml_settings, tag_name))
-				{
-					xml_settings.setValue("X", (double)rect.x);
-					xml_settings.setValue("Y", (double)rect.y);
-					xml_settings.setValue("Width", (double)rect.width);
-					xml_settings.setValue("Height", (double)rect.height);
-					xml_settings.popTag();
-				}
-			}
-			else if (p_info->func == (gf_draw_func)&gf_draw_text_input)
-			{
-				xml_settings.setValue(tag_name, p_info->sp_param->cast<std::string>().get());
-			}
-			else if (p_info->func == (gf_draw_func)&gf_draw_texture)
-			{
-				MyTex const& my_tex = p_info->sp_param->cast<MyTex>().get();
-				tag_name = my_tex.sp_param_texture->getName();
+                xml_settings.setValue(tag_name, select < 0 ? "" : e_value.content[select]);
+            }
+            else if (p_info->func == (gf_draw_func)&gf_draw_vec2f)
+            {
+                ofVec2f const& vec2f = p_info->sp_param->cast<ofVec2f>().get();
+                if (gf_force_push_tag(xml_settings, tag_name))
+                {
+                    xml_settings.setValue("X", (double)vec2f.x);
+                    xml_settings.setValue("Y", (double)vec2f.y);
+                    xml_settings.popTag();
+                }
+            }
+            else if (p_info->func == (gf_draw_func)&gf_draw_vec3f)
+            {
+                ofVec3f const& vec3f = p_info->sp_param->cast<ofVec3f>().get();
+                if (gf_force_push_tag(xml_settings, tag_name))
+                {
+                    xml_settings.setValue("X", (double)vec3f.x);
+                    xml_settings.setValue("Y", (double)vec3f.y);
+                    xml_settings.setValue("Z", (double)vec3f.z);
+                    xml_settings.popTag();
+                }
+            }
+            else if (p_info->func == (gf_draw_func)&gf_draw_vec4f)
+            {
+                ofVec4f const& vec4f = p_info->sp_param->cast<ofVec4f>().get();
+                if (gf_force_push_tag(xml_settings, tag_name))
+                {
+                    xml_settings.setValue("X", (double)vec4f.x);
+                    xml_settings.setValue("Y", (double)vec4f.y);
+                    xml_settings.setValue("Z", (double)vec4f.z);
+                    xml_settings.setValue("W", (double)vec4f.w);
+                    xml_settings.popTag();
+                }
+            }
+            else if (p_info->func == (gf_draw_func)&gf_draw_rect)
+            {
+                ofRectangle const& rect = p_info->sp_param->cast<ofRectangle>().get();
+                if (gf_force_push_tag(xml_settings, tag_name))
+                {
+                    xml_settings.setValue("X", (double)rect.x);
+                    xml_settings.setValue("Y", (double)rect.y);
+                    xml_settings.setValue("Width", (double)rect.width);
+                    xml_settings.setValue("Height", (double)rect.height);
+                    xml_settings.popTag();
+                }
+            }
+            else if (p_info->func == (gf_draw_func)&gf_draw_text_input)
+            {
+                xml_settings.setValue(tag_name, p_info->sp_param->cast<std::string>().get());
+            }
+            else if (p_info->func == (gf_draw_func)&gf_draw_texture)
+            {
+                MyTex const& my_tex = p_info->sp_param->cast<MyTex>().get();
+                tag_name = my_tex.sp_param_texture->getName();
 
-				if (gf_force_push_tag(xml_settings, tag_name, "IsOpen", my_tex.is_open ? "true" : "false"))
-				{
-					xml_settings.setValue("IsOriginSize", !my_tex.is_fit_windows ? "true" : "false");
-					xml_settings.setValue("IsShowDetail", my_tex.is_show_detail ? "true" : "false");
-					xml_settings.popTag();
-				}
-			}
-		}
-	}
+                if (gf_force_push_tag(xml_settings, tag_name, "IsOpen", my_tex.is_open ? "true" : "false"))
+                {
+                    xml_settings.setValue("IsOriginSize", !my_tex.is_fit_windows ? "true" : "false");
+                    xml_settings.setValue("IsShowDetail", my_tex.is_show_detail ? "true" : "false");
+                    xml_settings.popTag();
+                }
+            }
+        }
+    }
 }
 
 void gf_load_xml(ofxXmlSettings& xml_settings, std::vector< ParamInfo* >& container, gf_draw_func i_func, gf_draw_func f_func)
 {
-	for (size_t i = 0; i < container.size(); ++i)
-	{
-		ParamInfo* p_info = container[i];
-		if (p_info->sp_param->isSerializable() == false)
-		{
-			continue;
-		}
+    for (size_t i = 0; i < container.size(); ++i)
+    {
+        ParamInfo* p_info = container[i];
+        if (p_info->sp_param->isSerializable() == false)
+        {
+            continue;
+        }
 
-		std::string tag_name = p_info->sp_param->getName();
-		gf_remove_any_bad_char(tag_name);
+        std::string tag_name = p_info->sp_param->getName();
+        gf_remove_any_bad_char(tag_name);
 
-		if (p_info->func == NULL)
-		{
-			std::string value = xml_settings.getAttribute(tag_name, "IsOpen", p_info->arg ? "true" : "false", 0);
-			if (value == "true")
-			{
-				p_info->arg = 1;
-			}
-			else
-			{
-				p_info->arg = 0;
-			}
+        if (p_info->func == NULL)
+        {
+            std::string value = xml_settings.getAttribute(tag_name, "IsOpen", p_info->arg ? "true" : "false", 0);
+            if (value == "true")
+            {
+                p_info->arg = 1;
+            }
+            else
+            {
+                p_info->arg = 0;
+            }
 
-			if (xml_settings.pushTag(tag_name))
-			{
-				gf_load_xml(xml_settings, p_info->children, i_func, f_func);
-				xml_settings.popTag();
-			}
-		}
-		else
-		{
-			if (!p_info->enable_sl)
-			{
-				continue;
-			}
+            if (xml_settings.pushTag(tag_name))
+            {
+                gf_load_xml(xml_settings, p_info->children, i_func, f_func);
+                xml_settings.popTag();
+            }
+        }
+        else
+        {
+            if (!p_info->enable_sl)
+            {
+                continue;
+            }
 
-			if (p_info->func == (gf_draw_func)&gf_draw_bool)
-			{
-				ofParameter<bool>& param_b = p_info->sp_param->cast<bool>();
-				std::string value = xml_settings.getValue(tag_name, param_b.get() ? "true" : "false");
-				param_b.set(value == "true");
-			}
-			else if (	
-						p_info->func == (gf_draw_func)&gf_draw_float_slider_default || 
-						p_info->func == (gf_draw_func)&gf_draw_float_drag_default || 
-						p_info->func == (gf_draw_func)&gf_draw_float_input_default
-					)
-			{
-				ofParameter<float>& param_f = p_info->sp_param->cast<float>();
-				double value = xml_settings.getValue(tag_name, (double)param_f.get());
-				param_f.set(static_cast<float>(value));
-			}
-			else if (	
-						p_info->func == (gf_draw_func)&gf_draw_int_slider_default || 
-						p_info->func == (gf_draw_func)&gf_draw_int_drag_default || 
-						p_info->func == (gf_draw_func)&gf_draw_int_input_default
-					)
-			{
-				ofParameter<int>& param_i = p_info->sp_param->cast<int>();
-				int value = xml_settings.getValue(tag_name, param_i.get());
-				param_i.set(value);
-			}
-			else if (p_info->func == (gf_draw_func)&gf_draw_label_int)
-			{
-				ofxROParamInt* p_param = (ofxROParamInt*)p_info->sp_param.get();				
-				int value = xml_settings.getValue(tag_name, p_param->get());
-				ofxROPSetter<int>::set(*p_param, value);
-			}
-		
-			else if (p_info->func == (gf_draw_func)&gf_draw_float_input_spec || p_info->func == (gf_draw_func)&gf_draw_float_slider_spec)
-			{
-				gf_load_xml_value_type <float, double>(xml_settings, p_info, tag_name);
-			}
-			else if (p_info->func == (gf_draw_func)&gf_draw_int_input_spec || p_info->func == (gf_draw_func)&gf_draw_int_slider_spec)
-			{
-				gf_load_xml_value_type <int, int>(xml_settings, p_info, tag_name);
-			}
-			else if (p_info->func == (gf_draw_func)&gf_draw_color_u8)
-			{
-				ofParameter< ofColor >& param_color = p_info->sp_param->cast< ofColor >();
-				ofColor color = param_color.get();
+            if (p_info->func == (gf_draw_func)&gf_draw_bool)
+            {
+                ofParameter<bool>& param_b = p_info->sp_param->cast<bool>();
+                std::string value = xml_settings.getValue(tag_name, param_b.get() ? "true" : "false");
+                param_b.set(value == "true");
+            }
+            else if (
+                        p_info->func == (gf_draw_func)&gf_draw_float_slider_default ||
+                        p_info->func == (gf_draw_func)&gf_draw_float_drag_default ||
+                        p_info->func == (gf_draw_func)&gf_draw_float_input_default
+                    )
+            {
+                ofParameter<float>& param_f = p_info->sp_param->cast<float>();
+                double value = xml_settings.getValue(tag_name, (double)param_f.get());
+                param_f.set(static_cast<float>(value));
+            }
+            else if (
+                        p_info->func == (gf_draw_func)&gf_draw_int_slider_default ||
+                        p_info->func == (gf_draw_func)&gf_draw_int_drag_default ||
+                        p_info->func == (gf_draw_func)&gf_draw_int_input_default
+                    )
+            {
+                ofParameter<int>& param_i = p_info->sp_param->cast<int>();
+                int value = xml_settings.getValue(tag_name, param_i.get());
+                param_i.set(value);
+            }
+            else if (p_info->func == (gf_draw_func)&gf_draw_label_int)
+            {
+                ofxROParamInt* p_param = (ofxROParamInt*)p_info->sp_param.get();
+                int value = xml_settings.getValue(tag_name, p_param->get());
+                ofxROPSetter<int>::set(*p_param, value);
+            }
 
-				std::string pixel_type = xml_settings.getAttribute(tag_name, "PixelType", "U8", 0);
+            else if (p_info->func == (gf_draw_func)&gf_draw_float_input_spec || p_info->func == (gf_draw_func)&gf_draw_float_slider_spec)
+            {
+                gf_load_xml_value_type <float, double>(xml_settings, p_info, tag_name);
+            }
+            else if (p_info->func == (gf_draw_func)&gf_draw_int_input_spec || p_info->func == (gf_draw_func)&gf_draw_int_slider_spec)
+            {
+                gf_load_xml_value_type <int, int>(xml_settings, p_info, tag_name);
+            }
+            else if (p_info->func == (gf_draw_func)&gf_draw_color_u8)
+            {
+                ofParameter< ofColor >& param_color = p_info->sp_param->cast< ofColor >();
+                ofColor color = param_color.get();
 
-				if (xml_settings.pushTag(tag_name))
-				{
-					do 
-					{
-						if (pixel_type == "U8")
-						{
-							color.r = static_cast<unsigned char>(ofClamp(xml_settings.getValue("R", (int)color.r), 0, 255));
-							color.g = static_cast<unsigned char>(ofClamp(xml_settings.getValue("G", (int)color.g), 0, 255));
-							color.b = static_cast<unsigned char>(ofClamp(xml_settings.getValue("B", (int)color.b), 0, 255));
-							color.a = static_cast<unsigned char>(ofClamp(xml_settings.getValue("A", (int)color.a), 0, 255));
-						}
-						else if (pixel_type == "F32")
-						{
-							color.r = static_cast<unsigned char>(ofClamp(xml_settings.getValue("R", (double)(color.r / 255.0)), 0.0, 1.0) * 255);
-							color.g = static_cast<unsigned char>(ofClamp(xml_settings.getValue("G", (double)(color.g / 255.0)), 0.0, 1.0) * 255);
-							color.b = static_cast<unsigned char>(ofClamp(xml_settings.getValue("B", (double)(color.b / 255.0)), 0.0, 1.0) * 255);
-							color.a = static_cast<unsigned char>(ofClamp(xml_settings.getValue("A", (double)(color.a / 255.0)), 0.0, 1.0) * 255);
-						}
-						else
-						{
-							break;
-						}
+                std::string pixel_type = xml_settings.getAttribute(tag_name, "PixelType", "U8", 0);
 
-						param_color.set(color);
+                if (xml_settings.pushTag(tag_name))
+                {
+                    do
+                    {
+                        if (pixel_type == "U8")
+                        {
+                            color.r = static_cast<unsigned char>(ofClamp(xml_settings.getValue("R", (int)color.r), 0, 255));
+                            color.g = static_cast<unsigned char>(ofClamp(xml_settings.getValue("G", (int)color.g), 0, 255));
+                            color.b = static_cast<unsigned char>(ofClamp(xml_settings.getValue("B", (int)color.b), 0, 255));
+                            color.a = static_cast<unsigned char>(ofClamp(xml_settings.getValue("A", (int)color.a), 0, 255));
+                        }
+                        else if (pixel_type == "F32")
+                        {
+                            color.r = static_cast<unsigned char>(ofClamp(xml_settings.getValue("R", (double)(color.r / 255.0)), 0.0, 1.0) * 255);
+                            color.g = static_cast<unsigned char>(ofClamp(xml_settings.getValue("G", (double)(color.g / 255.0)), 0.0, 1.0) * 255);
+                            color.b = static_cast<unsigned char>(ofClamp(xml_settings.getValue("B", (double)(color.b / 255.0)), 0.0, 1.0) * 255);
+                            color.a = static_cast<unsigned char>(ofClamp(xml_settings.getValue("A", (double)(color.a / 255.0)), 0.0, 1.0) * 255);
+                        }
+                        else
+                        {
+                            break;
+                        }
 
-					} while (0);
+                        param_color.set(color);
 
-					xml_settings.popTag();
-				}
-			}
-			else if (p_info->func == (gf_draw_func)&gf_draw_color_f32)
-			{
-				ofParameter< ofFloatColor >& param_color = p_info->sp_param->cast< ofFloatColor >();
-				ofFloatColor color = param_color.get();
+                    } while (0);
 
-				std::string pixel_type = xml_settings.getAttribute(tag_name, "PixelType", "F32", 0);
+                    xml_settings.popTag();
+                }
+            }
+            else if (p_info->func == (gf_draw_func)&gf_draw_color_f32)
+            {
+                ofParameter< ofFloatColor >& param_color = p_info->sp_param->cast< ofFloatColor >();
+                ofFloatColor color = param_color.get();
 
-				if (xml_settings.pushTag(tag_name))
-				{
-					do
-					{
-						if (pixel_type == "U8")
-						{
-							color.r = xml_settings.getValue("R", (int)color.r) / 255.f;
-							color.g = xml_settings.getValue("G", (int)color.g) / 255.f;
-							color.b = xml_settings.getValue("B", (int)color.b) / 255.f;
-							color.a = xml_settings.getValue("A", (int)color.a) / 255.f;
-						}
-						else if (pixel_type == "F32")
-						{
-							color.r = static_cast<float>(xml_settings.getValue("R", (double)color.r));
-							color.g = static_cast<float>(xml_settings.getValue("G", (double)color.g));
-							color.b = static_cast<float>(xml_settings.getValue("B", (double)color.b));
-							color.a = static_cast<float>(xml_settings.getValue("A", (double)color.a));
-						}
-						else
-						{
-							break;
-						}
+                std::string pixel_type = xml_settings.getAttribute(tag_name, "PixelType", "F32", 0);
 
-						param_color.set(color);
+                if (xml_settings.pushTag(tag_name))
+                {
+                    do
+                    {
+                        if (pixel_type == "U8")
+                        {
+                            color.r = xml_settings.getValue("R", (int)color.r) / 255.f;
+                            color.g = xml_settings.getValue("G", (int)color.g) / 255.f;
+                            color.b = xml_settings.getValue("B", (int)color.b) / 255.f;
+                            color.a = xml_settings.getValue("A", (int)color.a) / 255.f;
+                        }
+                        else if (pixel_type == "F32")
+                        {
+                            color.r = static_cast<float>(xml_settings.getValue("R", (double)color.r));
+                            color.g = static_cast<float>(xml_settings.getValue("G", (double)color.g));
+                            color.b = static_cast<float>(xml_settings.getValue("B", (double)color.b));
+                            color.a = static_cast<float>(xml_settings.getValue("A", (double)color.a));
+                        }
+                        else
+                        {
+                            break;
+                        }
 
-					} while (0);
+                        param_color.set(color);
 
-					xml_settings.popTag();
-				}
-			}
-			else if (p_info->func == (gf_draw_func)&gf_draw_enum)
-			{
-				ofParameter< EnumType >& param_e = p_info->sp_param->cast< EnumType >();
-				EnumType e_value = param_e.get();
-				std::string value = xml_settings.getValue(tag_name, "");
-				int select = -1;
+                    } while (0);
 
-				for (size_t i = 0; i < e_value.content.size(); ++i)
-				{
-					if (e_value.content[i] == value)
-					{
-						select = (int)i;
-						break;
-					}
-				}
+                    xml_settings.popTag();
+                }
+            }
+            else if (p_info->func == (gf_draw_func)&gf_draw_enum)
+            {
+                ofParameter< EnumType >& param_e = p_info->sp_param->cast< EnumType >();
+                EnumType e_value = param_e.get();
+                std::string value = xml_settings.getValue(tag_name, "");
+                int select = -1;
 
-				if (select >= 0)
-				{
-					e_value.select = select;
-					param_e.set(e_value);
-				}
-			}
-			else if (p_info->func == (gf_draw_func)&gf_draw_vec2f)
-			{
-				ofParameter< ofVec2f >& param_vec2f = p_info->sp_param->cast< ofVec2f >();
-				ofVec2f vec2f = param_vec2f.get();
+                for (size_t i = 0; i < e_value.content.size(); ++i)
+                {
+                    if (e_value.content[i] == value)
+                    {
+                        select = (int)i;
+                        break;
+                    }
+                }
 
-				if (xml_settings.pushTag(tag_name))
-				{
-					vec2f.x = (float)xml_settings.getValue("X", (double)vec2f.x);
-					vec2f.y = (float)xml_settings.getValue("Y", (double)vec2f.y);
-					param_vec2f.set(vec2f);
-					xml_settings.popTag();
-				}
-			}
-			else if (p_info->func == (gf_draw_func)&gf_draw_vec3f)
-			{
-				ofParameter< ofVec3f >& param_vec3f = p_info->sp_param->cast< ofVec3f >();
-				ofVec3f vec3f = param_vec3f.get();
+                if (select >= 0)
+                {
+                    e_value.select = select;
+                    param_e.set(e_value);
+                }
+            }
+            else if (p_info->func == (gf_draw_func)&gf_draw_vec2f)
+            {
+                ofParameter< ofVec2f >& param_vec2f = p_info->sp_param->cast< ofVec2f >();
+                ofVec2f vec2f = param_vec2f.get();
 
-				if (xml_settings.pushTag(tag_name))
-				{
-					vec3f.x = (float)xml_settings.getValue("X", (double)vec3f.x);
-					vec3f.y = (float)xml_settings.getValue("Y", (double)vec3f.y);
-					vec3f.z = (float)xml_settings.getValue("Z", (double)vec3f.z);
-					param_vec3f.set(vec3f);
-					xml_settings.popTag();
-				}
-			}
-			else if (p_info->func == (gf_draw_func)&gf_draw_vec4f)
-			{
-				ofParameter< ofVec4f >& param_vec4f = p_info->sp_param->cast< ofVec4f >();
-				ofVec4f vec4f = param_vec4f.get();
+                if (xml_settings.pushTag(tag_name))
+                {
+                    vec2f.x = (float)xml_settings.getValue("X", (double)vec2f.x);
+                    vec2f.y = (float)xml_settings.getValue("Y", (double)vec2f.y);
+                    param_vec2f.set(vec2f);
+                    xml_settings.popTag();
+                }
+            }
+            else if (p_info->func == (gf_draw_func)&gf_draw_vec3f)
+            {
+                ofParameter< ofVec3f >& param_vec3f = p_info->sp_param->cast< ofVec3f >();
+                ofVec3f vec3f = param_vec3f.get();
 
-				if (xml_settings.pushTag(tag_name))
-				{
-					vec4f.x = (float)xml_settings.getValue("X", (double)vec4f.x);
-					vec4f.y = (float)xml_settings.getValue("Y", (double)vec4f.y);
-					vec4f.z = (float)xml_settings.getValue("Z", (double)vec4f.z);
-					vec4f.w = (float)xml_settings.getValue("W", (double)vec4f.w);
-					param_vec4f.set(vec4f);
-					xml_settings.popTag();
-				}
-			}
-			else if (p_info->func == (gf_draw_func)&gf_draw_rect)
-			{
-				ofParameter< ofRectangle >& param_rect = p_info->sp_param->cast< ofRectangle >();
-				ofRectangle rect = param_rect.get();
+                if (xml_settings.pushTag(tag_name))
+                {
+                    vec3f.x = (float)xml_settings.getValue("X", (double)vec3f.x);
+                    vec3f.y = (float)xml_settings.getValue("Y", (double)vec3f.y);
+                    vec3f.z = (float)xml_settings.getValue("Z", (double)vec3f.z);
+                    param_vec3f.set(vec3f);
+                    xml_settings.popTag();
+                }
+            }
+            else if (p_info->func == (gf_draw_func)&gf_draw_vec4f)
+            {
+                ofParameter< ofVec4f >& param_vec4f = p_info->sp_param->cast< ofVec4f >();
+                ofVec4f vec4f = param_vec4f.get();
 
-				if (xml_settings.pushTag(tag_name))
-				{
-					rect.x = (float)xml_settings.getValue("X", (double)rect.x);
-					rect.y = (float)xml_settings.getValue("Y", (double)rect.y);
-					rect.width = (float)xml_settings.getValue("Width", (double)rect.width);
-					rect.height = (float)xml_settings.getValue("Height", (double)rect.height);
-					param_rect.set(rect);
-					xml_settings.popTag();
-				}
-			}
-			else if (p_info->func == (gf_draw_func)&gf_draw_text_input)
-			{
-				ofParameter<std::string>& param_str = p_info->sp_param->cast<std::string>();
-				param_str.set(xml_settings.getValue(tag_name, param_str.get()));
-			}
-			else if (p_info->func == (gf_draw_func)&gf_draw_texture)
-			{
-				ofParameter<MyTex>& param_my_tex = p_info->sp_param->cast<MyTex>();
-				MyTex my_tex = param_my_tex.get();
-				tag_name = my_tex.sp_param_texture->getName();
+                if (xml_settings.pushTag(tag_name))
+                {
+                    vec4f.x = (float)xml_settings.getValue("X", (double)vec4f.x);
+                    vec4f.y = (float)xml_settings.getValue("Y", (double)vec4f.y);
+                    vec4f.z = (float)xml_settings.getValue("Z", (double)vec4f.z);
+                    vec4f.w = (float)xml_settings.getValue("W", (double)vec4f.w);
+                    param_vec4f.set(vec4f);
+                    xml_settings.popTag();
+                }
+            }
+            else if (p_info->func == (gf_draw_func)&gf_draw_rect)
+            {
+                ofParameter< ofRectangle >& param_rect = p_info->sp_param->cast< ofRectangle >();
+                ofRectangle rect = param_rect.get();
 
-				std::string value = xml_settings.getAttribute(tag_name, "IsOpen", my_tex.is_open ? "true" : "false", 0);
-				my_tex.is_open = (value == "true");
+                if (xml_settings.pushTag(tag_name))
+                {
+                    rect.x = (float)xml_settings.getValue("X", (double)rect.x);
+                    rect.y = (float)xml_settings.getValue("Y", (double)rect.y);
+                    rect.width = (float)xml_settings.getValue("Width", (double)rect.width);
+                    rect.height = (float)xml_settings.getValue("Height", (double)rect.height);
+                    param_rect.set(rect);
+                    xml_settings.popTag();
+                }
+            }
+            else if (p_info->func == (gf_draw_func)&gf_draw_text_input)
+            {
+                ofParameter<std::string>& param_str = p_info->sp_param->cast<std::string>();
+                param_str.set(xml_settings.getValue(tag_name, param_str.get()));
+            }
+            else if (p_info->func == (gf_draw_func)&gf_draw_texture)
+            {
+                ofParameter<MyTex>& param_my_tex = p_info->sp_param->cast<MyTex>();
+                MyTex my_tex = param_my_tex.get();
+                tag_name = my_tex.sp_param_texture->getName();
 
-				if (xml_settings.pushTag(tag_name))
-				{
-					value = xml_settings.getValue("IsOriginSize", !my_tex.is_fit_windows ? "true" : "false");
-					my_tex.is_fit_windows = (value != "true");
+                std::string value = xml_settings.getAttribute(tag_name, "IsOpen", my_tex.is_open ? "true" : "false", 0);
+                my_tex.is_open = (value == "true");
 
-					value = xml_settings.getValue("IsShowDetail", my_tex.is_show_detail ? "true" : "false");
-					my_tex.is_show_detail = (value == "true");
-					xml_settings.popTag();
-				}
-				param_my_tex.set(my_tex);
-			}
-		}
+                if (xml_settings.pushTag(tag_name))
+                {
+                    value = xml_settings.getValue("IsOriginSize", !my_tex.is_fit_windows ? "true" : "false");
+                    my_tex.is_fit_windows = (value != "true");
 
-	}
+                    value = xml_settings.getValue("IsShowDetail", my_tex.is_show_detail ? "true" : "false");
+                    my_tex.is_show_detail = (value == "true");
+                    xml_settings.popTag();
+                }
+                param_my_tex.set(my_tex);
+            }
+        }
+
+    }
 }
 
 ofxImGuiParameter::BindedID ofxImGuiParameter::mf_bind(ofAbstractParameter const& param, std::vector< ParamInfo* >& contanier, Style style, char const* fmt)
 {
-	ParamInfo* p_info = new ParamInfo();
-	p_info->enable_sl = true;
+    ParamInfo* p_info = new ParamInfo();
+    p_info->enable_sl = true;
 
-	shared_ptr<ofAbstractParameter> sp_param = param.newReference();
-	std::string type_name = param.type();
-	
-	enum { Num = sizeof(p_info->fmt) };
-	if (fmt)
-	{
-		strncpy(p_info->fmt, fmt, Num);
-		p_info->fmt[Num - 1] = '\0';
-	}
-	else
-	{
-		strncpy(p_info->fmt, "%.3f", Num);
-	}
+    shared_ptr<ofAbstractParameter> sp_param = param.newReference();
+    std::string type_name = param.type();
 
-	if (type_name == typeid(ofParameterGroup).name())
-	{
-		p_info->func = NULL;
-		ofParameterGroup const& group = (ofParameterGroup const&)param;
-		for (size_t i = 0; i < group.size(); ++i)
-		{
-			mf_bind(group[i], p_info->children, style, fmt);
-		}
-	}
-	else if (type_name == typeid(ofParameter<bool>).name())
-	{
-		p_info->func = (gf_draw_func)&gf_draw_bool;
-	}
-	else if (type_name == typeid(ofParameter<int>).name())
-	{
-		switch (style)
-		{
-		default:
-		case StyleNone:
-			p_info->func = m_default_draw_i_func;
-			break;
+    enum { Num = sizeof(p_info->fmt) };
+    if (fmt)
+    {
+        strncpy(p_info->fmt, fmt, Num);
+        p_info->fmt[Num - 1] = '\0';
+    }
+    else
+    {
+        strncpy(p_info->fmt, "%.3f", Num);
+    }
 
-		case StyleSlider:
-			p_info->func = (gf_draw_func)&gf_draw_int_slider_default;
-			break;
+    if (type_name == typeid(ofParameterGroup).name())
+    {
+        p_info->func = NULL;
+        ofParameterGroup const& group = (ofParameterGroup const&)param;
+        for (size_t i = 0; i < group.size(); ++i)
+        {
+            mf_bind(group[i], p_info->children, style, fmt);
+        }
+    }
+    else if (type_name == typeid(ofParameter<bool>).name())
+    {
+        p_info->func = (gf_draw_func)&gf_draw_bool;
+    }
+    else if (type_name == typeid(ofParameter<int>).name())
+    {
+        switch (style)
+        {
+        default:
+        case StyleNone:
+            {
+                p_info->func = m_default_draw_i_func;
+            }
+            break;
 
-		case StyleDrag:
-			p_info->func = (gf_draw_func)&gf_draw_int_drag_default;
-			break;
+        case StyleSlider:
+            {
+                p_info->func = (gf_draw_func)&gf_draw_int_slider_default;
+            }
+            break;
 
-		case StyleInputField:
-			p_info->func = (gf_draw_func)&gf_draw_int_input_default;
-			break;
-		}
+        case StyleDrag:
+            {
+                p_info->func = (gf_draw_func)&gf_draw_int_drag_default;
+            }
+            break;
 
-	}
-	else if (type_name == typeid(ofParameter<float>).name())
-	{
-		switch (style)
-		{
-		default:
-		case StyleNone:
-			p_info->func = m_default_draw_f_func;
-			break;
+        case StyleInputField:
+            {
+                p_info->func = (gf_draw_func)&gf_draw_int_input_default;
+            }
+            break;
+        }
 
-		case StyleSlider:
-			p_info->func = (gf_draw_func)&gf_draw_float_slider_default;
-			break;
+    }
+    else if (type_name == typeid(ofParameter<float>).name())
+    {
+        switch (style)
+        {
+        default:
+        case StyleNone:
+            {
+                p_info->func = m_default_draw_f_func;
+            }
+            break;
 
-		case StyleDrag:
-			p_info->func = (gf_draw_func)&gf_draw_float_drag_default;
-			break;
+        case StyleSlider:
+            {
+                p_info->func = (gf_draw_func)&gf_draw_float_slider_default;
+            }
+            break;
 
-		case StyleInputField:
-			p_info->func = (gf_draw_func)&gf_draw_float_input_default;
-			break;
-		}
-	}
-	else if (type_name == typeid(ofParameter<EnumType>).name())
-	{
-		p_info->func = (gf_draw_func)&gf_draw_enum;
-	}
-	else if (type_name == typeid(ofParameter<ofVec2f>).name())
-	{
-		p_info->func = (gf_draw_func)&gf_draw_vec2f;
-	}
-	else if (type_name == typeid(ofParameter<ofVec3f>).name())
-	{
-		p_info->func = (gf_draw_func)&gf_draw_vec3f;
-	}
-	else if (type_name == typeid(ofParameter<ofVec4f>).name())
-	{
-		p_info->func = (gf_draw_func)&gf_draw_vec4f;
-	}
-	else if (type_name == typeid(ofParameter<ofRectangle>).name())
-	{
-		p_info->func = (gf_draw_func)&gf_draw_rect;
-	}
-	else if (type_name == typeid(ofParameter< ValueType < float > >).name())
-	{
-		ofParameter< ValueType < float > >& param_val_f = sp_param->cast< ValueType < float > >();
-		switch (param_val_f.get().style)
-		{
-		case StyleSlider:		p_info->func = (gf_draw_func)&gf_draw_float_slider_spec;	break;
-		case StyleInputField:	p_info->func = (gf_draw_func)&gf_draw_float_input_spec;	break;
-		case StyleDrag:			p_info->func = (gf_draw_func)&gf_draw_float_drag_spec;	break;
-		default:
-			delete p_info;
-			return InvalidBindedID;
-		}
-	}
-	else if (type_name == typeid(ofParameter< ofColor >).name())
-	{
-		p_info->func = (gf_draw_func)&gf_draw_color_u8;
-	}
-	else if (type_name == typeid(ofParameter< ofFloatColor >).name())
-	{
-		p_info->func = (gf_draw_func)&gf_draw_color_f32;
-	}
-	else if (type_name == typeid(ofParameter< ValueType < int > >).name())
-	{
-		ofParameter< ValueType < float > >& param_val_i = sp_param->cast< ValueType < float > >();
-		switch (param_val_i.get().style)
-		{
-		case StyleSlider:		p_info->func = (gf_draw_func)&gf_draw_int_slider_spec;	break;
-		case StyleInputField:	p_info->func = (gf_draw_func)&gf_draw_int_input_spec;	break;
-		case StyleDrag:			p_info->func = (gf_draw_func)&gf_draw_int_drag_spec;		break;
-		default:
-			delete p_info;
-			return InvalidBindedID;
-		}
-	}
-	else if (type_name == typeid(ofParameter< std::string >).name())
-	{
-		p_info->func = (gf_draw_func)&gf_draw_text_input;
-	}
-	else if (type_name == typeid(ofParameter < sptr_vid_player >).name())
-	{
-		p_info->func = (gf_draw_func)&gf_draw_video_player;
-	}
-	else if (type_name == typeid(ofParameter< sptr_snd_player >).name())
-	{
-		p_info->func = (gf_draw_func)&gf_draw_sound_player;
-	}
-	else if (type_name == typeid(ofParameter< ofTexture >).name())
-	{
-		ofParameter< ofTexture > const& param_tex = (ofParameter< ofTexture > const&) param;
-		sp_parm_my_tex sp_temp = sp_parm_my_tex(new ofParameter< MyTex >());
-		
-		MyTex my_tex;
-		my_tex.sp_param_texture = std::make_shared< ofParameter< ofTexture > >(param_tex);
-		my_tex.is_fit_windows = true;
-		my_tex.is_show_detail = false;
-		my_tex.id = static_cast<uint32_t>(ofGetElapsedTimeMillis());
-		(*sp_temp).set(std::string("[ofTexture]: ") + param.getName() ,my_tex);
+        case StyleDrag:
+            {
+                p_info->func = (gf_draw_func)&gf_draw_float_drag_default;
+            }
+            break;
 
-		sp_param = sp_temp;
-		p_info->func = (gf_draw_func)&gf_draw_texture;
-	}
-	else if (type_name == typeid(ofParameter< ofxImGuiButton >).name())
-	{
-		p_info->func = (gf_draw_func)&gf_draw_button;
-	}
-	else if (type_name == typeid(ofParameter< ofxImGuiButtonSL >).name())
-	{
-		p_info->func = (gf_draw_func)&gf_draw_button_sl;
-	}
-	else if (type_name == typeid(ofxROParamInt).name())
-	{
-		p_info->func = (gf_draw_func)&gf_draw_label_int;
-	}
-	else
-	{
+        case StyleInputField:
+            {
+                p_info->func = (gf_draw_func)&gf_draw_float_input_default;
+            }
+            break;
+        }
+    }
+    else if (type_name == typeid(ofParameter<EnumType>).name())
+    {
+        p_info->func = (gf_draw_func)&gf_draw_enum;
+    }
+    else if (type_name == typeid(ofParameter<ofVec2f>).name())
+    {
+        p_info->func = (gf_draw_func)&gf_draw_vec2f;
+    }
+    else if (type_name == typeid(ofParameter<ofVec3f>).name())
+    {
+        p_info->func = (gf_draw_func)&gf_draw_vec3f;
+    }
+    else if (type_name == typeid(ofParameter<ofVec4f>).name())
+    {
+        p_info->func = (gf_draw_func)&gf_draw_vec4f;
+    }
+    else if (type_name == typeid(ofParameter<ofRectangle>).name())
+    {
+        p_info->func = (gf_draw_func)&gf_draw_rect;
+    }
+    else if (type_name == typeid(ofParameter< ValueType < float > >).name())
+    {
+        ofParameter< ValueType < float > >& param_val_f = sp_param->cast< ValueType < float > >();
+        switch (param_val_f.get().style)
+        {
+        case StyleSlider:
+            {
+                p_info->func = (gf_draw_func)&gf_draw_float_slider_spec;
+            }
+            break;
+        case StyleInputField:
+            {
+                p_info->func = (gf_draw_func)&gf_draw_float_input_spec;
+            }
+            break;
+        case StyleDrag:
+            {
+                p_info->func = (gf_draw_func)&gf_draw_float_drag_spec;
+            }
+            break;
+        default:
+            {
+                delete p_info;
+                return InvalidBindedID;
+            }
+        }
+    }
+    else if (type_name == typeid(ofParameter< ofColor >).name())
+    {
+        p_info->func = (gf_draw_func)&gf_draw_color_u8;
+    }
+    else if (type_name == typeid(ofParameter< ofFloatColor >).name())
+    {
+        p_info->func = (gf_draw_func)&gf_draw_color_f32;
+    }
+    else if (type_name == typeid(ofParameter< ValueType < int > >).name())
+    {
+        ofParameter< ValueType < float > >& param_val_i = sp_param->cast< ValueType < float > >();
+        switch (param_val_i.get().style)
+        {
+        case StyleSlider:
+            {
+                p_info->func = (gf_draw_func)&gf_draw_int_slider_spec;
+            }
+            break;
+        case StyleInputField:
+            {
+                p_info->func = (gf_draw_func)&gf_draw_int_input_spec;
+            }
+            break;
+        case StyleDrag:
+            {
+                p_info->func = (gf_draw_func)&gf_draw_int_drag_spec;
+            }
+            break;
+        default:
+            {
+                delete p_info;
+                return InvalidBindedID;
+            }
+        }
+    }
+    else if (type_name == typeid(ofParameter< std::string >).name())
+    {
+        p_info->func = (gf_draw_func)&gf_draw_text_input;
+    }
+    else if (type_name == typeid(ofParameter < sptr_vid_player >).name())
+    {
+        p_info->func = (gf_draw_func)&gf_draw_video_player;
+    }
+    else if (type_name == typeid(ofParameter< sptr_snd_player >).name())
+    {
+        p_info->func = (gf_draw_func)&gf_draw_sound_player;
+    }
+    else if (type_name == typeid(ofParameter< ofTexture >).name())
+    {
+        ofParameter< ofTexture > const& param_tex = (ofParameter< ofTexture > const&) param;
+        sp_parm_my_tex sp_temp = sp_parm_my_tex(new ofParameter< MyTex >());
+
+        MyTex my_tex;
+        my_tex.sp_param_texture = std::make_shared< ofParameter< ofTexture > >(param_tex);
+        my_tex.is_fit_windows = true;
+        my_tex.is_show_detail = false;
+        my_tex.id = static_cast<uint32_t>(ofGetElapsedTimeMillis());
+        (*sp_temp).set(std::string("[ofTexture]: ") + param.getName() ,my_tex);
+
+        sp_param = sp_temp;
+        p_info->func = (gf_draw_func)&gf_draw_texture;
+    }
+    else if (type_name == typeid(ofParameter< ofxImGuiButton >).name())
+    {
+        p_info->func = (gf_draw_func)&gf_draw_button;
+    }
+    else if (type_name == typeid(ofParameter< ofxImGuiButtonSL >).name())
+    {
+        p_info->func = (gf_draw_func)&gf_draw_button_sl;
+    }
+    else if (type_name == typeid(ofxROParamInt).name())
+    {
+        p_info->func = (gf_draw_func)&gf_draw_label_int;
+    }
+    else
+    {
 #if OF_VERSION_MINOR >= 10
-		do 
-		{
-			if (sp_param->isReadOnly())
-			{
-				if (sp_param->valueType() == typeid(int).name())
-				{
-					p_info->func = (gf_draw_func)&gf_draw_label_int_ro;
-					break;
-				}
-				else if (sp_param->valueType() == typeid(float).name())
-				{
-					p_info->func = (gf_draw_func)&gf_draw_label_float_ro;
-					break;
-				}
-				else if (sp_param->valueType() == typeid(std::string).name())
-				{
-					p_info->func = (gf_draw_func)&gf_draw_label_string_ro;
-					break;
-				}
-				else if (sp_param->valueType() == typeid(ofColor).name())
-				{
-					p_info->func = (gf_draw_func)&gf_draw_label_color_ro;
-					break;
-				}				
-				else if (sp_param->valueType() == typeid(bool).name())
-				{
-					p_info->func = (gf_draw_func)&gf_draw_label_bool_ro;
-					break;
-				}
-				else if (sp_param->valueType() == typeid(ofRectangle).name())
-				{
-					p_info->func = (gf_draw_func)&gf_draw_label_rect_ro;
-					break;
-				}
-			}
+        do
+        {
+            if (sp_param->isReadOnly())
+            {
+                if (sp_param->valueType() == typeid(int).name())
+                {
+                    p_info->func = (gf_draw_func)&gf_draw_label_int_ro;
+                    break;
+                }
+                else if (sp_param->valueType() == typeid(float).name())
+                {
+                    p_info->func = (gf_draw_func)&gf_draw_label_float_ro;
+                    break;
+                }
+                else if (sp_param->valueType() == typeid(std::string).name())
+                {
+                    p_info->func = (gf_draw_func)&gf_draw_label_string_ro;
+                    break;
+                }
+                else if (sp_param->valueType() == typeid(ofColor).name())
+                {
+                    p_info->func = (gf_draw_func)&gf_draw_label_color_ro;
+                    break;
+                }
+                else if (sp_param->valueType() == typeid(bool).name())
+                {
+                    p_info->func = (gf_draw_func)&gf_draw_label_bool_ro;
+                    break;
+                }
+                else if (sp_param->valueType() == typeid(ofRectangle).name())
+                {
+                    p_info->func = (gf_draw_func)&gf_draw_label_rect_ro;
+                    break;
+                }
+            }
 
-			delete p_info;
-			return InvalidBindedID;
+            delete p_info;
+            return InvalidBindedID;
 
-		} while (0);
+        } while (0);
 #endif
-	}
+    }
 
-	p_info->sp_param = sp_param;
-	p_info->arg = 0;
-	contanier.push_back(p_info);
-	return reinterpret_cast<BindedID>(p_info);
+    p_info->sp_param = sp_param;
+    p_info->arg = 0;
+    contanier.push_back(p_info);
+    return reinterpret_cast<BindedID>(p_info);
 }
 
 void ofxImGuiParameter::mf_unbind(std::vector< ParamInfo* >& contanier)
 {
-	while (!contanier.empty())
-	{
-		ParamInfo* p_info = contanier.back();
-		mf_unbind(p_info->children);
-		p_info->sp_param = nullptr;
-		delete p_info;
-		contanier.pop_back();
-	}
+    while (!contanier.empty())
+    {
+        ParamInfo* p_info = contanier.back();
+        mf_unbind(p_info->children);
+        p_info->sp_param = nullptr;
+        delete p_info;
+        contanier.pop_back();
+    }
 }
 
 void ofxImGuiParameter::mf_unbind(BindedID bid, std::vector< ParamInfo* >& contanier)
 {
-	typedef std::vector< ParamInfo* >::iterator iterator;
-	for (iterator iter = contanier.begin(); iter != contanier.end(); ++iter)
-	{
-		ParamInfo* p_info = *iter;
-		if (reinterpret_cast<BindedID>(p_info) != bid)
-		{
-			continue;
-		}
+    typedef std::vector< ParamInfo* >::iterator iterator;
+    for (iterator iter = contanier.begin(); iter != contanier.end(); ++iter)
+    {
+        ParamInfo* p_info = *iter;
+        if (reinterpret_cast<BindedID>(p_info) != bid)
+        {
+            continue;
+        }
 
-		mf_unbind(p_info->children);
-		p_info->sp_param = nullptr;
-		delete p_info;
-		contanier.erase(iter);
-		return;
-	}
+        mf_unbind(p_info->children);
+        p_info->sp_param = nullptr;
+        delete p_info;
+        contanier.erase(iter);
+        return;
+    }
 }
 
 bool ofxImGuiParameter::mf_enable_save_and_load(std::vector< ParamInfo* >& contanier, bool yes)
 {
-	typedef std::vector< ParamInfo* >::iterator iterator;
-	for (iterator iter = contanier.begin(); iter != contanier.end(); ++iter)
-	{
-		ParamInfo* p_info = *iter;
-		mf_enable_save_and_load(p_info->children, yes);
-		p_info->enable_sl = yes;
-	}
-	return true;
+    typedef std::vector< ParamInfo* >::iterator iterator;
+    for (iterator iter = contanier.begin(); iter != contanier.end(); ++iter)
+    {
+        ParamInfo* p_info = *iter;
+        mf_enable_save_and_load(p_info->children, yes);
+        p_info->enable_sl = yes;
+    }
+    return true;
 }
 
 bool ofxImGuiParameter::mf_enable_save_and_load(BindedID bid, std::vector< ParamInfo* >& contanier, bool yes)
 {
-	typedef std::vector< ParamInfo* >::iterator iterator;
-	for (iterator iter = contanier.begin(); iter != contanier.end(); ++iter)
-	{
-		ParamInfo* p_info = *iter;
-		if (reinterpret_cast<BindedID>(p_info) != bid)
-		{
-			continue;
-		}
+    typedef std::vector< ParamInfo* >::iterator iterator;
+    for (iterator iter = contanier.begin(); iter != contanier.end(); ++iter)
+    {
+        ParamInfo* p_info = *iter;
+        if (reinterpret_cast<BindedID>(p_info) != bid)
+        {
+            continue;
+        }
 
-		mf_enable_save_and_load(p_info->children, yes);
-		p_info->enable_sl = yes;
-		return true;
-	}
-	return false;
+        mf_enable_save_and_load(p_info->children, yes);
+        p_info->enable_sl = yes;
+        return true;
+    }
+    return false;
 }
 
 void ofxImGuiParameter::mf_show_dialog(std::string const& tittle, std::string const& message)
 {
-	if (!m_is_enable_dialog)
-	{
-		return;
-	}
+    if (!m_is_enable_dialog)
+    {
+        return;
+    }
 
-	m_title_of_dialog = m_title + "::" + tittle;
-	m_msg_of_dialog = message;
-	m_show_dialog = static_cast<size_t>((ofGetFrameRate() * 5) / 10);
+    m_title_of_dialog = m_title + "::" + tittle;
+    m_msg_of_dialog = message;
+    m_show_dialog = static_cast<size_t>((ofGetFrameRate() * 5) / 10);
 }
 
 void ofxImGuiParameter::mf_internal_save()
 {
-	bool yes = save();
-	if (yes)
-	{
-		mf_show_dialog("Info", "Save Success");
-	}
-	else
-	{
-		mf_show_dialog("Error", "Save Failed");
-	}
+    bool yes = save();
+    if (yes)
+    {
+        mf_show_dialog("Info", "Save Success");
+    }
+    else
+    {
+        mf_show_dialog("Error", "Save Failed");
+    }
 }
 
 void ofxImGuiParameter::mf_internal_load()
 {
-	bool yes = load();
-	if (yes)
-	{
-		mf_show_dialog("Info", "Load Success");
-	}
-	else
-	{
-		mf_show_dialog("Error", "Load Failed");
-	}
+    bool yes = load();
+    if (yes)
+    {
+        mf_show_dialog("Info", "Load Success");
+    }
+    else
+    {
+        mf_show_dialog("Error", "Load Failed");
+    }
 }
 
 void ofxImGuiParameter::mf_check_and_exe_general_shortcut(ofKeyEventArgs& arg)
 {
-	switch (arg.keycode)
-	{
-	case 'S':
-	case 's':
-		if (ofGetKeyPressed(OF_KEY_CONTROL))
-		{
-			mf_internal_save();
-		}
-		break;
+    switch (arg.keycode)
+    {
+    case 'S':
+    case 's':
+        {
+            if (ofGetKeyPressed(OF_KEY_CONTROL))
+            {
+                mf_internal_save();
+            }
+        }
+        break;
 
-	case 'L':
-	case 'l':
-		if (ofGetKeyPressed(OF_KEY_CONTROL))
-		{
-			mf_internal_load();
-		}
-		break;
-	case 'H':
-	case 'h':
-		if (ofGetKeyPressed(OF_KEY_CONTROL))
-		{
-			m_is_visible = !m_is_visible;
-		}
-		break;
+    case 'L':
+    case 'l':
+        {
+            if (ofGetKeyPressed(OF_KEY_CONTROL))
+            {
+                mf_internal_load();
+            }
+        }
+        break;
+    case 'H':
+    case 'h':
+        {
+            if (ofGetKeyPressed(OF_KEY_CONTROL))
+            {
+                m_is_visible = !m_is_visible;
+            }
+        }
+        break;
 
-	}
+    }
 }
 
 void ofxImGuiParameter::mf_on_key_pressed(ofKeyEventArgs& arg)
 {
-	if ((m_is_locked_shortcut || !m_is_visible || !m_is_focused) && !mf_is_force_to_use_shortcut())
-	{
-		return;
-	}
+    if ((m_is_locked_shortcut || !m_is_visible || !m_is_focused) && !mf_is_force_to_use_shortcut())
+    {
+        return;
+    }
 
-	mf_check_and_exe_general_shortcut(arg);
+    mf_check_and_exe_general_shortcut(arg);
 }
 
 //void ofxImGuiParameter::mf_on_key_released(ofKeyEventArgs& arg){}
 
 bool ofxImGuiParameter::mf_is_force_to_use_shortcut()
 {
-	return (ofGetKeyPressed(OF_KEY_ALT) && ofGetKeyPressed(OF_KEY_SHIFT));
+    return (ofGetKeyPressed(OF_KEY_ALT) && ofGetKeyPressed(OF_KEY_SHIFT));
 }
